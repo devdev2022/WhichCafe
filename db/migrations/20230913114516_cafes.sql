@@ -5,7 +5,7 @@ CREATE TABLE cafes (
     cafe_address_id    INT          NOT NULL,
     photo_id           INT          NULL,
 
-    PRIMARY KEY(id)
+    PRIMARY KEY(id),
     CONSTRAINT fk_cafe_address_id FOREIGN KEY(cafe_address_id)
         REFERENCES cafe_address (id) ON DELETE RESTRICT ON UPDATE RESTRICT, 
     CONSTRAINT fk_photos_id FOREIGN KEY(photo_id)
