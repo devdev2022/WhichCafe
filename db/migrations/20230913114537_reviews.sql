@@ -6,8 +6,8 @@ CREATE TABLE reviews (
     content   VARCHAR(255)    NOT NULL,
     score     INT             NOT NULL,
 
-    PRIMARY KEY(id)
-    UNIQUE(user_id, cafe_id),
+    PRIMARY KEY(id),
+    UNIQUE KEY unique_review(user_id, cafe_id),
     CONSTRAINT fk_users_id FOREIGN KEY(user_id)
         REFERENCES users (id) ON DELETE RESTRICT ON UPDATE RESTRICT, 
     CONSTRAINT fk_cafes_id FOREIGN KEY(cafe_id)
