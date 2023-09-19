@@ -8,11 +8,10 @@ const startServer = async () => {
   const PORT = process.env.PORT;
 
   try {
-    const connection = await dataSource.createConnection();
+    await dataSource.createConnection();
     console.log("Data Source has been initialized!!!");
-    await connection.end();
   } catch (error) {
-    console.log("Error during Data Source initialization", error);
+    console.log("Error occured during Data Source initialization", error);
   }
 
   app.listen(PORT, () => {
