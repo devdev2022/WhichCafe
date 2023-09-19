@@ -14,6 +14,10 @@ const startServer = async () => {
     console.log("Error occured during Data Source initialization", error);
   }
 
+  app.get("/ping", (req, res) => {
+    res.json({ message: "pong" });
+  });
+
   app.listen(PORT, () => {
     console.log(`Listening on Port ${PORT}`);
   });
