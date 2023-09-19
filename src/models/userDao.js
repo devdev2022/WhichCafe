@@ -1,44 +1,46 @@
 const { database } = require("./dataSource");
 
 const createUser = async (account, hashedPassword, nickname) => {
+  const conn = await database();
   try {
-    return await database.query(
-      `INSERT INTO users(
-                account, 
-                password, 
-                name
-                ) 
-            VALUES (?, ?, ?);
-            `,
+    const result = await conn.query(
+      `INSERT INTO users(account, password, nickname) VALUES (?, ?, ?);`,
       [account, hashedPassword, nickname]
     );
+    return result;
   } catch (err) {
-    const error = new Error("INVALID_DATA_INPUT");
-    error.statusCode = 500;
-    throw error;
+    throw new Error(`CREATE_USER_ERROR: ${err.message}`);
+  } finally {
+    conn.end();
   }
 };
 
 const getUserById = async (id) => {
-  const result = await database.query(
-    `
-		SELECT 
-			id,
-			name,
-			email,
-			password
-		FROM users
-		WHERE id=?`,
-    [id]
-  );
-  return result[0];
+  const conn = await database();
+  try {
+    const [result] = await conn.query(
+      `
+      SELECT 
+        account,
+        password,
+        nickname
+      FROM users
+      WHERE id=?`,
+      [id]
+    );
+    return result[0];
+  } catch (err) {
+    throw new Error(`GET_USER_BY_ID_ERROR: ${err.message}`);
+  } finally {
+    conn.end();
+  }
 };
 
 const signIn = async (account) => {
+  const conn = await database();
   try {
-    return await database.query(
-      `SELECT
-        id, 
+    const [result] = await conn.query(
+      `SELECT 
         account,
         password
       FROM
@@ -47,15 +49,17 @@ const signIn = async (account) => {
         account = ?`,
       [account]
     );
+    return result[0];
   } catch (err) {
-    const error = new Error("INVALID_DATA_INPUT");
-    error.statusCode = 500;
-    throw error;
+    throw new Error(`SIGN_IN_ERROR: ${err.message}`);
+  } finally {
+    conn.end();
   }
 };
 
 const getUserByAccount = async (account) => {
-  const [user] = await database.query(
+  const conn = await database();
+  const [user] = await conn.query(
     `
       SELECT *
       FROM 
@@ -64,12 +68,15 @@ const getUserByAccount = async (account) => {
         U.account = ?`,
     [account]
   );
+  conn.end();
   return user;
 };
 
-const getFavorites = async (account, cafeId) => {
-  const [user] = await database.query(
-    `
+const getFavorites = async (account) => {
+  const conn = await database();
+  try {
+    const [result] = await conn.query(
+      `
       SELECT 
         C.name,
         CA.address,
@@ -86,45 +93,65 @@ const getFavorites = async (account, cafeId) => {
       LEFT JOIN
         photos AS P ON C.photo_id = P.id
       WHERE
-        U.account = ?`
-  );
+        U.account = ?`,
+      [account]
+    );
+    return result;
+  } catch (err) {
+    throw new Error(`GET_FAVORITES_ERROR: ${err.message}`);
+  } finally {
+    conn.end();
+  }
 };
 
 const addFavorites = async (account, cafeId) => {
-  const [user] = await database.query(
-    `
-      INSERT INTO favorites(
-                  user_id, 
-                  cafe_id
-                  )
+  const conn = await database();
+  try {
+    const result = await conn.query(
+      `
+      INSERT INTO favorites(user_id, cafe_id)
       SELECT 
         U.id, C.id
       FROM 
         users AS U, cafes AS C
       WHERE 
-        U.account = ? AND C.name = ?;
-            `
-  );
+        U.account = ? AND C.name = ?;`,
+      [account, cafeId]
+    );
+    return result;
+  } catch (err) {
+    throw new Error(`ADD_FAVORITES_ERROR: ${err.message}`);
+  } finally {
+    conn.end();
+  }
 };
 
 const deleteFavorites = async (account, cafeId) => {
-  const [user] = await database.query(
-    `
-    DELETE FROM favorites
-    WHERE 
+  const conn = await database();
+  try {
+    const result = await conn.query(
+      `
+      DELETE FROM favorites
+      WHERE 
         user_id IN (
             SELECT id 
             FROM users 
             WHERE account = ?
         )
-    AND 
+      AND 
         cafe_id IN (
             SELECT id 
             FROM cafes 
-            WHERE name = ?
-        );
-          `
-  );
+            WHERE name = ?);
+      `,
+      [account, cafeId]
+    );
+    return result;
+  } catch (err) {
+    throw new Error(`DELETE_FAVORITES_ERROR: ${err.message}`);
+  } finally {
+    conn.end();
+  }
 };
 
 module.exports = {
