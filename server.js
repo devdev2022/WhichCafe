@@ -8,7 +8,7 @@ const startServer = async () => {
   const PORT = process.env.PORT;
 
   try {
-    await dataSource.database();
+    await dataSource.database;
     console.log("Data Source has been initialized!!!");
   } catch (error) {
     console.log("Error occured during Data Source initialization", error);

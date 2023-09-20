@@ -37,10 +37,13 @@ const signIn = async (account, password) => {
   }
 
   const result = await bcrypt.compare(password, user.password);
+
   if (!result) {
     customError("INVALID_PASSWORD", 401);
   }
-  return jwt.sign({ id: user.id }, process.env.secretKey, { expiresIn: "1h" });
+  return jwt.sign({ id: user.id }, process.env.JWT_SECRET_KEY, {
+    expiresIn: "1h",
+  });
 };
 
 const getUserById = async (id) => {
