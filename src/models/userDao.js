@@ -1,7 +1,9 @@
 const { database } = require("./dataSource");
 
 const createUser = async (account, hashedPassword, nickname) => {
-  const conn = await database();
+  const pool = database;
+  const conn = await pool.getConnection();
+
   try {
     const result = await conn.query(
       `INSERT INTO users(account, password, nickname) VALUES (?, ?, ?);`,
@@ -11,12 +13,14 @@ const createUser = async (account, hashedPassword, nickname) => {
   } catch (err) {
     throw new Error(`CREATE_USER_ERROR: ${err.message}`);
   } finally {
-    conn.end();
+    conn.release();
   }
 };
 
 const getUserById = async (id) => {
-  const conn = await database();
+  const pool = database;
+  const conn = await pool.getConnection();
+
   try {
     const [result] = await conn.query(
       `
@@ -32,12 +36,14 @@ const getUserById = async (id) => {
   } catch (err) {
     throw new Error(`GET_USER_BY_ID_ERROR: ${err.message}`);
   } finally {
-    conn.end();
+    conn.release();
   }
 };
 
 const signIn = async (account) => {
-  const conn = await database();
+  const pool = database;
+  const conn = await pool.getConnection();
+
   try {
     const [result] = await conn.query(
       `SELECT 
@@ -53,27 +59,42 @@ const signIn = async (account) => {
   } catch (err) {
     throw new Error(`SIGN_IN_ERROR: ${err.message}`);
   } finally {
-    conn.end();
+    conn.release();
   }
 };
 
 const getUserByAccount = async (account) => {
-  const conn = await database();
-  const [user] = await conn.query(
-    `
+  const pool = database;
+  const conn = await pool.getConnection();
+
+  try {
+    const [user] = await conn.query(
+      `
       SELECT *
       FROM 
         users AS U
       WHERE
         U.account = ?`,
-    [account]
-  );
-  conn.end();
-  return user;
+      [account]
+    );
+
+    const FIRST_ELEMENT = 0;
+    if (user.length > FIRST_ELEMENT) {
+      return user[FIRST_ELEMENT];
+    } else {
+      return null;
+    }
+  } catch (err) {
+    throw new Error(`GET_USER_BY_ACCOUNT_ERROR: ${err.message}`);
+  } finally {
+    conn.release();
+  }
 };
 
 const getFavorites = async (account) => {
-  const conn = await database();
+  const pool = database;
+  const conn = await pool.getConnection();
+
   try {
     const [result] = await conn.query(
       `
@@ -100,12 +121,13 @@ const getFavorites = async (account) => {
   } catch (err) {
     throw new Error(`GET_FAVORITES_ERROR: ${err.message}`);
   } finally {
-    conn.end();
+    conn.release();
   }
 };
 
 const addFavorites = async (account, cafeId) => {
-  const conn = await database();
+  const pool = database;
+  const conn = await pool.getConnection();
   try {
     const result = await conn.query(
       `
@@ -122,12 +144,13 @@ const addFavorites = async (account, cafeId) => {
   } catch (err) {
     throw new Error(`ADD_FAVORITES_ERROR: ${err.message}`);
   } finally {
-    conn.end();
+    conn.release();
   }
 };
 
 const deleteFavorites = async (account, cafeId) => {
-  const conn = await database();
+  const pool = database;
+  const conn = await pool.getConnection();
   try {
     const result = await conn.query(
       `
@@ -150,7 +173,7 @@ const deleteFavorites = async (account, cafeId) => {
   } catch (err) {
     throw new Error(`DELETE_FAVORITES_ERROR: ${err.message}`);
   } finally {
-    conn.end();
+    conn.release();
   }
 };
 
