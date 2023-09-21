@@ -34,8 +34,8 @@ const getUserById = async (id) => {
       WHERE id=?`,
       [id]
     );
-    const FIRST_ELEMENT = 0;
-    return result[FIRST_ELEMENT];
+    const queryResult = 0;
+    return result[queryResult];
   } catch (err) {
     throw new Error(`GET_USER_BY_ID_ERROR: ${err.message}`);
   } finally {
@@ -58,8 +58,8 @@ const signIn = async (account) => {
         account = ?`,
       [account]
     );
-    const FIRST_ELEMENT = 0;
-    return result[FIRST_ELEMENT];
+    const queryResult = 0;
+    return result[queryResult];
   } catch (err) {
     throw new Error(`SIGN_IN_ERROR: ${err.message}`);
   } finally {
@@ -81,9 +81,9 @@ const getUserByAccount = async (account) => {
         U.account = ?`,
       [account]
     );
-    const FIRST_ELEMENT = 0;
-    if (user.length > FIRST_ELEMENT) {
-      return user[FIRST_ELEMENT];
+    const queryResult = 0;
+    if (user.length > queryResult) {
+      return user[queryResult];
     } else {
       return null;
     }
@@ -134,7 +134,7 @@ const getIdByAccount = async (account) => {
   const pool = database;
   const conn = await pool.getConnection();
   try {
-    const result = await conn.query(
+    const [result] = await conn.query(
       `
       SELECT
         id
@@ -145,8 +145,8 @@ const getIdByAccount = async (account) => {
       [account]
     );
 
-    const column_schema = 0;
-    return result[column_schema][0].id;
+    const queryResult = 0;
+    return result[queryResult].id;
   } catch (err) {
     throw new Error(`ADD_FAVORITES_ERROR: ${err.message}`);
   } finally {
@@ -158,7 +158,7 @@ const findUserId = async (userId) => {
   const pool = database;
   const conn = await pool.getConnection();
   try {
-    const result = await conn.query(
+    const [result] = await conn.query(
       `
       SELECT
         user_id
@@ -168,13 +168,13 @@ const findUserId = async (userId) => {
         user_id = ?`,
       [userId]
     );
-    const column_schema = 0;
+    const queryResult = 0;
 
-    if (!result?.[column_schema]?.[0]?.user_id) {
+    if (!result?.[queryResult]?.user_id) {
       return null;
     }
 
-    return result[column_schema][0].user_id;
+    return result[queryResult].user_id;
   } catch (err) {
     throw new Error(`ADD_FAVORITES_ERROR: ${err.message}`);
   } finally {

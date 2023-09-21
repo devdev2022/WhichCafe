@@ -12,7 +12,7 @@ const signUp = async (account, password, nickname) => {
   const user = await userDao.getUserByAccount(account);
 
   if (user.length > 0) {
-    customError("DUPLICATED_ACCOUNT", 400);
+    throw customError("DUPLICATED_ACCOUNT", 400);
   }
 
   const hashedPassword = await bcrypt.hash(
@@ -33,13 +33,13 @@ const signIn = async (account, password) => {
   const user = await userDao.getUserByAccount(account);
 
   if (!user) {
-    customError("USER_DOES_NOT_EXIST", 400);
+    throw customError("USER_DOES_NOT_EXIST", 400);
   }
 
   const result = await bcrypt.compare(password, user.password);
 
   if (!result) {
-    customError("INVALID_PASSWORD", 401);
+    throw customError("INVALID_PASSWORD", 401);
   }
   return jwt.sign({ id: user.id }, process.env.JWT_SECRET_KEY, {
     expiresIn: "1h",
@@ -52,7 +52,7 @@ const getUserById = async (id) => {
 
 const getFavorites = async (account) => {
   if (!account) {
-    customError("USER_ACCOUNT_NOT_PROVIDED", 400);
+    throw customError("USER_ACCOUNT_NOT_PROVIDED", 400);
   }
   const userFavorites = await userDao.getFavorites(account);
   return userFavorites;
@@ -96,11 +96,11 @@ const deleteFavorites = async (account, cafe_id) => {
   }
 
   if (!userId && !cafe_id) {
-    customError("USER_ACCOUNT_AND_CAFE_ID_NOT_PROVIDED", 400);
+    throw customError("USER_ACCOUNT_AND_CAFE_ID_NOT_PROVIDED", 400);
   } else if (!userId) {
-    customError("USER_ACCOUNT_NOT_PROVIDED", 400);
+    throw customError("USER_ACCOUNT_NOT_PROVIDED", 400);
   } else if (!cafe_id) {
-    customError("CAFE_ID_NOT_PROVIDED", 400);
+    throw customError("CAFE_ID_NOT_PROVIDED", 400);
   }
 
   const findUserId = await userDao.findUserId(userId);
