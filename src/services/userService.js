@@ -82,7 +82,7 @@ const addFavorites = async (account, cafe_id) => {
 
   const findUserId = await userDao.findUserId(userId);
   if (findUserId) {
-    throw customError("USER_ID_ALREADY_REGISTERED", 400);
+    throw customError("FAVOIRTE_ALREADY_REGISTERED", 400);
   }
 
   const addedFavorites = await userDao.addFavorites(userId, cafe_id);
