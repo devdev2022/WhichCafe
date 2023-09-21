@@ -22,27 +22,24 @@ const signIn = catchAsync(async (req, res) => {
 });
 
 const getFavorites = catchAsync(async (req, res) => {
-  const { account } = req.body;
-
-  await userService.getFavorites(account);
-  return res.status(200).json({
-    message: "GET_FAVORITES_SUCCESS",
-  });
+  const account = req.user.account;
+  const favorites = await userService.getFavorites(account);
+  res.status(200).json(favorites);
 });
 
 const addFavorites = catchAsync(async (req, res) => {
-  const { account, cafeId } = req.body;
+  const { account, cafe_id } = req.body;
 
-  await userService.addFavorites(account, cafeId);
+  await userService.addFavorites(account, cafe_id);
   return res.status(201).json({
     message: "ADD_FAVORITES_SUCCESS",
   });
 });
 
 const deleteFavorites = catchAsync(async (req, res) => {
-  const { account, cafeId } = req.body;
+  const { account, cafe_id } = req.body;
 
-  await userService.deleteFavorites(account, cafeId);
+  await userService.deleteFavorites(account, cafe_id);
   return res.status(204).json({
     message: "DELETE_FAVORITES_SUCCESS",
   });

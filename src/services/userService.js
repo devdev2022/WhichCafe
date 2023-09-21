@@ -58,29 +58,57 @@ const getFavorites = async (account) => {
   return userFavorites;
 };
 
-const addFavorites = async (account, cafeId) => {
-  if (!account && !cafeId) {
-    customError("USER_ACCOUNT_AND_CAFE_ID_NOT_PROVIDED", 400);
-  } else if (!account) {
-    customError("USER_ACCOUNT_NOT_PROVIDED", 400);
-  } else if (!cafeId) {
-    customError("CAFE_ID_NOT_PROVIDED", 400);
+/*const getIdByAccount = async (account) => {
+  if (!id) {
+    customError("User not found.", 404);
+  }
+  const getAccount = await userDao.getIdByAccount(account);
+  return getAccount;
+};*/
+
+const addFavorites = async (account, cafe_id) => {
+  const userId = await userDao.getIdByAccount(account);
+  if (!userId) {
+    throw customError("USER_NOT_FOUND", 404);
   }
 
-  const addedFavorites = await userDao.addFavorites(account, cafeId);
+  if (!userId && !cafe_id) {
+    throw customError("USER_ACCOUNT_AND_CAFE_ID_NOT_PROVIDED", 400);
+  } else if (!userId) {
+    throw customError("USER_ACCOUNT_NOT_PROVIDED", 400);
+  } else if (!cafe_id) {
+    throw customError("CAFE_ID_NOT_PROVIDED", 400);
+  }
+
+  const findUserId = await userDao.findUserId(userId);
+  if (findUserId) {
+    throw customError("USER_ID_ALREADY_REGISTERED", 400);
+  }
+
+  const addedFavorites = await userDao.addFavorites(userId, cafe_id);
   return addedFavorites;
 };
 
-const deleteFavorites = async (account, cafeId) => {
-  if (!account && !cafeId) {
+const deleteFavorites = async (account, cafe_id) => {
+  const userId = await userDao.getIdByAccount(account);
+  if (!userId) {
+    throw customError("USER_NOT_FOUND", 404);
+  }
+
+  if (!userId && !cafe_id) {
     customError("USER_ACCOUNT_AND_CAFE_ID_NOT_PROVIDED", 400);
-  } else if (!account) {
+  } else if (!userId) {
     customError("USER_ACCOUNT_NOT_PROVIDED", 400);
-  } else if (!cafeId) {
+  } else if (!cafe_id) {
     customError("CAFE_ID_NOT_PROVIDED", 400);
   }
 
-  const deletedFavoriteId = await userDao.deleteFavorites(account, cafeId);
+  const findUserId = await userDao.findUserId(userId);
+  if (!findUserId) {
+    throw customError("USER_ID_NOT_EXIST", 400);
+  }
+
+  const deletedFavoriteId = await userDao.deleteFavorites(userId, cafe_id);
   return deletedFavoriteId;
 };
 

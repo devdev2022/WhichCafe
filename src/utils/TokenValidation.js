@@ -4,7 +4,8 @@ const { getUserById } = require("../services/userService");
 
 const validateToken = async (req, res, next) => {
   try {
-    const accessToken = req.headers.authorization;
+    const tokenParts = 1;
+    const accessToken = req.headers.authorization.split(" ")[tokenParts];
 
     if (!accessToken) {
       const error = new Error("NEED_ACCESS_TOKEN");
@@ -14,7 +15,7 @@ const validateToken = async (req, res, next) => {
 
     const decoded = await promisify(jwt.verify)(
       accessToken,
-      process.env.secretKey
+      process.env.JWT_SECRET_KEY
     );
 
     const user = await getUserById(decoded.id);
@@ -32,7 +33,9 @@ const validateToken = async (req, res, next) => {
         .status(401)
         .json({ message: "Token expired. Please refresh token." });
     }
-    return res.status(500).json({ message: "Internal Server Error" });
+    return res
+      .status(500)
+      .json({ message: error.message || "Internal Server Error" });
   }
 };
 
