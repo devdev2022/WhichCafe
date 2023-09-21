@@ -13,10 +13,8 @@ const validateToken = async (req, res, next) => {
       throw error;
     }
 
-    const decoded = await promisify(jwt.verify)(
-      accessToken,
-      process.env.JWT_SECRET_KEY
-    );
+    const verifyAsync = promisify(jwt.verify);
+    const decoded = await verifyAsync(accessToken, process.env.JWT_SECRET_KEY);
 
     const user = await getUserById(decoded.id);
 
@@ -35,7 +33,7 @@ const validateToken = async (req, res, next) => {
     }
     return res
       .status(500)
-      .json({ message: error.message || "Internal Server Error" });
+      .json({ message: error.message || "Token validation process failed" });
   }
 };
 
