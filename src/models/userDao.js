@@ -6,7 +6,9 @@ const createUser = async (account, hashedPassword, nickname) => {
 
   try {
     const result = await conn.query(
-      `INSERT INTO users(account, password, nickname) VALUES (?, ?, ?);`,
+      `INSERT INTO users(account, password, nickname) 
+       VALUES (?, ?, ?);
+       `,
       [account, hashedPassword, nickname]
     );
     return result;
@@ -32,7 +34,8 @@ const getUserById = async (id) => {
       WHERE id=?`,
       [id]
     );
-    return result[0];
+    const FIRST_ELEMENT = 0;
+    return result[FIRST_ELEMENT];
   } catch (err) {
     throw new Error(`GET_USER_BY_ID_ERROR: ${err.message}`);
   } finally {
@@ -55,7 +58,8 @@ const signIn = async (account) => {
         account = ?`,
       [account]
     );
-    return result[0];
+    const FIRST_ELEMENT = 0;
+    return result[FIRST_ELEMENT];
   } catch (err) {
     throw new Error(`SIGN_IN_ERROR: ${err.message}`);
   } finally {
@@ -77,7 +81,6 @@ const getUserByAccount = async (account) => {
         U.account = ?`,
       [account]
     );
-
     const FIRST_ELEMENT = 0;
     if (user.length > FIRST_ELEMENT) {
       return user[FIRST_ELEMENT];
@@ -113,6 +116,8 @@ const getFavorites = async (account) => {
         cafe_address AS CA ON C.cafe_address_id = CA.id
       LEFT JOIN
         photos AS P ON C.photo_id = P.id
+      LEFT JOIN
+        reviews AS R ON C.id = R.cafe_id
       WHERE
         U.account = ?`,
       [account]
@@ -125,20 +130,67 @@ const getFavorites = async (account) => {
   }
 };
 
-const addFavorites = async (account, cafeId) => {
+const getIdByAccount = async (account) => {
   const pool = database;
   const conn = await pool.getConnection();
   try {
     const result = await conn.query(
       `
-      INSERT INTO favorites(user_id, cafe_id)
-      SELECT 
-        U.id, C.id
+      SELECT
+        id
       FROM 
-        users AS U, cafes AS C
+        users
       WHERE 
-        U.account = ? AND C.name = ?;`,
-      [account, cafeId]
+        account = ?`,
+      [account]
+    );
+
+    const column_schema = 0;
+    return result[column_schema][0].id;
+  } catch (err) {
+    throw new Error(`ADD_FAVORITES_ERROR: ${err.message}`);
+  } finally {
+    conn.release();
+  }
+};
+
+const findUserId = async (userId) => {
+  const pool = database;
+  const conn = await pool.getConnection();
+  try {
+    const result = await conn.query(
+      `
+      SELECT
+        user_id
+      FROM 
+        favorites
+      WHERE 
+        user_id = ?`,
+      [userId]
+    );
+    const column_schema = 0;
+
+    if (!result?.[column_schema]?.[0]?.user_id) {
+      return null;
+    }
+
+    return result[column_schema][0].user_id;
+  } catch (err) {
+    throw new Error(`ADD_FAVORITES_ERROR: ${err.message}`);
+  } finally {
+    conn.release();
+  }
+};
+
+const addFavorites = async (userId, cafe_id) => {
+  const pool = database;
+  const conn = await pool.getConnection();
+  try {
+    const result = await conn.query(
+      `
+      INSERT INTO favorites(user_id, cafe_id) 
+      VALUES (?, ?);`,
+      [userId, cafe_id]
     );
     return result;
   } catch (err) {
@@ -148,7 +200,7 @@ const addFavorites = async (account, cafeId) => {
   }
 };
 
-const deleteFavorites = async (account, cafeId) => {
+const deleteFavorites = async (userId, cafeId) => {
   const pool = database;
   const conn = await pool.getConnection();
   try {
@@ -156,18 +208,11 @@ const deleteFavorites = async (account, cafeId) => {
       `
       DELETE FROM favorites
       WHERE 
-        user_id IN (
-            SELECT id 
-            FROM users 
-            WHERE account = ?
-        )
-      AND 
-        cafe_id IN (
-            SELECT id 
-            FROM cafes 
-            WHERE name = ?);
+        user_id=?
+      AND
+        cafe_id=?
       `,
-      [account, cafeId]
+      [userId, cafeId]
     );
     return result;
   } catch (err) {
@@ -183,6 +228,8 @@ module.exports = {
   signIn,
   getUserByAccount,
   getFavorites,
+  getIdByAccount,
+  findUserId,
   addFavorites,
   deleteFavorites,
 };
