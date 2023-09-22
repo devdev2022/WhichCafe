@@ -40,9 +40,7 @@ const deleteFavorites = catchAsync(async (req, res) => {
   const { account, cafe_id } = req.body;
 
   await userService.deleteFavorites(account, cafe_id);
-  return res.status(204).json({
-    message: "DELETE_FAVORITES_SUCCESS",
-  });
+  return res.status(204).send();
 });
 
 module.exports = {

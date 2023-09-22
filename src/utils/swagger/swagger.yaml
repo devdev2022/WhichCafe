@@ -1,0 +1,212 @@
+openapi: 3.0.0
+info:
+  version: "3.0.0"
+  title: "My API"
+  description: "My API"
+
+servers:
+  - description: My API
+    url: http://localhost:3000/
+
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: WhichCafe_API
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+paths:
+  /users/signup:
+    post:
+      security:
+        - ApiKeyAuth: []
+      summary: signup endpoint
+      requestBody:
+        description: User signup information
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                account:
+                  type: string
+                  example: "testing10"
+                password:
+                  type: string
+                  example: "testaccount1!"
+                nickname:
+                  type: string
+                  example: "tester"
+      responses:
+        "200":
+          description: Signup Successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Signup successful"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Invalid input"
+
+  /users/signin:
+    post:
+      security:
+        - ApiKeyAuth: []
+      summary: signin endpoint
+      requestBody:
+        description: User signin information
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                account:
+                  type: string
+                  example: "testing10"
+                password:
+                  type: string
+                  example: "testaccount1!"
+                nickname:
+                  type: string
+                  example: "tester"
+      responses:
+        "200":
+          description: Signup Successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: object
+                    example: {
+    "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjAwODY2YTRlLTU3YjAtMTFlZS05ZTc2LTQ0ODJjMTNmZjgyMCIsImlhdCI6MTY5NTIxNTUzMiwiZXhwIjoxNjk1MjE5MTMyfQ.y3URzAFbSdwDJxOVv7eTeSQ1-RAbVTLvgb7S6ELQSrc"
+}
+        "401":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Token expired. Please refresh token"
+        "500":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Token validation process failed"
+  /users/favorites:
+    post:
+      security:
+        - BearerAuth: []
+      summary: favorites endpoint
+      requestBody:
+        description: User favorites information
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                account:
+                  type: string
+                  example: "testing10"
+                cafe_id:
+                  type: Number
+                  example: 1
+      responses:
+        "200":
+          description: Favorites Successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: object
+                    example: {
+    "account" : "testing10",
+    "cafe_id" : "1"
+}
+      
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "FAVOIRTE_ALREADY_REGISTERED"
+
+    get:
+      security:
+        - BearerAuth: []
+      summary: favorites endpoint
+      responses:
+        "200":
+          description: Favorites call successful
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                      example: "아마폴라 강남점"
+                    address:
+                      type: string
+                      example: "서울특별시 강남구 언주로 510"
+                    score:
+                      type: integer
+                      nullable: true
+                    url:
+                      type: string
+                      nullable: true         
+    delete:
+      security:
+        - BearerAuth: []
+      summary: favorites endpoint
+      requestBody:
+        description: User favorites information
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                account:
+                  type: string
+                  example: "testing10"
+                cafe_id:
+                  type: Number
+                  example: 1
+      responses:
+        "204":
+          description: Favorites deleted Successful
