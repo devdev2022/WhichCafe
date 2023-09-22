@@ -6,27 +6,35 @@ const { validateAccount, validatePw } = require("../utils/validation");
 const { customError } = require("../utils/error");
 
 const signUp = async (account, password, nickname) => {
-  validateAccount(account);
-  validatePw(password);
+  try {
+    validateAccount(account);
+    validatePw(password);
 
-  const user = await userDao.getUserByAccount(account);
+    const user = await userDao.getUserByAccount(account);
 
-  if (user.length > 0) {
-    throw customError("DUPLICATED_ACCOUNT", 400);
+    if (user > 0) {
+      throw customError("DUPLICATED_ACCOUNT", 400);
+    }
+
+    const hashedPassword = await bcrypt.hash(
+      password,
+      parseInt(process.env.saltRounds)
+    );
+
+    const createUser = await userDao.createUser(
+      account,
+      hashedPassword,
+      nickname
+    );
+
+    return createUser;
+  } catch (error) {
+    if (error.message === "DUPLICATED_ACCOUNT") {
+      throw new Error("ACCOUNT ALREADY EXIST");
+    } else {
+      throw error;
+    }
   }
-
-  const hashedPassword = await bcrypt.hash(
-    password,
-    parseInt(process.env.saltRounds)
-  );
-
-  const createUser = await userDao.createUser(
-    account,
-    hashedPassword,
-    nickname
-  );
-
-  return createUser;
 };
 
 const signIn = async (account, password) => {
