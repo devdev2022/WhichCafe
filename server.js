@@ -8,10 +8,14 @@ const startServer = async () => {
   const PORT = process.env.PORT;
 
   try {
-    await database.getConnection();
-    console.log("Data Source has been initialized!!!");
+    const conn= await database.getConnection();
+    if (conn) {
+      console.log("Data Source has been initialized!!!");
+      conn.release(); 
+    }
   } catch (error) {
     console.log("Error occured during Data Source initialization", error);
+    process.exit(1);
   }
 
   app.get("/ping", (req, res) => {
