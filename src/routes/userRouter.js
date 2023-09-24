@@ -8,7 +8,7 @@ router.post("/signup", userController.signUp);
 router.post("/signin", userController.signIn);
 
 router.get("/favorites", validateToken, userController.getFavorites);
-router.post("/favorites", validateToken, userController.addFavorites);
-router.delete("/favorites", validateToken, userController.deleteFavorites);
+router.post("/favorites/:cafeId", validateToken, userController.addFavorites);
+router.delete("/favorites/:cafeId", validateToken, userController.deleteFavorites);
 
 module.exports = router;
