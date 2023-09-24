@@ -28,7 +28,8 @@ const getFavorites = catchAsync(async (req, res) => {
 });
 
 const addFavorites = catchAsync(async (req, res) => {
-  const { account, cafe_id } = req.body;
+  const account = req.user.account;
+  const cafe_id = req.params.cafeId;
 
   await userService.addFavorites(account, cafe_id);
   return res.status(201).json({
@@ -37,7 +38,8 @@ const addFavorites = catchAsync(async (req, res) => {
 });
 
 const deleteFavorites = catchAsync(async (req, res) => {
-  const { account, cafe_id } = req.body;
+  const account = req.user.account;
+  const cafe_id = req.params.cafeId;
 
   await userService.deleteFavorites(account, cafe_id);
   return res.status(204).send();
