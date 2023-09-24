@@ -154,19 +154,19 @@ const getIdByAccount = async (account) => {
   }
 };
 
-const findUserId = async (userId) => {
+const findFavData = async (userId, cafe_id) => {
   const pool = database;
   const conn = await pool.getConnection();
   try {
     const [result] = await conn.query(
       `
       SELECT
-        user_id
+        user_id, cafe_id
       FROM 
         favorites
       WHERE 
-        user_id = ?`,
-      [userId]
+        user_id = ? AND cafe_id = ?`,
+      [userId, cafe_id]
     );
     const queryResult = 0;
 
@@ -229,7 +229,7 @@ module.exports = {
   getUserByAccount,
   getFavorites,
   getIdByAccount,
-  findUserId,
+  findFavData,
   addFavorites,
   deleteFavorites,
 };
