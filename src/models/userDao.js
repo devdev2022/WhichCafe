@@ -222,6 +222,85 @@ const deleteFavorites = async (userId, cafeId) => {
   }
 };
 
+const getUserInfoByAccount = async (account) => {
+  const conn = await database();
+  try {
+    const userInfo = await conn.query(
+      `SELECT * FROM users 
+    WHERE 
+      account = ?
+    `,
+      [account]
+    );
+    return userInfo;
+  } catch (err) {
+    console.error(`GET_USERINFO_ERROR: ${err.message}`);
+    throw err;
+  } finally {
+    conn.end();
+  }
+};
+
+// 회원정보 수정
+const checkExisted = async (account) => {
+  const conn = await database();
+  try {
+    const checkAccount = await conn.query(
+      `
+      SELECT EXISTS (
+        SELECT * FROM users 
+      WHERE
+        account = ?) AS userExist
+      `,
+      [account]
+    );
+    return checkAccount;
+  } catch (err) {
+    throw new Error(`NO_USER_INFOMATION: ${err.message}`);
+  } finally {
+    conn.end();
+  }
+};
+
+const updateUserInfo = async (password, nickname, account) => {
+  const conn = await database();
+  try {
+    let updateFields = [];
+    let values = [];
+
+    if (nickname) {
+      updateFields.push("nickname = ?");
+      values.push(nickname);
+    }
+
+    if (password) {
+      updateFields.push("password = ?");
+      values.push(password);
+    }
+
+    if (updateFields.length === 0) {
+      return "No updates provided.";
+    }
+
+    const updateUserInfoQuery = `
+      UPDATE users
+      SET
+        ${updateFields.join(", ")}
+      WHERE account = ?
+    `;
+
+    values.push(account);
+
+    await conn.query(updateUserInfoQuery, values);
+
+    return "User information updated successfully.";
+  } catch (err) {
+    throw new Error(`UPDATE_USERINFO_ERROR: ${err.message}`);
+  } finally {
+    conn.end();
+  }
+};
+
 module.exports = {
   createUser,
   getUserById,
@@ -232,4 +311,7 @@ module.exports = {
   findFavData,
   addFavorites,
   deleteFavorites,
+  getUserInfoByAccount,
+  checkExisted,
+  updateUserInfo,
 };

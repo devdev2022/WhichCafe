@@ -7,6 +7,9 @@ const { validateToken } = require("../utils/TokenValidation");
 router.post("/signup", userController.signUp);
 router.post("/signin", userController.signIn);
 
+router.get("/:account", userController.getUserInfo);
+router.patch("/:account", userController.updateUserInfo);
+
 router.get("/favorites", validateToken, userController.getFavorites);
 router.post("/favorites/:cafeId", validateToken, userController.addFavorites);
 router.delete("/favorites/:cafeId", validateToken, userController.deleteFavorites);
