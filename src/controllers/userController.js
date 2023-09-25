@@ -45,10 +45,27 @@ const deleteFavorites = catchAsync(async (req, res) => {
   return res.status(204).send();
 });
 
+const getUserInfo = catchAsync(async (req, res) => {
+  const { account } = req.params;
+
+  const [result] = await userService.getUserInfoByAccount(account);
+  return res.status(200).json(result);
+});
+
+const updateUserInfo = catchAsync(async (req, res) => {
+  const { account } = req.params;
+  const { password, nickname } = req.body;
+
+  const result = await userService.updateUserInfo(password, nickname, account);
+  return res.status(201).json({ message: result });
+});
+
 module.exports = {
   signIn,
   signUp,
   getFavorites,
   addFavorites,
   deleteFavorites,
+  getUserInfo,
+  updateUserInfo,
 };

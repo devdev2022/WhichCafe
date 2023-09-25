@@ -120,6 +120,23 @@ const deleteFavorites = async (account, cafe_id) => {
   return deletedFavoriteId;
 };
 
+const getUserInfoByAccount = async (account) => {
+  if (!account) {
+    throw new Error("USER_ACCOUNT_NOT_PROVIDED");
+  }
+  const userInfo = await userDao.getUserInfoByAccount(account);
+  return userInfo;
+};
+
+const updateUserInfo = async (password, nickname, account) => {
+  const [checkInfo] = await userDao.checkExisted(account);
+  if (checkInfo[0].userExist !== 1) {
+    customError("USER_NOT_FOUND", 401);
+  }
+  const updateInfo = await userDao.updateUserInfo(password, nickname, account);
+  return updateInfo;
+};
+
 module.exports = {
   signUp,
   signIn,
@@ -127,4 +144,6 @@ module.exports = {
   getFavorites,
   addFavorites,
   deleteFavorites,
+  getUserInfoByAccount,
+  updateUserInfo,
 };
