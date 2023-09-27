@@ -133,6 +133,7 @@ const getFavorites = async (account) => {
 const getIdByAccount = async (account) => {
   const pool = database;
   const conn = await pool.getConnection();
+
   try {
     const [result] = await conn.query(
       `
@@ -144,7 +145,6 @@ const getIdByAccount = async (account) => {
         account = ?`,
       [account]
     );
-
     const queryResult = 0;
     return result[queryResult].id;
   } catch (err) {
@@ -169,11 +169,9 @@ const findFavData = async (userId, cafe_id) => {
       [userId, cafe_id]
     );
     const queryResult = 0;
-
     if (!result?.[queryResult]?.user_id) {
       return null;
     }
-
     return result[queryResult].user_id;
   } catch (err) {
     throw new Error(`ADD_FAVORITES_ERROR: ${err.message}`);
@@ -223,7 +221,9 @@ const deleteFavorites = async (userId, cafeId) => {
 };
 
 const getUserInfoByAccount = async (account) => {
-  const conn = await database();
+  const pool = database;
+  const conn = await pool.getConnection();
+
   try {
     const userInfo = await conn.query(
       `SELECT * FROM users 
@@ -237,13 +237,15 @@ const getUserInfoByAccount = async (account) => {
     console.error(`GET_USERINFO_ERROR: ${err.message}`);
     throw err;
   } finally {
-    conn.end();
+    conn.release();
   }
 };
 
 // 회원정보 수정
 const checkExisted = async (account) => {
-  const conn = await database();
+  const pool = database;
+  const conn = await pool.getConnection();
+
   try {
     const checkAccount = await conn.query(
       `
@@ -258,12 +260,14 @@ const checkExisted = async (account) => {
   } catch (err) {
     throw new Error(`NO_USER_INFOMATION: ${err.message}`);
   } finally {
-    conn.end();
+    conn.release();
   }
 };
 
 const updateUserInfo = async (password, nickname, account) => {
-  const conn = await database();
+  const pool = database;
+  const conn = await pool.getConnection();
+  
   try {
     let updateFields = [];
     let values = [];
@@ -297,7 +301,7 @@ const updateUserInfo = async (password, nickname, account) => {
   } catch (err) {
     throw new Error(`UPDATE_USERINFO_ERROR: ${err.message}`);
   } finally {
-    conn.end();
+    conn.release();
   }
 };
 

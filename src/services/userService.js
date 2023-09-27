@@ -66,14 +66,6 @@ const getFavorites = async (account) => {
   return userFavorites;
 };
 
-/*const getIdByAccount = async (account) => {
-  if (!id) {
-    customError("User not found.", 404);
-  }
-  const getAccount = await userDao.getIdByAccount(account);
-  return getAccount;
-};*/
-
 const addFavorites = async (account, cafe_id) => {
   const userId = await userDao.getIdByAccount(account);
   if (!userId) {
