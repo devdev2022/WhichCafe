@@ -20,18 +20,18 @@ const signUp = async (account, password, nickname) => {
       parseInt(process.env.saltRounds)
     );
 
-    const createUser = await userDao.createUser(
+    const signUp = await userDao.signUp(
       account,
       hashedPassword,
       nickname
     );
-    if (!createUser) {
-      const error = new Error("ACCOUNT CREATION FAILED");
+    if (!signUp) {
+      const error = new Error("SIGNUP FAILED");
       error.statusCode = 500;
       throw error;
     }
 
-    return createUser;
+    return signUp;
   } catch (error) {
     throw error;
   }
