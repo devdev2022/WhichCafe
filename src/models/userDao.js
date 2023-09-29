@@ -21,7 +21,7 @@ const createUser = async (account, hashedPassword, nickname) => {
   }
 };
 
-const getUserById = async (account) => {
+/*const getUserById = async (account) => {
   const conn = await database.getConnection();
 
   try {
@@ -40,7 +40,7 @@ const getUserById = async (account) => {
   } finally {
     conn.release();
   }
-};
+};*/
 
 const signIn = async (account) => {
   const conn = await database.getConnection();
@@ -290,7 +290,6 @@ const updateUserInfo = async (password, nickname, account) => {
 
 module.exports = {
   createUser,
-  getUserById,
   signIn,
   getUserByAccount,
   getFavorites,
