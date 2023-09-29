@@ -1,6 +1,6 @@
 const { database } = require("./dataSource");
 
-const createUser = async (account, hashedPassword, nickname) => {
+const signUp = async (account, hashedPassword, nickname) => {
   const conn = await database.getConnection();
 
   try {
@@ -15,7 +15,7 @@ const createUser = async (account, hashedPassword, nickname) => {
     }
     return result;
   } catch (err) {
-    throw new Error(`CREATE_USER_ERROR`);
+    throw new Error(`SIGN_UP_ERROR`);
   } finally {
     conn.release();
   }
@@ -289,7 +289,7 @@ const updateUserInfo = async (password, nickname, account) => {
 };
 
 module.exports = {
-  createUser,
+  signUp,
   signIn,
   getUserByAccount,
   getFavorites,
