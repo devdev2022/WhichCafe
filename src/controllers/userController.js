@@ -18,17 +18,18 @@ const signIn = catchAsync(async (req, res) => {
   const { account, password } = req.body;
 
   const accessToken = await userService.signIn(account, password);
-  res.status(200).json({ accessToken: accessToken });
+  return res.status(200).json({ accessToken: accessToken });
 });
 
 const getFavorites = catchAsync(async (req, res) => {
-  const account = req.user.account;
+  const account = req.user;
   const favorites = await userService.getFavorites(account);
-  res.status(200).json(favorites);
+
+  return res.status(200).json(favorites);
 });
 
 const addFavorites = catchAsync(async (req, res) => {
-  const account = req.user.account;
+  const account = req.user;
   const cafe_id = req.params.cafeId;
 
   await userService.addFavorites(account, cafe_id);
@@ -38,7 +39,7 @@ const addFavorites = catchAsync(async (req, res) => {
 });
 
 const deleteFavorites = catchAsync(async (req, res) => {
-  const account = req.user.account;
+  const account = req.user;
   const cafe_id = req.params.cafeId;
 
   await userService.deleteFavorites(account, cafe_id);

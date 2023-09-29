@@ -1,8 +1,7 @@
 const { database } = require("./dataSource");
 
 const createUser = async (account, hashedPassword, nickname) => {
-  const pool = database;
-  const conn = await pool.getConnection();
+  const conn = await database.getConnection();
 
   try {
     const result = await conn.query(
@@ -11,41 +10,40 @@ const createUser = async (account, hashedPassword, nickname) => {
        `,
       [account, hashedPassword, nickname]
     );
+    if (result.affectedRows === 0) {
+      return null;
+    }
     return result;
   } catch (err) {
-    throw new Error(`CREATE_USER_ERROR: ${err.message}`);
+    throw new Error(`CREATE_USER_ERROR`);
   } finally {
     conn.release();
   }
 };
 
-const getUserById = async (id) => {
-  const pool = database;
-  const conn = await pool.getConnection();
+const getUserById = async (account) => {
+  const conn = await database.getConnection();
 
   try {
     const [result] = await conn.query(
       `
       SELECT 
-        account,
-        password,
-        nickname
+        password
       FROM users
-      WHERE id=?`,
-      [id]
+      WHERE account=?`,
+      [account]
     );
     const queryResult = 0;
     return result[queryResult];
   } catch (err) {
-    throw new Error(`GET_USER_BY_ID_ERROR: ${err.message}`);
+    throw new Error(`GET_USER_BY_ID_ERROR`);
   } finally {
     conn.release();
   }
 };
 
 const signIn = async (account) => {
-  const pool = database;
-  const conn = await pool.getConnection();
+  const conn = await database.getConnection();
 
   try {
     const [result] = await conn.query(
@@ -61,18 +59,17 @@ const signIn = async (account) => {
     const queryResult = 0;
     return result[queryResult];
   } catch (err) {
-    throw new Error(`SIGN_IN_ERROR: ${err.message}`);
+    throw new Error(`SIGN_IN_ERROR`);
   } finally {
     conn.release();
   }
 };
 
 const getUserByAccount = async (account) => {
-  const pool = database;
-  const conn = await pool.getConnection();
+  const conn = await database.getConnection();
 
   try {
-    const [user] = await conn.query(
+    const [result] = await conn.query(
       `
       SELECT *
       FROM 
@@ -81,22 +78,16 @@ const getUserByAccount = async (account) => {
         U.account = ?`,
       [account]
     );
-    const queryResult = 0;
-    if (user.length > queryResult) {
-      return user[queryResult];
-    } else {
-      return null;
-    }
+    return result.length > 0 ? result[0] : null;
   } catch (err) {
-    throw new Error(`GET_USER_BY_ACCOUNT_ERROR: ${err.message}`);
+    throw new Error(`GET_USER_BY_ACCOUNT_ERROR`);
   } finally {
     conn.release();
   }
 };
 
 const getFavorites = async (account) => {
-  const pool = database;
-  const conn = await pool.getConnection();
+  const conn = await database.getConnection();
 
   try {
     const [result] = await conn.query(
@@ -122,17 +113,17 @@ const getFavorites = async (account) => {
         U.account = ?`,
       [account]
     );
-    return result;
+    const queryResult = 0;
+    return result.length > 0 ? result[queryResult] : null;
   } catch (err) {
-    throw new Error(`GET_FAVORITES_ERROR: ${err.message}`);
+    throw new Error(`GET_FAVORITES_ERROR`);
   } finally {
     conn.release();
   }
 };
 
 const getIdByAccount = async (account) => {
-  const pool = database;
-  const conn = await pool.getConnection();
+  const conn = await database.getConnection();
 
   try {
     const [result] = await conn.query(
@@ -148,15 +139,14 @@ const getIdByAccount = async (account) => {
     const queryResult = 0;
     return result[queryResult].id;
   } catch (err) {
-    throw new Error(`ADD_FAVORITES_ERROR: ${err.message}`);
+    throw new Error(`GET_ID_ERROR`);
   } finally {
     conn.release();
   }
 };
 
 const findFavData = async (userId, cafe_id) => {
-  const pool = database;
-  const conn = await pool.getConnection();
+  const conn = await database.getConnection();
   try {
     const [result] = await conn.query(
       `
@@ -169,20 +159,16 @@ const findFavData = async (userId, cafe_id) => {
       [userId, cafe_id]
     );
     const queryResult = 0;
-    if (!result?.[queryResult]?.user_id) {
-      return null;
-    }
-    return result[queryResult].user_id;
+    return result.length > 0 ? result[queryResult] : null;
   } catch (err) {
-    throw new Error(`ADD_FAVORITES_ERROR: ${err.message}`);
+    throw new Error(`FIND_FAVORITES_ERROR`);
   } finally {
     conn.release();
   }
 };
 
 const addFavorites = async (userId, cafe_id) => {
-  const pool = database;
-  const conn = await pool.getConnection();
+  const conn = await database.getConnection();
   try {
     const result = await conn.query(
       `
@@ -192,15 +178,14 @@ const addFavorites = async (userId, cafe_id) => {
     );
     return result;
   } catch (err) {
-    throw new Error(`ADD_FAVORITES_ERROR: ${err.message}`);
+    throw new Error(`ADD_FAVORITES_ERROR`);
   } finally {
     conn.release();
   }
 };
 
 const deleteFavorites = async (userId, cafeId) => {
-  const pool = database;
-  const conn = await pool.getConnection();
+  const conn = await database.getConnection();
   try {
     const result = await conn.query(
       `
@@ -214,15 +199,15 @@ const deleteFavorites = async (userId, cafeId) => {
     );
     return result;
   } catch (err) {
-    throw new Error(`DELETE_FAVORITES_ERROR: ${err.message}`);
+    throw new Error(`DELETE_FAVORITES_ERROR`);
   } finally {
     conn.release();
   }
 };
 
+//getUserByAccount와 중복입니다.
 const getUserInfoByAccount = async (account) => {
-  const pool = database;
-  const conn = await pool.getConnection();
+  const conn = await database.getConnection();
 
   try {
     const userInfo = await conn.query(
@@ -234,7 +219,7 @@ const getUserInfoByAccount = async (account) => {
     );
     return userInfo;
   } catch (err) {
-    console.error(`GET_USERINFO_ERROR: ${err.message}`);
+    console.error(`GET_USERINFO_ERROR`);
     throw err;
   } finally {
     conn.release();
@@ -243,8 +228,7 @@ const getUserInfoByAccount = async (account) => {
 
 // 회원정보 수정
 const checkExisted = async (account) => {
-  const pool = database;
-  const conn = await pool.getConnection();
+  const conn = await database.getConnection();
 
   try {
     const checkAccount = await conn.query(
@@ -258,16 +242,15 @@ const checkExisted = async (account) => {
     );
     return checkAccount;
   } catch (err) {
-    throw new Error(`NO_USER_INFOMATION: ${err.message}`);
+    throw new Error(`NO_USER_INFOMATION`);
   } finally {
     conn.release();
   }
 };
 
 const updateUserInfo = async (password, nickname, account) => {
-  const pool = database;
-  const conn = await pool.getConnection();
-  
+  const conn = await database.getConnection();
+
   try {
     let updateFields = [];
     let values = [];
@@ -299,7 +282,7 @@ const updateUserInfo = async (password, nickname, account) => {
 
     return "User information updated successfully.";
   } catch (err) {
-    throw new Error(`UPDATE_USERINFO_ERROR: ${err.message}`);
+    throw new Error(`UPDATE_USERINFO_ERROR`);
   } finally {
     conn.release();
   }

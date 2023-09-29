@@ -11,9 +11,8 @@ const signUp = async (account, password, nickname) => {
     validatePw(password);
 
     const user = await userDao.getUserByAccount(account);
-
-    if (user > 0) {
-      throw customError("DUPLICATED_ACCOUNT", 400);
+    if (user) {
+      customError("DUPLICATED ACCOUNT", 400);
     }
 
     const hashedPassword = await bcrypt.hash(
@@ -26,90 +25,108 @@ const signUp = async (account, password, nickname) => {
       hashedPassword,
       nickname
     );
+    if (!createUser) {
+      const error = new Error("ACCOUNT CREATION FAILED");
+      error.statusCode = 500;
+      throw error;
+    }
 
     return createUser;
   } catch (error) {
-    if (error.message === "DUPLICATED_ACCOUNT") {
-      throw new Error("ACCOUNT ALREADY EXIST");
-    } else {
-      throw error;
-    }
+    throw error;
   }
 };
 
 const signIn = async (account, password) => {
-  const user = await userDao.getUserByAccount(account);
+  try {
+    const user = await userDao.getUserByAccount(account);
 
-  if (!user) {
-    throw customError("USER_DOES_NOT_EXIST", 400);
+    if (!user) {
+      customError("ACCOUNT DOES NOT EXIST OR INVALID PASSWORD", 400);
+    }
+
+    const result = await bcrypt.compare(password, user.password);
+    if (!result) {
+      customError("ACCOUNT DOES NOT EXIST OR INVALID PASSWORD", 401);
+    }
+
+    return jwt.sign({ account: user.account }, process.env.JWT_SECRET_KEY, {
+      expiresIn: "1h",
+    });
+  } catch (error) {
+    throw error;
   }
-
-  const result = await bcrypt.compare(password, user.password);
-
-  if (!result) {
-    throw customError("INVALID_PASSWORD", 401);
-  }
-  return jwt.sign({ id: user.id }, process.env.JWT_SECRET_KEY, {
-    expiresIn: "1h",
-  });
 };
 
-const getUserById = async (id) => {
-  return await userDao.getUserById(id);
+const getUserByAccount = async (account) => {
+  try {
+    const user = await userDao.getUserByAccount(account);
+
+    if (!user) {
+      const error = new Error("USER_DOES_NOT_EXIST");
+      error.statusCode = 404;
+      throw error;
+    }
+    return user;
+  } catch (error) {
+    throw error;
+  }
 };
 
 const getFavorites = async (account) => {
-  if (!account) {
-    throw customError("USER_ACCOUNT_NOT_PROVIDED", 400);
+  try {
+    const userFavorites = await userDao.getFavorites(account);
+
+    if (!userFavorites) {
+      customError("FAVORITES DOES NOT EXIST", 400);
+    }
+    return userFavorites;
+  } catch (error) {
+    throw error;
   }
-  const userFavorites = await userDao.getFavorites(account);
-  return userFavorites;
 };
 
 const addFavorites = async (account, cafe_id) => {
-  const userId = await userDao.getIdByAccount(account);
-  if (!userId) {
-    throw customError("USER_NOT_FOUND", 404);
-  }
+  try {
+    const userId = await userDao.getIdByAccount(account);
+    if (!userId) {
+      customError("USER ID DOES NOT EXIST", 400);
+    }
 
-  if (!userId && !cafe_id) {
-    throw customError("USER_ACCOUNT_AND_CAFE_ID_NOT_PROVIDED", 400);
-  } else if (!userId) {
-    throw customError("USER_ACCOUNT_NOT_PROVIDED", 400);
-  } else if (!cafe_id) {
-    throw customError("CAFE_ID_NOT_PROVIDED", 400);
-  }
+    if (!cafe_id) {
+      customError("CAFE ID NOT PROVIDED", 400);
+    }
 
-  const findFavData = await userDao.findFavData(userId, cafe_id);
-  if (findFavData) {
-    throw customError("FAVOIRTE_ALREADY_REGISTERED", 400);
-  }
+    const findFavData = await userDao.findFavData(userId, cafe_id);
+    if (findFavData) {
+      customError("FAVOIRTES ALREADY REGISTERED", 400);
+    }
 
-  const addedFavorites = await userDao.addFavorites(userId, cafe_id);
-  return addedFavorites;
+    const addFavorites = await userDao.addFavorites(userId, cafe_id);
+    return addFavorites;
+  } catch (error) {
+    throw error;
+  }
 };
 
 const deleteFavorites = async (account, cafe_id) => {
-  const userId = await userDao.getIdByAccount(account);
-  if (!userId) {
-    throw customError("USER_NOT_FOUND_FROM_FAVORITES", 404);
-  }
+  try {
+    const userId = await userDao.getIdByAccount(account);
 
-  if (!userId && !cafe_id) {
-    throw customError("USER_ACCOUNT_AND_CAFE_ID_NOT_PROVIDED", 400);
-  } else if (!userId) {
-    throw customError("USER_ACCOUNT_NOT_PROVIDED", 400);
-  } else if (!cafe_id) {
-    throw customError("CAFE_ID_NOT_PROVIDED", 400);
-  }
+    if (!cafe_id) {
+      customError("CAFE_ID_NOT_PROVIDED", 400);
+    }
 
-  const findFavData = await userDao.findFavData(userId, cafe_id);
-  if (!findFavData) {
-    throw customError("FAVORITES_DATA_NOT_EXIST", 400);
-  }
+    const findFavData = await userDao.findFavData(userId, cafe_id);
+    if (!findFavData) {
+      customError("FAVORITES_DATA_NOT_EXIST", 400);
+    }
 
-  const deletedFavoriteId = await userDao.deleteFavorites(userId, cafe_id);
-  return deletedFavoriteId;
+    const deletedFavoriteId = await userDao.deleteFavorites(userId, cafe_id);
+    return deletedFavoriteId;
+  } catch (error) {
+    throw error;
+  }
 };
 
 const getUserInfoByAccount = async (account) => {
@@ -132,7 +149,7 @@ const updateUserInfo = async (password, nickname, account) => {
 module.exports = {
   signUp,
   signIn,
-  getUserById,
+  getUserByAccount,
   getFavorites,
   addFavorites,
   deleteFavorites,
