@@ -4,7 +4,7 @@ const validateAccount = (account) => {
   );
 
   if (!accountValidation.test(account)) {
-    const err = new Error("Invalid account");
+    const err = new Error("INVALID ACCOUNT");
     err.statuseCode = 400;
     throw err;
   }
@@ -16,7 +16,7 @@ const validatePw = (password) => {
   );
 
   if (!pwValidation.test(password)) {
-    const err = new Error("Invalid password");
+    const err = new Error("INVALID PASSWORD");
     err.statuseCode = 400;
     throw err;
   }
