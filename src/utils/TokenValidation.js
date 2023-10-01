@@ -1,35 +1,32 @@
 const jwt = require("jsonwebtoken");
 const { promisify } = require("util");
 const { getUserByAccount } = require("../services/userService");
+const { customError } = require("../utils/error");
 
-const validateToken = async (req, res, next) => {
+const validateToken = catchAsync(async (req, res, next) => {
+  const tokenParts = 1;
+  const accessToken = req.headers.authorization.split(" ")[tokenParts];
+
+  if (!accessToken) {
+      customError("NEED ACCESS TOKEN", 401)
+  }
+
+  const verifyAsync = promisify(jwt.verify);
+  
   try {
-    const tokenParts = 1;
-    const accessToken = req.headers.authorization.split(" ")[tokenParts];
-
-    if (!accessToken) {
-      const error = new Error("NEED ACCESS TOKEN");
-      error.statusCode = 401;
-      throw error;
-    }
-
-    const verifyAsync = promisify(jwt.verify);
     const decoded = await verifyAsync(accessToken, process.env.JWT_SECRET_KEY);
-
     const user = await getUserByAccount(decoded.account);
-
     req.user = user.account;
     next();
-  } catch (error) {
-    if (error.name === "TokenExpiredError") {
-      return res
-        .status(401)
-        .json({ message: "Token expired. Please refresh token." });
-    }
-    return res
-      .status(500)
-      .json({ message: error.message || "Token validation process failed" });
+  } catch (jwtError) {
+      if (jwtError.name === "TokenExpiredError") {
+        customError("Token expired. Please refresh token.", 401)
+      }
+      const error = new Error("Token validation process failed");
+      error.statusCode = 500;
+      throw error;
   }
-};
+});
+
 
 module.exports = { validateToken };
