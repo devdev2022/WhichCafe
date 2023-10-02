@@ -14,4 +14,6 @@ router.delete("/favorites/:cafeId", validateToken, userController.deleteFavorite
 router.get("/mypage", validateToken, userController.getUserInfo);
 router.patch("/mypage", validateToken, userController.updateUserInfo);
 
+router.patch("/search", userController.searchPassword);
+
 module.exports = router;
