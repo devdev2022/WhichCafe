@@ -205,28 +205,6 @@ const deleteFavorites = async (userId, cafeId) => {
   }
 };
 
-//getUserByAccount와 중복입니다.
-const getUserInfoByAccount = async (account) => {
-  const conn = await database.getConnection();
-
-  try {
-    const userInfo = await conn.query(
-      `SELECT * FROM users 
-    WHERE 
-      account = ?
-    `,
-      [account]
-    );
-    return userInfo;
-  } catch (err) {
-    console.error(`GET_USERINFO_ERROR`);
-    throw err;
-  } finally {
-    conn.release();
-  }
-};
-
-// 회원정보 수정
 const checkExisted = async (account) => {
   const conn = await database.getConnection();
 
@@ -248,39 +226,20 @@ const checkExisted = async (account) => {
   }
 };
 
-const updateUserInfo = async (password, nickname, account) => {
+const updateUserInfo = async (updateFields, values, account) => {
   const conn = await database.getConnection();
 
   try {
-    let updateFields = [];
-    let values = [];
-
-    if (nickname) {
-      updateFields.push("nickname = ?");
-      values.push(nickname);
-    }
-
-    if (password) {
-      updateFields.push("password = ?");
-      values.push(password);
-    }
-
-    if (updateFields.length === 0) {
-      return "No updates provided.";
-    }
-
-    const updateUserInfoQuery = `
+    const result = await conn.query(
+      `
       UPDATE users
       SET
         ${updateFields.join(", ")}
       WHERE account = ?
-    `;
-
-    values.push(account);
-
-    await conn.query(updateUserInfoQuery, values);
-
-    return "User information updated successfully.";
+      `,
+      [...values, account]
+    );
+    return result;
   } catch (err) {
     throw new Error(`UPDATE_USERINFO_ERROR`);
   } finally {
@@ -297,7 +256,6 @@ module.exports = {
   findFavData,
   addFavorites,
   deleteFavorites,
-  getUserInfoByAccount,
   checkExisted,
   updateUserInfo,
 };
