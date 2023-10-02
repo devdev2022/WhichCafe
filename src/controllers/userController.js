@@ -2,13 +2,13 @@ const userService = require("../services/userService");
 const { catchAsync } = require("../utils/error");
 
 const signUp = catchAsync(async (req, res) => {
-  const { account, password, nickname } = req.body;
+  const { account, password, nickname, question_answer } = req.body;
 
-  if (!account || !password || !nickname) {
+  if (!account || !password || !nickname || !question_answer) {
     return res.status(400).json({ message: "KEY_ERROR" });
   }
 
-  await userService.signUp(account, password, nickname);
+  await userService.signUp(account, password, nickname, question_answer);
   return res.status(201).json({
     message: "SIGNUP_SUCCESS",
   });
@@ -83,6 +83,17 @@ const updateUserInfo = catchAsync(async (req, res) => {
   return res.status(201).json({ message: result });
 });
 
+const searchPassword = catchAsync(async (req, res) => {
+  const { account, answer, editPassword } = req.body;
+
+  if (!account || !answer || !editPassword) {
+    return res.status(400).json({ message: "KEY_ERROR" });
+  }
+
+  const result = await userService.searchPassword(account, answer, editPassword);
+  return res.status(200).json({ message: result });
+});
+
 module.exports = {
   signIn,
   signUp,
@@ -91,4 +102,5 @@ module.exports = {
   deleteFavorites,
   getUserInfo,
   updateUserInfo,
+  searchPassword,
 };

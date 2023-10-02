@@ -1,14 +1,14 @@
 const { database } = require("./dataSource");
 
-const signUp = async (account, hashedPassword, nickname) => {
+const signUp = async (account, hashedPassword, nickname, question_answer) => {
   const conn = await database.getConnection();
 
   try {
     const result = await conn.query(
-      `INSERT INTO users(account, password, nickname) 
-       VALUES (?, ?, ?);
+      `INSERT INTO users(account, password, nickname, question_answer) 
+       VALUES (?, ?, ?, ?);
        `,
-      [account, hashedPassword, nickname]
+      [account, hashedPassword, nickname, question_answer]
     );
     if (result.affectedRows === 0) {
       return null;
@@ -205,28 +205,29 @@ const deleteFavorites = async (userId, cafeId) => {
   }
 };
 
-const checkExisted = async (account) => {
+const updateUserInfo = async (updateFields, values, account) => {
   const conn = await database.getConnection();
 
   try {
-    const checkAccount = await conn.query(
+    const result = await conn.query(
       `
-      SELECT EXISTS (
-        SELECT * FROM users 
-      WHERE
-        account = ?) AS userExist
+      UPDATE users
+      SET
+        ${updateFields.join(", ")}
+      WHERE account = ?
       `,
-      [account]
+      [...values, account]
     );
-    return checkAccount;
+    return result;
   } catch (err) {
-    throw new Error(`NO_USER_INFOMATION`);
+    throw new Error(`UPDATE_USERINFO_ERROR`);
   } finally {
     conn.release();
   }
 };
 
-const updateUserInfo = async (updateFields, values, account) => {
+//여기서부터
+const searchPassword = async (updateFields, values, account) => {
   const conn = await database.getConnection();
 
   try {
@@ -256,6 +257,6 @@ module.exports = {
   findFavData,
   addFavorites,
   deleteFavorites,
-  checkExisted,
   updateUserInfo,
+  searchPassword,
 };

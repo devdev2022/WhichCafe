@@ -117,6 +117,7 @@ CREATE TABLE `users` (
   `account` varchar(50) NOT NULL,
   `password` varchar(256) NOT NULL,
   `nickname` varchar(50) NOT NULL,
+  `question_answer` varchar(32) NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `account` (`account`)

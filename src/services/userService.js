@@ -5,7 +5,7 @@ const userDao = require("../models/userDao");
 const { validateAccount, validatePw } = require("../utils/validation");
 const { customError } = require("../utils/error");
 
-const signUp = async (account, password, nickname) => {
+const signUp = async (account, password, nickname, question_answer) => {
   try {
     validateAccount(account);
     validatePw(password);
@@ -20,7 +20,7 @@ const signUp = async (account, password, nickname) => {
       parseInt(process.env.saltRounds)
     );
 
-    const signUp = await userDao.signUp(account, hashedPassword, nickname);
+    const signUp = await userDao.signUp(account, hashedPassword, nickname, question_answer);
     if (!signUp) {
       const error = new Error("SIGNUP FAILED");
       error.statusCode = 500;
@@ -59,7 +59,7 @@ const getUserByAccount = async (account) => {
     const user = await userDao.getUserByAccount(account);
 
     if (!user) {
-      const error = new Error("USER_DOES_NOT_EXIST");
+      const error = new Error("USER DOES NOT EXIST");
       error.statusCode = 404;
       throw error;
     }
@@ -110,12 +110,12 @@ const deleteFavorites = async (account, cafe_id) => {
     const userId = await userDao.getIdByAccount(account);
 
     if (!cafe_id) {
-      customError("CAFE_ID_NOT_PROVIDED", 400);
+      customError("CAFE_ID NOT PROVIDED", 400);
     }
 
     const findFavData = await userDao.findFavData(userId, cafe_id);
     if (!findFavData) {
-      customError("FAVORITES_DATA_NOT_EXIST", 400);
+      customError("FAVORITES_DATA NOT EXIST", 400);
     }
 
     const deletedFavoriteId = await userDao.deleteFavorites(userId, cafe_id);
@@ -128,7 +128,7 @@ const deleteFavorites = async (account, cafe_id) => {
 const getUserInfoByAccount = async (account) => {
   try {
     if (!account) {
-      throw new Error("USER_ACCOUNT_NOT_PROVIDED");
+      throw new Error("USER_ACCOUNT NOT PROVIDED");
     }
     const userInfo = await userDao.getUserByAccount(account);
     const { id, password, created_at, ...filteredInfo } = userInfo;
@@ -161,7 +161,7 @@ const updateUserInfo = async (updateData, account) => {
     }
 
     if (updateFields.length === 0) {
-      customError("No updates provided.", 400);
+      customError("NO UPDATE_DATA PROVIDED", 400);
     }
 
     const updateInfo = await userDao.updateUserInfo(updateFields, values, account);
@@ -170,6 +170,33 @@ const updateUserInfo = async (updateData, account) => {
     throw error;
   }
 };
+
+const searchPassword = async (account, answer, editPassword) => {
+  try{
+    const checkAnswer = await userDao.getUserByAccount(account)
+    if(!checkAnswer||answer !== checkAnswer.question_answer) {
+      customError("ANSWER OR ACCOUNT DOES NOT MATCH", 400);
+    }
+    
+    const updateFields = [];
+    const values = [];
+
+    const hashedPassword = await bcrypt.hash(
+      editPassword,
+      parseInt(process.env.saltRounds)
+    );
+    
+    updateFields.push("password = ?");
+    values.push(hashedPassword);
+    
+    const updatePassword = await userDao.updateUserInfo(updateFields, values, account);
+    return updatePassword
+
+  } catch (error) {
+    throw error
+  }
+}
+
 
 module.exports = {
   signUp,
@@ -180,4 +207,7 @@ module.exports = {
   deleteFavorites,
   getUserInfoByAccount,
   updateUserInfo,
+  searchPassword,
 };
+
+
