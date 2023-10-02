@@ -80,7 +80,7 @@ const updateUserInfo = catchAsync(async (req, res) => {
   };
 
   const result = await userService.updateUserInfo(updateData, account);
-  return res.status(201).json({ message: result });
+  return res.status(201).json({ message: "UPDATE_DATA_SUCCESS" });
 });
 
 const searchPassword = catchAsync(async (req, res) => {
@@ -91,7 +91,7 @@ const searchPassword = catchAsync(async (req, res) => {
   }
 
   const result = await userService.searchPassword(account, answer, editPassword);
-  return res.status(200).json({ message: result });
+  return res.status(200).json({ message: "EDIT_PASSWORD_SUCCESS" });
 });
 
 module.exports = {
