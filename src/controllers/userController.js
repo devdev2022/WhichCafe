@@ -62,17 +62,24 @@ const deleteFavorites = catchAsync(async (req, res) => {
 });
 
 const getUserInfo = catchAsync(async (req, res) => {
-  const { account } = req.params;
+  const account = req.user;
 
-  const [result] = await userService.getUserInfoByAccount(account);
+  const result = await userService.getUserInfoByAccount(account);
   return res.status(200).json(result);
 });
 
 const updateUserInfo = catchAsync(async (req, res) => {
-  const { account } = req.params;
-  const { password, nickname } = req.body;
+  const account = req.user;
+  if (!account) {
+    return res.status(400).json({ message: "KEY_ERROR" });
+  }
 
-  const result = await userService.updateUserInfo(password, nickname, account);
+  const updateData = {
+    password: req.body.password,
+    nickname: req.body.nickname,
+  };
+
+  const result = await userService.updateUserInfo(updateData, account);
   return res.status(201).json({ message: result });
 });
 

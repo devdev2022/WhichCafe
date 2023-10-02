@@ -20,11 +20,7 @@ const signUp = async (account, password, nickname) => {
       parseInt(process.env.saltRounds)
     );
 
-    const signUp = await userDao.signUp(
-      account,
-      hashedPassword,
-      nickname
-    );
+    const signUp = await userDao.signUp(account, hashedPassword, nickname);
     if (!signUp) {
       const error = new Error("SIGNUP FAILED");
       error.statusCode = 500;
@@ -130,20 +126,49 @@ const deleteFavorites = async (account, cafe_id) => {
 };
 
 const getUserInfoByAccount = async (account) => {
-  if (!account) {
-    throw new Error("USER_ACCOUNT_NOT_PROVIDED");
+  try {
+    if (!account) {
+      throw new Error("USER_ACCOUNT_NOT_PROVIDED");
+    }
+    const userInfo = await userDao.getUserByAccount(account);
+    const { id, password, created_at, ...filteredInfo } = userInfo;
+    return filteredInfo;
+
+  } catch(error) {
+    throw error
   }
-  const userInfo = await userDao.getUserInfoByAccount(account);
-  return userInfo;
 };
 
-const updateUserInfo = async (password, nickname, account) => {
-  const [checkInfo] = await userDao.checkExisted(account);
-  if (checkInfo[0].userExist !== 1) {
-    customError("USER_NOT_FOUND", 401);
+const updateUserInfo = async (updateData, account) => {
+  try {
+    let updateFields = [];
+    let values = [];
+    const validFields = ["password", "nickname"];
+
+    for (let field of validFields) {
+      if (updateData[field]) {
+        if (field === "password") {
+          const hashedPassword = await bcrypt.hash(
+            updateData[field],
+            parseInt(process.env.saltRounds)
+          );
+          values.push(hashedPassword);
+        } else {
+          values.push(updateData[field]);
+        }
+        updateFields.push(`${field} = ?`);
+      }
+    }
+
+    if (updateFields.length === 0) {
+      customError("No updates provided.", 400);
+    }
+
+    const updateInfo = await userDao.updateUserInfo(updateFields, values, account);
+    return updateInfo;
+  } catch (error) {
+    throw error;
   }
-  const updateInfo = await userDao.updateUserInfo(password, nickname, account);
-  return updateInfo;
 };
 
 module.exports = {
