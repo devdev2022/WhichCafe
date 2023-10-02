@@ -226,7 +226,6 @@ const updateUserInfo = async (updateFields, values, account) => {
   }
 };
 
-//여기서부터
 const searchPassword = async (updateFields, values, account) => {
   const conn = await database.getConnection();
 
