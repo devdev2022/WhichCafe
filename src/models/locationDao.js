@@ -6,15 +6,11 @@ const getNearbyAddress = async (latitude, longitude) => {
   try {
     const result = await conn.query(
       `
-      SELECT cafes.NAME
-       AS
-       cafe_name,
-       photos.url
-       AS cafe_photo,
-       cafe_address.address
-       AS cafe_address,
-       CONCAT(ROUND(St_distance_sphere(Point(longitude, latitude), Point(?, ?)) / 1000,
-       1), 'km') AS distance
+      SELECT cafes.NAME     AS cafe_name,
+       photos.url           AS cafe_photo,
+       cafe_address.address AS cafe_address,
+       CONCAT(ROUND(St_distance_sphere(Point(longitude, latitude), Point(?, ?)) / 1000,1), 
+       'km') AS distance
       FROM   cafe_address
              LEFT JOIN cafes
                     ON cafe_address.id = cafes.cafe_address_id
