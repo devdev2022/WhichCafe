@@ -15,6 +15,11 @@ const signUp = async (account, password, nickname, question_answer) => {
       customError("DUPLICATED ACCOUNT", 400);
     }
 
+    const checkNicknameDup = await userDao.getUserByNickname(nickname);
+    if (checkNicknameDup) {
+      customError("DUPLICATED NICKNAME", 400);
+    }
+
     const hashedPassword = await bcrypt.hash(
       password,
       parseInt(process.env.saltRounds)
@@ -89,8 +94,8 @@ const getFavorites = async (account) => {
 
 const addFavorites = async (account, cafe_id) => {
   try {
-    const userId = await userDao.getIdByAccount(account);
-    if (!userId) {
+    const userAccount = await userDao.getIdByAccount(account);
+    if (!userAccount) {
       customError("USER ID DOES NOT EXIST", 400);
     }
 
@@ -98,12 +103,12 @@ const addFavorites = async (account, cafe_id) => {
       customError("CAFE ID NOT PROVIDED", 400);
     }
 
-    const findFavData = await userDao.findFavData(userId, cafe_id);
+    const findFavData = await userDao.findFavData(userAccount, cafe_id);
     if (findFavData) {
       customError("FAVOIRTES ALREADY REGISTERED", 400);
     }
 
-    const addFavorites = await userDao.addFavorites(userId, cafe_id);
+    const addFavorites = await userDao.addFavorites(userAccount, cafe_id);
     return addFavorites;
   } catch (error) {
     throw error;
@@ -112,14 +117,17 @@ const addFavorites = async (account, cafe_id) => {
 
 const deleteFavorites = async (account, cafe_id) => {
   try {
-    const userId = await userDao.getIdByAccount(account);
+    const userAccount = await userDao.getIdByAccount(account);
 
-    const findFavData = await userDao.findFavData(userId, cafe_id);
+    const findFavData = await userDao.findFavData(userAccount, cafe_id);
     if (!findFavData) {
       customError("FAVORITES_DATA NOT EXIST", 400);
     }
 
-    const deletedFavoriteId = await userDao.deleteFavorites(userId, cafe_id);
+    const deletedFavoriteId = await userDao.deleteFavorites(
+      userAccount,
+      cafe_id
+    );
     return deletedFavoriteId;
   } catch (error) {
     throw error;
@@ -218,6 +226,19 @@ const searchPassword = async (account, answer, editPassword) => {
   }
 };
 
+const deleteAccount = async (account, deleteMessage) => {
+  try {
+    if(deleteMessage !== "동의합니다") {
+      customError("MESSAGE DOES NOT MATCH", 400);
+    }
+
+    const deleteUserAccount = await userDao.deleteAccount(account);
+    return deleteUserAccount;
+  } catch (error) {
+    throw error;
+  }
+};
+
 module.exports = {
   signUp,
   signIn,
@@ -228,4 +249,5 @@ module.exports = {
   getUserInfoByAccount,
   updateUserInfo,
   searchPassword,
+  deleteAccount,
 };

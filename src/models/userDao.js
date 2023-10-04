@@ -134,8 +134,7 @@ const getFavorites = async (account) => {
         U.account = ?`,
       [account]
     );
-    const queryResult = 0;
-    return result.length > 0 ? result[queryResult] : null;
+    return result.length > 0 ? result : null;
   } catch (err) {
     throw new Error(`GET_FAVORITES_ERROR`);
   } finally {
@@ -166,7 +165,7 @@ const getIdByAccount = async (account) => {
   }
 };
 
-const findFavData = async (userId, cafe_id) => {
+const findFavData = async (userAccount, cafe_id) => {
   const conn = await database.getConnection();
   try {
     const [result] = await conn.query(
@@ -177,7 +176,7 @@ const findFavData = async (userId, cafe_id) => {
         favorites
       WHERE 
         user_id = ? AND cafe_id = ?`,
-      [userId, cafe_id]
+      [userAccount, cafe_id]
     );
     const queryResult = 0;
     return result.length > 0 ? result[queryResult] : null;
@@ -188,14 +187,14 @@ const findFavData = async (userId, cafe_id) => {
   }
 };
 
-const addFavorites = async (userId, cafe_id) => {
+const addFavorites = async (userAccount, cafe_id) => {
   const conn = await database.getConnection();
   try {
     const result = await conn.query(
       `
       INSERT INTO favorites(user_id, cafe_id) 
       VALUES (?, ?);`,
-      [userId, cafe_id]
+      [userAccount, cafe_id]
     );
     return result;
   } catch (err) {
@@ -205,7 +204,7 @@ const addFavorites = async (userId, cafe_id) => {
   }
 };
 
-const deleteFavorites = async (userId, cafeId) => {
+const deleteFavorites = async (userAccount, cafeId) => {
   const conn = await database.getConnection();
   try {
     const result = await conn.query(
@@ -216,7 +215,7 @@ const deleteFavorites = async (userId, cafeId) => {
       AND
         cafe_id=?
       `,
-      [userId, cafeId]
+      [userAccount, cafeId]
     );
     return result;
   } catch (err) {
@@ -268,6 +267,26 @@ const searchPassword = async (updateFields, values, account) => {
   }
 };
 
+const deleteAccount = async (account) => {
+  const conn = await database.getConnection();
+  try {
+    const result = await conn.query(
+      `
+      DELETE FROM users
+      WHERE 
+        account=?
+      `,
+      [account]
+    );
+    return result;
+  } catch (err) {
+    console.log(err)
+    throw new Error(`DELETE_ACCOUNT_ERROR`);
+  } finally {
+    conn.release();
+  }
+};
+
 module.exports = {
   signUp,
   signIn,
@@ -280,4 +299,5 @@ module.exports = {
   deleteFavorites,
   updateUserInfo,
   searchPassword,
+  deleteAccount,
 };
