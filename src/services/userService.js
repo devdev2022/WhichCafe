@@ -20,7 +20,12 @@ const signUp = async (account, password, nickname, question_answer) => {
       parseInt(process.env.saltRounds)
     );
 
-    const signUp = await userDao.signUp(account, hashedPassword, nickname, question_answer);
+    const signUp = await userDao.signUp(
+      account,
+      hashedPassword,
+      nickname,
+      question_answer
+    );
     if (!signUp) {
       const error = new Error("SIGNUP FAILED");
       error.statusCode = 500;
@@ -109,10 +114,6 @@ const deleteFavorites = async (account, cafe_id) => {
   try {
     const userId = await userDao.getIdByAccount(account);
 
-    if (!cafe_id) {
-      customError("CAFE_ID NOT PROVIDED", 400);
-    }
-
     const findFavData = await userDao.findFavData(userId, cafe_id);
     if (!findFavData) {
       customError("FAVORITES_DATA NOT EXIST", 400);
@@ -133,9 +134,8 @@ const getUserInfoByAccount = async (account) => {
     const userInfo = await userDao.getUserByAccount(account);
     const { id, password, created_at, ...filteredInfo } = userInfo;
     return filteredInfo;
-
-  } catch(error) {
-    throw error
+  } catch (error) {
+    throw error;
   }
 };
 
@@ -147,6 +147,20 @@ const updateUserInfo = async (updateData, account) => {
 
     for (let field of validFields) {
       if (updateData[field]) {
+        if (field === "nickname") {
+          const checkNickname = await userDao.getUserByAccount(account);
+          if (checkNickname.nickname === updateData["nickname"]) {
+            customError("YOUR NICKNAME IS SAME WITH CURRENT NICKNAME", 400);
+          }
+
+          const checkNicknameDup = await userDao.getUserByNickname(
+            updateData["nickname"]
+          );
+          if (checkNicknameDup) {
+            customError("DUPLICATED NICKNAME", 400);
+          }
+        }
+
         if (field === "password") {
           const hashedPassword = await bcrypt.hash(
             updateData[field],
@@ -164,7 +178,11 @@ const updateUserInfo = async (updateData, account) => {
       customError("NO UPDATE_DATA PROVIDED", 400);
     }
 
-    const updateInfo = await userDao.updateUserInfo(updateFields, values, account);
+    const updateInfo = await userDao.updateUserInfo(
+      updateFields,
+      values,
+      account
+    );
     return updateInfo;
   } catch (error) {
     throw error;
@@ -172,12 +190,12 @@ const updateUserInfo = async (updateData, account) => {
 };
 
 const searchPassword = async (account, answer, editPassword) => {
-  try{
-    const checkAnswer = await userDao.getUserByAccount(account)
-    if(!checkAnswer||answer !== checkAnswer.question_answer) {
+  try {
+    const checkAnswer = await userDao.getUserByAccount(account);
+    if (!checkAnswer || answer !== checkAnswer.question_answer) {
       customError("ANSWER OR ACCOUNT DOES NOT MATCH", 400);
     }
-    
+
     const updateFields = [];
     const values = [];
 
@@ -185,18 +203,20 @@ const searchPassword = async (account, answer, editPassword) => {
       editPassword,
       parseInt(process.env.saltRounds)
     );
-    
+
     updateFields.push("password = ?");
     values.push(hashedPassword);
-    
-    const updatePassword = await userDao.updateUserInfo(updateFields, values, account);
-    return updatePassword
 
+    const updatePassword = await userDao.updateUserInfo(
+      updateFields,
+      values,
+      account
+    );
+    return updatePassword;
   } catch (error) {
-    throw error
+    throw error;
   }
-}
-
+};
 
 module.exports = {
   signUp,
@@ -209,5 +229,3 @@ module.exports = {
   updateUserInfo,
   searchPassword,
 };
-
-
