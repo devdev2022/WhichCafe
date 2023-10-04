@@ -113,8 +113,7 @@ const getFavorites = async (account) => {
         U.account = ?`,
       [account]
     );
-    const queryResult = 0;
-    return result.length > 0 ? result[queryResult] : null;
+    return result.length > 0 ? result : null;
   } catch (err) {
     throw new Error(`GET_FAVORITES_ERROR`);
   } finally {
