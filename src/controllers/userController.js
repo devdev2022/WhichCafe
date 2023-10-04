@@ -79,7 +79,7 @@ const updateUserInfo = catchAsync(async (req, res) => {
     nickname: req.body.nickname,
   };
 
-  const result = await userService.updateUserInfo(updateData, account);
+  await userService.updateUserInfo(updateData, account);
   return res.status(201).json({ message: "UPDATE_DATA_SUCCESS" });
 });
 
@@ -90,9 +90,21 @@ const searchPassword = catchAsync(async (req, res) => {
     return res.status(400).json({ message: "KEY_ERROR" });
   }
 
-  const result = await userService.searchPassword(account, answer, editPassword);
+  await userService.searchPassword(account, answer, editPassword);
   return res.status(200).json({ message: "EDIT_PASSWORD_SUCCESS" });
 });
+
+const deleteAccount = catchAsync(async (req, res) => {
+  const account = req.user;
+  const { deleteMessage } = req.body;
+  
+  if (!account || !deleteMessage) {
+    return res.status(400).json({ message: "KEY_ERROR" });
+  }
+
+  await userService.deleteAccount(account, deleteMessage);
+  return res.status(204).send();
+}); 
 
 module.exports = {
   signIn,
@@ -103,4 +115,5 @@ module.exports = {
   getUserInfo,
   updateUserInfo,
   searchPassword,
+  deleteAccount,
 };
