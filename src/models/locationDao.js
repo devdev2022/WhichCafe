@@ -6,7 +6,9 @@ const getNearbyAddress = async (latitude, longitude) => {
   try {
     const result = await conn.query(
       `
-      SELECT cafes.name AS cafe_name,
+      SELECT 
+       cafes.id   AS cafe_id,
+       cafes.name AS cafe_name,
        photos.url AS cafe_photo,
        cafe_address.address AS cafe_address,
             6371 * 2 * ASIN(SQRT(
