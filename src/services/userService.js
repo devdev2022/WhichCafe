@@ -203,6 +203,7 @@ const searchPassword = async (account, answer, editPassword) => {
     if (!checkAnswer || answer !== checkAnswer.question_answer) {
       customError("ANSWER OR ACCOUNT DOES NOT MATCH", 400);
     }
+    validatePw(editPassword);
 
     const updateFields = [];
     const values = [];
@@ -228,7 +229,7 @@ const searchPassword = async (account, answer, editPassword) => {
 
 const deleteAccount = async (account, deleteMessage) => {
   try {
-    if(deleteMessage !== "동의합니다") {
+    if (deleteMessage !== "동의합니다") {
       customError("MESSAGE DOES NOT MATCH", 400);
     }
 

@@ -12,6 +12,7 @@ client
     },
   })
   .then((response) => {
+    console.log(response.data);
     const placeId = response.data.candidates[0].place_id;
 
     return client.placeDetails({
@@ -28,7 +29,7 @@ client
       photo: details.photos,
       rate: details.rating,
     };
-    console.log(result);
+    //console.log(result);
   })
   .catch((error) => {
     console.log(
