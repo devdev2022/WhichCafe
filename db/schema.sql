@@ -82,15 +82,12 @@ CREATE TABLE `photos` (
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `reviews` (
   `id` int NOT NULL AUTO_INCREMENT,
-  `user_id` char(36) NOT NULL,
   `cafe_id` int NOT NULL,
   `content` varchar(255) NOT NULL,
   `score` int NOT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `unique_review` (`user_id`,`cafe_id`),
   KEY `fk_cafes_id` (`cafe_id`),
-  CONSTRAINT `fk_cafes_id` FOREIGN KEY (`cafe_id`) REFERENCES `cafes` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
-  CONSTRAINT `fk_users_id` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
+  CONSTRAINT `fk_cafes_id` FOREIGN KEY (`cafe_id`) REFERENCES `cafes` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -120,7 +117,8 @@ CREATE TABLE `users` (
   `question_answer` varchar(32) NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `account` (`account`)
+  UNIQUE KEY `account` (`account`),
+  UNIQUE KEY `nickname` (`nickname`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
