@@ -11,11 +11,13 @@ const getNearbyAddress = async (latitude, longitude) => {
        cafes.name AS cafe_name,
        photos.url AS cafe_photo,
        cafe_address.address AS cafe_address,
-            6371 * 2 * ASIN(SQRT(
+       cafe_address.longitude AS longitude,
+       cafe_address.latitude AS latitude,
+            ROUND(6371 * 2 * ASIN(SQRT(
                 POWER(SIN((latitude - ?) * pi()/180 / 2), 2) +
                 COS(latitude * pi()/180) * COS(? * pi()/180) *
                 POWER(SIN((longitude - ?) * pi()/180 / 2), 2)
-            )) AS distance
+            )), 2) AS distance
        FROM cafe_address
        LEFT JOIN cafes ON cafe_address.id = cafes.cafe_address_id
        LEFT JOIN photos ON cafes.photo_id = photos.id
