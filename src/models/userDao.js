@@ -21,27 +21,6 @@ const signUp = async (account, hashedPassword, nickname, question_answer) => {
   }
 };
 
-/*const getUserById = async (account) => {
-  const conn = await database.getConnection();
-
-  try {
-    const [result] = await conn.query(
-      `
-      SELECT 
-        password
-      FROM users
-      WHERE account=?`,
-      [account]
-    );
-    const queryResult = 0;
-    return result[queryResult];
-  } catch (err) {
-    throw new Error(`GET_USER_BY_ID_ERROR`);
-  } finally {
-    conn.release();
-  }
-};*/
-
 const signIn = async (account) => {
   const conn = await database.getConnection();
 
@@ -280,7 +259,7 @@ const deleteAccount = async (account) => {
     );
     return result;
   } catch (err) {
-    console.log(err)
+    console.log(err);
     throw new Error(`DELETE_ACCOUNT_ERROR`);
   } finally {
     conn.release();

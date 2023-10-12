@@ -1,5 +1,7 @@
 require("dotenv").config({ path: "../../.env" });
+const schedule = require("node-schedule");
 const { Client } = require("@googlemaps/google-maps-services-js");
+const locationDao = require("../models/locationDao");
 const fs = require("fs");
 
 const client = new Client({});
@@ -25,6 +27,17 @@ async function getPlaceDetails(placeId) {
   return response.data.result;
 }
 
+async function getDitsance(origin, destination) {
+  const response = await client.distancematrix({
+    params: {
+      origins: [origin],
+      destinations: [destination],
+      key: process.env.GOOGLE_MAPS_API_KEY,
+    },
+  });
+  return response.data.rows[0].elements[0].distance.value;
+}
+
 async function getPlacePhoto(photoReference) {
   const response = await client.placePhoto({
     params: {
@@ -40,28 +53,34 @@ async function getPlacePhoto(photoReference) {
 
 async function main() {
   try {
-    const cafeName = "빵파남 커파남";
-    const placeId = await getPlaceId(cafeName);
-    const details = await getPlaceDetails(placeId);
+    const allCafes = await locationDao.getAllCafeData();
+    let ratesToUpdate = [];
 
-    let result = {
-      rate: details.rating,
-    };
+    for (const cafe of allCafes) {
+      const cafeName = cafe.cafe_name;
+      const cafeId = cafe.id;
+      const placeId = await getPlaceId(cafeName);
+      const details = await getPlaceDetails(placeId);
 
-    if (details.photos && details.photos.length > 0) {
-      const maxPhotos = Math.min(details.photos.length, 3);
-      for (i = 0; i < maxPhotos; i++) {
-        const imageData = await getPlacePhoto(
-          details.photos[i].photo_reference
-        );
-        const imageName = `${cafeName.replace(/ /g, "_")}${i + 1}.jpg`;
-        const savePath = `/Users/khs/Documents/WhichCafe/projectmaterial/cafeimage/${imageName}`;
-        fs.writeFileSync(savePath, imageData);
-        result.photoPath = savePath;
+      ratesToUpdate.push({
+        cafe_id: cafeId,
+        score: details.rating,
+      });
+
+      if (details.photos && details.photos.length > 0) {
+        const maxPhotos = Math.min(details.photos.length, 3);
+        for (i = 0; i < maxPhotos; i++) {
+          const imageData = await getPlacePhoto(
+            details.photos[i].photo_reference
+          );
+          const imageName = `${cafeName.replace(/ /g, "_")}${i + 1}.jpg`;
+          const savePath = `/Users/khs/Documents/WhichCafe/projectmaterial/cafeimage/${imageName}`;
+          fs.writeFileSync(savePath, imageData);
+          result.photoPath = savePath;
+        }
       }
+      await locationDao.updateRate(ratesToUpdate);
     }
-
-    console.log(result);
   } catch (error) {
     console.log(
       error.response ? error.response.data.error_message : error.message
@@ -69,4 +88,6 @@ async function main() {
   }
 }
 
-main();
+schedule.scheduleJob("0 2 1 * *", async function () {
+  await main();
+});
