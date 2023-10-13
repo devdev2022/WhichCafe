@@ -9,17 +9,18 @@ const getNearbyAddress = async (latitude, longitude) => {
       SELECT 
        cafes.id               AS cafe_id,
        cafes.NAME             AS cafe_name,
-       photos.url             AS cafe_photo,
+       cafes.thumbnail        AS cafe_thumbnail,
        cafe_address.address   AS cafe_address,
        cafe_address.latitude  AS cafe_latitude,
        cafe_address.longitude AS cafe_longitude,
+       photos.url             AS cafe_photos,
        CONCAT(ROUND(St_distance_sphere(Point(cafe_address.longitude, cafe_address.latitude), Point(?, ?)) / 1000,1), 
        'km') AS distance
       FROM   cafe_address
              LEFT JOIN cafes
-                    ON cafe_address.id = cafes.cafe_address_id
+                    ON cafes.cafe_address_id = cafe_address.id
              LEFT JOIN photos
-                    ON cafes.photo_id = photos.id
+                    ON cafes.id = photos.cafe_id
       HAVING distance <= 2
        `,
       [longitude, latitude]
@@ -42,7 +43,7 @@ const searchCafes = async (address) => {
       SELECT 
        cafes.id               AS cafe_id,
        cafes.name             AS cafe_name,
-       photos.url             AS cafe_photo,
+       cafes.thumbnail       AS cafe_thumbnail,
        cafe_address.address   AS cafe_address,
        cafe_address.latitude  AS cafe_latitude,
        cafe_address.longitude AS cafe_longitude
@@ -50,7 +51,7 @@ const searchCafes = async (address) => {
              LEFT JOIN cafes
                     ON cafe_address.id = cafes.cafe_address_id
              LEFT JOIN photos
-                    ON cafes.photo_id = photos.id
+                    ON photos.cafe_id = cafes.id
       WHERE cafe_address.address LIKE CONCAT('%', ?, '%')              
        `,
       [address]
@@ -73,14 +74,14 @@ const getAllCafeData = async () => {
       SELECT 
        cafes.id
        cafes.name             
-       photos.url             
+       photos.url
        cafe_address.latitude  
        cafe_address.longitude 
       FROM   cafe_address
              LEFT JOIN cafes
                     ON cafe_address.id = cafes.cafe_address_id
              LEFT JOIN photos
-                    ON cafes.photo_id = photos.id
+                    ON photos.cafe_id = cafes.id
        `
     );
     return result[queryResult];

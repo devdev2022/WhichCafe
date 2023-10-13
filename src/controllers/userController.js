@@ -80,7 +80,7 @@ const updateUserInfo = catchAsync(async (req, res) => {
   };
 
   await userService.updateUserInfo(updateData, account);
-  return res.status(201).json({ message: "UPDATE_DATA_SUCCESS" });
+  return res.status(200).json({ message: "UPDATE_DATA_SUCCESS" });
 });
 
 const searchPassword = catchAsync(async (req, res) => {
@@ -97,14 +97,14 @@ const searchPassword = catchAsync(async (req, res) => {
 const deleteAccount = catchAsync(async (req, res) => {
   const account = req.user;
   const { deleteMessage } = req.body;
-  
+
   if (!account || !deleteMessage) {
     return res.status(400).json({ message: "KEY_ERROR" });
   }
 
   await userService.deleteAccount(account, deleteMessage);
   return res.status(204).send();
-}); 
+});
 
 module.exports = {
   signIn,

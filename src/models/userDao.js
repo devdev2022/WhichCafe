@@ -96,7 +96,7 @@ const getFavorites = async (account) => {
         C.name,
         CA.address,
         R.score,
-        P.url
+        C.thumbnail
       FROM 
         users AS U
       JOIN
@@ -105,8 +105,6 @@ const getFavorites = async (account) => {
         cafes AS C ON F.cafe_id = C.id
       LEFT JOIN
         cafe_address AS CA ON C.cafe_address_id = CA.id
-      LEFT JOIN
-        photos AS P ON C.photo_id = P.id
       LEFT JOIN
         reviews AS R ON C.id = R.cafe_id
       WHERE
