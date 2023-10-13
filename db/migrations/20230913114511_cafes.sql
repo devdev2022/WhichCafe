@@ -9,7 +9,7 @@ CREATE TABLE cafes (
     CONSTRAINT fk_cafe_address_id FOREIGN KEY(cafe_address_id)
         REFERENCES cafe_address (id) ON DELETE RESTRICT ON UPDATE RESTRICT, 
     CONSTRAINT fk_photos_id FOREIGN KEY(photo_id)
-        REFERENCES photos (id) ON DELETE RESTRICT ON UPDATE RESTRICT 
+        REFERENCES photos (id) ON DELETE RESTRICT ON UPDATE RESTRICT
 );
 
 -- migrate:down

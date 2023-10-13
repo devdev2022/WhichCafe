@@ -2,7 +2,7 @@ const locationService = require("../services/locationService");
 const { catchAsync } = require("../utils/error");
 
 const getNearbyAddress = catchAsync(async (req, res) => {
-  const { latitude, longitude } = req.body;
+  const { latitude, longitude } = req.query;
 
   if (!latitude || !longitude) {
     return res.status(400).json({ message: "KEY_ERROR" });
@@ -16,7 +16,7 @@ const getNearbyAddress = catchAsync(async (req, res) => {
 });
 
 const searchCafes = catchAsync(async (req, res) => {
-  const { address } = req.body;
+  const { address } = req.query;
 
   if (!address) {
     return res.status(400).json({ message: "KEY_ERROR" });

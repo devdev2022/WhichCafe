@@ -1,14 +1,14 @@
 const express = require("express");
 const cors = require("cors");
 const morgan = require("morgan");
-const { globalErrorHandler } = require("./src/utils/error");
 const swaggerUi = require("swagger-ui-express");
 const yaml = require("js-yaml");
 const fs = require("fs");
+require("./src/scheduler/updatePlaceData");
 
 const { swaggerAuthentication } = require("./src/utils/swagger/swaggerAuth");
-
 const { router } = require("./src/routes");
+const { globalErrorHandler } = require("./src/utils/error");
 
 const createApp = () => {
   const app = express();
