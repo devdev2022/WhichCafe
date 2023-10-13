@@ -26,6 +26,7 @@ const getNearbyAddress = async (latitude, longitude) => {
     );
     return result[queryResult];
   } catch (err) {
+    console.log(err);
     throw new Error(`GET_NEARBY_ADDRESS_ERROR`);
   } finally {
     conn.release();
@@ -101,9 +102,33 @@ const updateRate = async (ratesToUpdate) => {
         SET 
            score = ?
         WHERE 
-           cafe_id = ?
+           cafes_id = ?
         `,
-        [rate.score, rate.cafe_id]
+        [rate.score, rate.cafes_id]
+      );
+    }
+    return true;
+  } catch (err) {
+    console.log(err);
+    throw new Error(`UPDATE_RATE_ERROR`);
+  } finally {
+    conn.release();
+  }
+};
+
+const updateImgHtml = async (htmlAttributions, cafeId) => {
+  const conn = await database.getConnection();
+  try {
+    for (let rate of ratesToUpdate) {
+      await conn.query(
+        `
+        UPDATE photos
+        SET 
+           html_attributions = ?
+        WHERE 
+           cafes_id = ?
+        `,
+        [htmlAttributions, cafeId]
       );
     }
     return true;
@@ -120,4 +145,5 @@ module.exports = {
   searchCafes,
   getAllCafeData,
   updateRate,
+  updateImgHtml,
 };
