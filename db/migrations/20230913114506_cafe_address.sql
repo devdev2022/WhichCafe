@@ -2,8 +2,8 @@
 CREATE TABLE cafe_address (
     id          INT             NOT NULL   AUTO_INCREMENT,
     address     VARCHAR(100)    NOT NULL,
-    latitude    DECIMAL(9,6),
-    longitude   DECIMAL(10,6),
+    latitude    DECIMAL(9,6)    NOT NULL, 
+    longitude   DECIMAL(10,6)   NOT NULL,
 
     PRIMARY KEY(id)
 );

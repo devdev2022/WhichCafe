@@ -4,6 +4,6 @@ const router = express.Router();
 const locationController = require("../controllers/locationController");
 
 router.get("", locationController.getNearbyAddress);
-router.get("", locationController.searchCafes);
+router.get("/search", locationController.searchCafes);
 
 module.exports = router;
