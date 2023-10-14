@@ -2,7 +2,7 @@
 CREATE TABLE photos (
     id                INT             NOT NULL    AUTO_INCREMENT,
     url               VARCHAR(2083)   NULL,
-    cafe_id           INT             NULL,
+    cafe_id           INT             NOT NULL,
     html_attributions VARCHAR(1024)   NULL,
 
     PRIMARY KEY(id),
