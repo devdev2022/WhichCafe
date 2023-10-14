@@ -175,6 +175,7 @@ const addFavorites = async (userAccount, cafe_id) => {
     );
     return result;
   } catch (err) {
+    console.log(err);
     throw new Error(`ADD_FAVORITES_ERROR`);
   } finally {
     conn.release();

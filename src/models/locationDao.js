@@ -8,7 +8,7 @@ const getNearbyAddress = async (latitude, longitude) => {
       `
       SELECT 
        cafes.id               AS cafe_id,
-       cafes.NAME             AS cafe_name,
+       cafes.name             AS cafe_name,
        cafes.thumbnail        AS cafe_thumbnail,
        cafe_address.address   AS cafe_address,
        cafe_address.latitude  AS cafe_latitude,
@@ -43,7 +43,7 @@ const searchCafes = async (address) => {
       SELECT 
        cafes.id               AS cafe_id,
        cafes.name             AS cafe_name,
-       cafes.thumbnail       AS cafe_thumbnail,
+       cafes.thumbnail        AS cafe_thumbnail,
        cafe_address.address   AS cafe_address,
        cafe_address.latitude  AS cafe_latitude,
        cafe_address.longitude AS cafe_longitude
@@ -72,10 +72,10 @@ const getAllCafeData = async () => {
     const result = await conn.query(
       `
       SELECT 
-       cafes.id
-       cafes.name             
-       photos.url
-       cafe_address.latitude  
+       cafes.id,
+       cafes.name,             
+       photos.url,
+       cafe_address.latitude, 
        cafe_address.longitude 
       FROM   cafe_address
              LEFT JOIN cafes
@@ -94,20 +94,19 @@ const getAllCafeData = async () => {
 };
 
 const updateRate = async (ratesToUpdate) => {
+  const placeholders = ratesToUpdate.map(() => "(?, ?)").join(", ");
+  const values = ratesToUpdate.flatMap((rate) => [rate.cafe_id, rate.score]);
+
   const conn = await database.getConnection();
   try {
-    for (let rate of ratesToUpdate) {
-      await conn.query(
-        `
-        UPDATE reviews
-        SET 
-           score = ?
-        WHERE 
-           cafes_id = ?
+    await conn.query(
+      `
+        INSERT INTO reviews (cafe_id, score)
+        VALUES ${placeholders}
+        ON DUPLICATE KEY UPDATE score=VALUES(score);
         `,
-        [rate.score, rate.cafes_id]
-      );
-    }
+      values
+    );
     return true;
   } catch (err) {
     console.log(err);
@@ -120,18 +119,15 @@ const updateRate = async (ratesToUpdate) => {
 const updateImgHtml = async (htmlAttributions, cafeId) => {
   const conn = await database.getConnection();
   try {
-    for (let rate of ratesToUpdate) {
-      await conn.query(
-        `
-        UPDATE photos
-        SET 
-           html_attributions = ?
-        WHERE 
-           cafes_id = ?
-        `,
-        [htmlAttributions, cafeId]
-      );
-    }
+    let query = `
+    UPDATE photos
+    SET html_attributions = ?
+    WHERE cafe_id = ?
+    `;
+
+    const queryParams = [htmlAttributions, cafeId];
+
+    await conn.query(query, queryParams);
     return true;
   } catch (err) {
     console.log(err);

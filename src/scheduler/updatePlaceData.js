@@ -7,14 +7,23 @@ const fs = require("fs");
 const client = new Client({});
 
 async function getPlaceId(query) {
-  const response = await client.findPlaceFromText({
-    params: {
-      input: query,
-      inputtype: "textquery",
-      key: process.env.GOOGLE_MAPS_API_KEY,
-    },
-  });
-  return response.data.candidates[0].place_id;
+  try {
+    const response = await client.findPlaceFromText({
+      params: {
+        input: query,
+        inputtype: "textquery",
+        key: process.env.GOOGLE_MAPS_API_KEY,
+      },
+    });
+    return response.data.candidates && response.data.candidates.length > 0
+      ? response.data.candidates[0].place_id
+      : null;
+  } catch (error) {
+    console.error(
+      `Error fetching place ID for query ${query}: ${error.message}`
+    );
+    return null;
+  }
 }
 
 async function getPlaceDetails(placeId) {
@@ -46,9 +55,11 @@ function deg2rad(deg) {
   return deg * (Math.PI / 180);
 }
 
-const checkDataByDistance = (lat1, lon1, lat2, lon2, limit = 20) => {
-  const distance = getDistance(lat1, lon1, lat2, lon2);
-  return distance <= limit;
+const checkDataByDistance = async (lat1, lon1, lat2, lon2, limit = 20) => {
+  return new Promise((resolve) => {
+    const distance = getDistance(lat1, lon1, lat2, lon2);
+    resolve(distance <= limit);
+  });
 };
 
 async function getPlacePhoto(photoReference) {
@@ -69,14 +80,41 @@ async function main() {
     const allCafes = await locationDao.getAllCafeData();
     let ratesToUpdate = [];
 
-    const allTasks = allCafes.map(async (cafe) => {
+    const allTasks = allCafes.slice(0, 10).map(async (cafe) => {
       const cafeName = cafe.name;
       const cafeId = cafe.id;
 
-      const placeData = await getPlaceId(cafeName);
+      let placeId;
+
+      try {
+        placeId = await getPlaceId(cafeName);
+        if (!placeId) {
+          console.error(`No location data found for cafe ${cafeName}`);
+          return null;
+        }
+      } catch (err) {
+        console.error(
+          `Error fetching place ID for cafe ${cafeName}: ${err.message}`
+        );
+        return null;
+      }
+
+      let placeData;
+
+      try {
+        placeData = await getPlaceDetails(placeId);
+        if (!placeData || !placeData.geometry.location) {
+          console.error(`Location data for cafe ${cafeName} is not available`);
+          return null;
+        }
+      } catch (err) {
+        console.error(err.message);
+        return null;
+      }
+
       const googleLocation = {
-        lat: placeData.location.lat,
-        lng: placeData.location.lng,
+        lat: placeData.geometry.location.lat,
+        lng: placeData.geometry.location.lng,
       };
       const dbLocation = {
         lat: cafe.cafe_latitude,
@@ -94,7 +132,14 @@ async function main() {
         return null;
       }
 
-      const details = await getPlaceDetails(placeData.place_id);
+      try {
+        details = await getPlaceDetails(placeData.place_id);
+      } catch (err) {
+        console.error(
+          `Error fetching place ID for cafe ${cafeName}: ${err.message}`
+        );
+        return null;
+      }
 
       if (details.rating !== undefined && details.rating !== null) {
         ratesToUpdate.push({
@@ -124,12 +169,22 @@ async function main() {
             continue;
           }
 
-          const imageData = await getPlacePhoto(
-            details.photos[i].photo_reference
-          );
-          fs.writeFileSync(savePath, imageData);
+          let imageData;
+          try {
+            imageData = await getPlacePhoto(details.photos[i].photo_reference);
+          } catch (err) {
+            console.error(
+              `Error fetching place ID for cafe ${cafeName}: ${err.message}`
+            );
+            return null;
+          }
+
+          fs.promises.writeFile(savePath, imageData);
 
           const htmlAttributions = details.html_attributions;
+          if (!htmlAttributions) {
+            return false;
+          }
           await locationDao.updateImgHtml(htmlAttributions, cafeId);
         }
       }
@@ -148,7 +203,7 @@ async function main() {
   }
 }
 
-const scheduledTask = schedule.scheduleJob("0 2 1 * *", async function () {
+const scheduledTask = schedule.scheduleJob("0 41 18 * * *", async function () {
   await main();
 });
 

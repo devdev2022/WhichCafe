@@ -68,7 +68,7 @@ CREATE TABLE `favorites` (
 CREATE TABLE `photos` (
   `id` int NOT NULL AUTO_INCREMENT,
   `url` varchar(2083) DEFAULT NULL,
-  `cafe_id` int DEFAULT NULL,
+  `cafe_id` int NOT NULL,
   `html_attributions` varchar(1024) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `fk_photos_cafes` (`cafe_id`),
@@ -86,10 +86,11 @@ CREATE TABLE `reviews` (
   `id` int NOT NULL AUTO_INCREMENT,
   `cafe_id` int NOT NULL,
   `score` int NOT NULL,
-  `content` varchar(255) NOT NULL,
+  `content` varchar(255) DEFAULT NULL,
   `user_id` int DEFAULT NULL,
   PRIMARY KEY (`id`),
-  KEY `fk_cafes_id` (`cafe_id`),
+  UNIQUE KEY `cafe_id` (`cafe_id`),
+  UNIQUE KEY `user_id` (`user_id`),
   CONSTRAINT `fk_cafes_id` FOREIGN KEY (`cafe_id`) REFERENCES `cafes` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
