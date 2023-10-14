@@ -150,8 +150,13 @@ async function main() {
 
       await locationDao.updateRate(ratesToUpdate);
 
+      let htmlAttributions = details.html_attributions;
+
       if (details.photos && details.photos.length > 0) {
         const maxPhotos = Math.min(details.photos.length, 3);
+
+        let imageData;
+
         for (let i = 0; i < maxPhotos; i++) {
           const imageName = `${cafeName.replace(/ /g, "_")}${i + 1}.jpg`;
           const savePath = `/Users/khs/Documents/WhichCafe/projectmaterial/cafeimage/${imageName}`;
@@ -169,25 +174,18 @@ async function main() {
             continue;
           }
 
-          let imageData;
           try {
             imageData = await getPlacePhoto(details.photos[i].photo_reference);
+            await fs.promises.writeFile(savePath, imageData);
           } catch (err) {
             console.error(
               `Error fetching place ID for cafe ${cafeName}: ${err.message}`
             );
             return null;
           }
-
-          fs.promises.writeFile(savePath, imageData);
-
-          const htmlAttributions = details.html_attributions;
-          if (!htmlAttributions) {
-            return false;
-          }
-          await locationDao.updateImgHtml(htmlAttributions, cafeId);
         }
       }
+      await locationDao.updateImgHtml(htmlAttributions, cafeId);
     });
 
     const results = await Promise.allSettled(allTasks);
@@ -203,7 +201,7 @@ async function main() {
   }
 }
 
-const scheduledTask = schedule.scheduleJob("0 41 18 * * *", async function () {
+const scheduledTask = schedule.scheduleJob("0 30 21 * * *", async function () {
   await main();
 });
 
