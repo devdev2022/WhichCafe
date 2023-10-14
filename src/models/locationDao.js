@@ -27,7 +27,6 @@ const getNearbyAddress = async (latitude, longitude) => {
     );
     return result[queryResult];
   } catch (err) {
-    console.log(err);
     throw new Error(`GET_NEARBY_ADDRESS_ERROR`);
   } finally {
     conn.release();
@@ -58,7 +57,6 @@ const searchCafes = async (address) => {
     );
     return result[queryResult];
   } catch (err) {
-    console.log(err);
     throw new Error(`SEARCH_CAFES_ERROR`);
   } finally {
     conn.release();
@@ -86,7 +84,6 @@ const getAllCafeData = async () => {
     );
     return result[queryResult];
   } catch (err) {
-    console.log(err);
     throw new Error(`SEARCH_CAFES_ERROR`);
   } finally {
     conn.release();
@@ -94,22 +91,34 @@ const getAllCafeData = async () => {
 };
 
 const updateRate = async (ratesToUpdate) => {
+  if (ratesToUpdate.length === 0) {
+    return true;
+  }
+
   const placeholders = ratesToUpdate.map(() => "(?, ?)").join(", ");
   const values = ratesToUpdate.flatMap((rate) => [rate.cafe_id, rate.score]);
 
   const conn = await database.getConnection();
   try {
-    await conn.query(
-      `
-        INSERT INTO reviews (cafe_id, score)
-        VALUES ${placeholders}
-        ON DUPLICATE KEY UPDATE score=VALUES(score);
-        `,
-      values
-    );
+    for (const rate of ratesToUpdate) {
+      const [rows] = await conn.query(
+        "SELECT 1 FROM reviews WHERE cafe_id = ?",
+        [rate.cafe_id]
+      );
+      if (rows.length === 0) {
+        await conn.query("INSERT INTO reviews (cafe_id, score) VALUES (?, ?)", [
+          rate.cafe_id,
+          rate.score,
+        ]);
+      } else {
+        await conn.query("UPDATE reviews SET score = ? WHERE cafe_id = ?", [
+          rate.score,
+          rate.cafe_id,
+        ]);
+      }
+    }
     return true;
   } catch (err) {
-    console.log(err);
     throw new Error(`UPDATE_RATE_ERROR`);
   } finally {
     conn.release();
@@ -130,7 +139,6 @@ const updateImgHtml = async (htmlAttributions, cafeId) => {
     await conn.query(query, queryParams);
     return true;
   } catch (err) {
-    console.log(err);
     throw new Error(`UPDATE_RATE_ERROR`);
   } finally {
     conn.release();
