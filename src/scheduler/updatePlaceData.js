@@ -201,7 +201,7 @@ async function main() {
   }
 }
 
-const scheduledTask = schedule.scheduleJob("0 30 21 * * *", async function () {
+const scheduledTask = schedule.scheduleJob("0 54 21 * * *", async function () {
   await main();
 });
 
