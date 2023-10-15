@@ -21,7 +21,7 @@ const getNearbyAddress = async (latitude, longitude) => {
                     ON cafes.cafe_address_id = cafe_address.id
              LEFT JOIN photos
                     ON cafes.id = photos.cafe_id
-      HAVING distance <= 2
+      HAVING distance <= 1
        `,
       [longitude, latitude]
     );
@@ -95,8 +95,9 @@ const updateRate = async (ratesToUpdate) => {
     return true;
   }
 
+  /* 지울코드(예상)
   const placeholders = ratesToUpdate.map(() => "(?, ?)").join(", ");
-  const values = ratesToUpdate.flatMap((rate) => [rate.cafe_id, rate.score]);
+  const values = ratesToUpdate.flatMap((rate) => [rate.cafe_id, rate.score]);*/
 
   const conn = await database.getConnection();
   try {
