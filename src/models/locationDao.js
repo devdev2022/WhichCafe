@@ -21,7 +21,7 @@ const getNearbyAddress = async (latitude, longitude) => {
        FROM cafe_address
        LEFT JOIN cafes ON cafe_address.id = cafes.cafe_address_id
        LEFT JOIN photos ON cafes.photo_id = photos.id
-       HAVING distance <= 2
+       HAVING distance <= 1
        ORDER BY distance;
       `,
       [latitude, latitude, longitude]
