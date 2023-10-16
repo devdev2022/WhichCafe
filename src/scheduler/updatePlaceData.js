@@ -19,9 +19,7 @@ async function getPlaceId(query) {
       ? response.data.candidates[0].place_id
       : null;
   } catch (error) {
-    console.error(
-      `Error fetching place ID for query ${query}: ${error.message}`
-    );
+    console.error(`findPlaceFromText Error : ${query}, ${error.message}`);
     return null;
   }
 }
@@ -93,9 +91,7 @@ async function main() {
           return null;
         }
       } catch (err) {
-        console.error(
-          `Error fetching place ID for cafe ${cafeName}: ${err.message}`
-        );
+        console.error(`getPlaceId Error : ${cafeName}, ${err.message}`);
         return null;
       }
 
@@ -104,7 +100,7 @@ async function main() {
       try {
         placeData = await getPlaceDetails(placeId);
         if (!placeData || !placeData.geometry.location) {
-          console.error(`Location data for cafe ${cafeName} is not available`);
+          console.error(`getPlaceDetails Error : ${cafeName} is not available`);
           return null;
         }
       } catch (err) {
@@ -132,11 +128,13 @@ async function main() {
         return null;
       }
 
+      let details;
+
       try {
         details = await getPlaceDetails(placeData.place_id);
       } catch (err) {
         console.error(
-          `Error fetching place ID for cafe ${cafeName}: ${err.message}`
+          `placeDetails Error : fetching place ID for cafe ${cafeName}, ${err.message}`
         );
         return null;
       }
@@ -149,8 +147,7 @@ async function main() {
       }
 
       await locationDao.updateRate(ratesToUpdate);
-
-      let htmlAttributions = details.html_attributions;
+      console.log(ratesToUpdate);
 
       if (details.photos && details.photos.length > 0) {
         const maxPhotos = Math.min(details.photos.length, 3);
@@ -178,14 +175,23 @@ async function main() {
             imageData = await getPlacePhoto(details.photos[i].photo_reference);
             await fs.promises.writeFile(savePath, imageData);
           } catch (err) {
-            console.error(
-              `Error fetching place ID for cafe ${cafeName}: ${err.message}`
-            );
+            console.error(`getPlacePhoto Error : ${cafeName}, ${err.message}`);
+            continue;
+          }
+
+          try {
+            const htmlAttribution =
+              details.photos[i].html_attributions &&
+              details.photos[i].html_attributions.length > 0
+                ? details.photos[i].html_attributions[0]
+                : null;
+            await locationDao.savePhotoInfo(cafeId, htmlAttribution, imageName);
+          } catch (err) {
+            console.error(`savePhotoInfo Error : ${cafeName}, ${err.message}`);
             return null;
           }
         }
       }
-      await locationDao.updateImgHtml(htmlAttributions, cafeId);
     });
 
     const results = await Promise.allSettled(allTasks);
@@ -201,7 +207,7 @@ async function main() {
   }
 }
 
-const scheduledTask = schedule.scheduleJob("0 54 21 * * *", async function () {
+const scheduledTask = schedule.scheduleJob("0 16 17 * * *", async function () {
   await main();
 });
 

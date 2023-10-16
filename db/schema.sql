@@ -67,10 +67,12 @@ CREATE TABLE `favorites` (
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `photos` (
   `id` int NOT NULL AUTO_INCREMENT,
+  `photo_name` varchar(32) DEFAULT NULL,
   `url` varchar(2083) DEFAULT NULL,
   `cafe_id` int NOT NULL,
   `html_attributions` varchar(1024) DEFAULT NULL,
   PRIMARY KEY (`id`),
+  UNIQUE KEY `photo_name` (`photo_name`),
   KEY `fk_photos_cafes` (`cafe_id`),
   CONSTRAINT `fk_photos_cafes` FOREIGN KEY (`cafe_id`) REFERENCES `cafes` (`id`) ON DELETE CASCADE ON UPDATE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;

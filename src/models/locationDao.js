@@ -95,52 +95,43 @@ const updateRate = async (ratesToUpdate) => {
     return true;
   }
 
-  /* 지울코드(예상)
-  const placeholders = ratesToUpdate.map(() => "(?, ?)").join(", ");
-  const values = ratesToUpdate.flatMap((rate) => [rate.cafe_id, rate.score]);*/
-
   const conn = await database.getConnection();
+
   try {
     for (const rate of ratesToUpdate) {
-      const [rows] = await conn.query(
-        "SELECT 1 FROM reviews WHERE cafe_id = ?",
-        [rate.cafe_id]
+      await conn.query(
+        `INSERT INTO reviews (cafe_id, score) 
+         VALUES (?, ?)
+         ON DUPLICATE KEY UPDATE score = VALUES(score)`,
+        [rate.cafe_id, rate.score]
       );
-      if (rows.length === 0) {
-        await conn.query("INSERT INTO reviews (cafe_id, score) VALUES (?, ?)", [
-          rate.cafe_id,
-          rate.score,
-        ]);
-      } else {
-        await conn.query("UPDATE reviews SET score = ? WHERE cafe_id = ?", [
-          rate.score,
-          rate.cafe_id,
-        ]);
-      }
     }
     return true;
   } catch (err) {
+    console.log(err);
     throw new Error(`UPDATE_RATE_ERROR`);
   } finally {
     conn.release();
   }
 };
 
-const updateImgHtml = async (htmlAttributions, cafeId) => {
+const savePhotoInfo = async (cafeId, htmlAttribution, imageName) => {
   const conn = await database.getConnection();
   try {
     let query = `
-    UPDATE photos
-    SET html_attributions = ?
-    WHERE cafe_id = ?
+    INSERT INTO photos (cafe_id, html_attributions, photo_name) 
+    VALUES (?, ?, ?)
+    ON DUPLICATE KEY UPDATE 
+    html_attributions = VALUES(html_attributions),
+    photo_name = VALUES(photo_name);
     `;
 
-    const queryParams = [htmlAttributions, cafeId];
+    const queryParams = [cafeId, htmlAttribution, imageName];
 
     await conn.query(query, queryParams);
     return true;
   } catch (err) {
-    throw new Error(`UPDATE_RATE_ERROR`);
+    throw new Error(`SAVE_PHOTO_INFO_ERROR`);
   } finally {
     conn.release();
   }
@@ -151,5 +142,5 @@ module.exports = {
   searchCafes,
   getAllCafeData,
   updateRate,
-  updateImgHtml,
+  savePhotoInfo,
 };
