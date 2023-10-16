@@ -2,8 +2,13 @@ require("dotenv").config({ path: "../../.env" });
 const schedule = require("node-schedule");
 const { Client } = require("@googlemaps/google-maps-services-js");
 const locationDao = require("../models/locationDao");
-const fs = require("fs");
+const {
+  placeIdSchema,
+  placeDetailsSchema,
+  validateResponse,
+} = require("./responseCheck");
 
+const ajv = new Ajv();
 const client = new Client({});
 
 async function getPlaceId(query) {
@@ -15,6 +20,13 @@ async function getPlaceId(query) {
         key: process.env.GOOGLE_MAPS_API_KEY,
       },
     });
+
+    const errors = validateResponse(placeIdSchema, response.data);
+    if (errors) {
+      console.error("Validation Error:", errors);
+      return null;
+    }
+
     return response.data.candidates && response.data.candidates.length > 0
       ? response.data.candidates[0].place_id
       : null;
@@ -25,13 +37,23 @@ async function getPlaceId(query) {
 }
 
 async function getPlaceDetails(placeId) {
-  const response = await client.placeDetails({
-    params: {
-      place_id: placeId,
-      key: process.env.GOOGLE_MAPS_API_KEY,
-    },
-  });
-  return response.data.result;
+  try {
+    const response = await client.placeDetails({
+      params: {
+        place_id: placeId,
+        key: process.env.GOOGLE_MAPS_API_KEY,
+      },
+    });
+    const errors = validateResponse(placeDetailsSchema, response.data);
+    if (errors) {
+      console.error("Validation Error:", errors);
+      return null;
+    }
+
+    return response.data.result;
+  } catch (error) {
+    console.error(`getPlaceDetails Error : ${query}, ${error.message}`);
+  }
 }
 
 function getDistance(lat1, lon1, lat2, lon2) {
@@ -70,6 +92,16 @@ async function getPlacePhoto(photoReference) {
     },
     responseType: "arraybuffer",
   });
+
+  if (response.status !== 200) {
+    console.error("Error fetching photo:", response.status);
+    return null;
+  }
+
+  if (!response.headers["content-type"].startsWith("image/")) {
+    console.error("Invalid content type:", response.headers["content-type"]);
+    return null;
+  }
   return response.data;
 }
 
