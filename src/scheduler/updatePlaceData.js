@@ -8,7 +8,6 @@ const {
   validateResponse,
 } = require("./responseCheck");
 
-const ajv = new Ajv();
 const client = new Client({});
 
 async function getPlaceId(query) {
