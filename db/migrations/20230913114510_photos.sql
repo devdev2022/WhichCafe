@@ -1,7 +1,7 @@
 -- migrate:up
 CREATE TABLE photos (
     id                INT             NOT NULL    AUTO_INCREMENT,
-    photo_name        VARCHAR(32)     NULL UNIQUE,
+    photo_name        VARCHAR(32)     NOT NULL UNIQUE,
     url               VARCHAR(2083)   NULL,
     cafe_id           INT             NOT NULL,
     html_attributions VARCHAR(1024)   NULL,

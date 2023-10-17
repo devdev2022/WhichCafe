@@ -67,7 +67,7 @@ CREATE TABLE `favorites` (
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `photos` (
   `id` int NOT NULL AUTO_INCREMENT,
-  `photo_name` varchar(32) DEFAULT NULL,
+  `photo_name` varchar(32) NOT NULL,
   `url` varchar(2083) DEFAULT NULL,
   `cafe_id` int NOT NULL,
   `html_attributions` varchar(1024) DEFAULT NULL,

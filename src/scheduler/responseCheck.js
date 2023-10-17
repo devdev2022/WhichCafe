@@ -45,11 +45,10 @@ const placeDetailsSchema = {
             properties: {
               photo_reference: { type: "string" },
             },
-            required: ["photo_reference"],
           },
         },
       },
-      required: ["geometry", "photos"],
+      required: ["geometry"],
     },
   },
   required: ["result"],
