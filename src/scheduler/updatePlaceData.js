@@ -2,6 +2,7 @@ require("dotenv").config({ path: "../../.env" });
 const schedule = require("node-schedule");
 const { Client } = require("@googlemaps/google-maps-services-js");
 const locationDao = require("../models/locationDao");
+const fs = require("fs");
 const {
   placeIdSchema,
   placeDetailsSchema,
@@ -178,7 +179,6 @@ async function main() {
       }
 
       await locationDao.updateRate(ratesToUpdate);
-      console.log(ratesToUpdate);
 
       if (details.photos && details.photos.length > 0) {
         const maxPhotos = Math.min(details.photos.length, 3);
@@ -238,7 +238,7 @@ async function main() {
   }
 }
 
-const scheduledTask = schedule.scheduleJob("0 16 17 * * *", async function () {
+const scheduledTask = schedule.scheduleJob("0 50 22 * * *", async function () {
   await main();
 });
 
