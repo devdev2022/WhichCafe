@@ -34,6 +34,7 @@ CREATE TABLE `cafes` (
   `id` int NOT NULL AUTO_INCREMENT,
   `name` varchar(100) NOT NULL,
   `cafe_address_id` int NOT NULL,
+  `score` decimal(3,2) DEFAULT NULL,
   `thumbnail` varchar(2083) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `fk_cafe_address_id` (`cafe_address_id`),

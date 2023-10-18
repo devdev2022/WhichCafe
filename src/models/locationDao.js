@@ -11,7 +11,7 @@ const getNearbyAddress = async (latitude, longitude) => {
        cafes.name              AS cafe_name,
        cafes.thumbnail         AS cafe_thumbnail,
        cafe_address.address    AS cafe_address,
-       reviews.score           AS score,
+       cafes.score             AS score,
        cafe_address.latitude   AS cafe_latitude,
        cafe_address.longitude  AS cafe_longitude,
        (CASE 
@@ -25,8 +25,6 @@ const getNearbyAddress = async (latitude, longitude) => {
                     ON cafes.cafe_address_id = cafe_address.id
              LEFT JOIN photos
                     ON cafes.id = photos.cafe_id
-             LEFT JOIN reviews
-                    ON cafes.id = reviews.cafe_id
       GROUP BY 
             cafes.id,
             cafes.name, 
@@ -34,14 +32,14 @@ const getNearbyAddress = async (latitude, longitude) => {
             cafe_address.address, 
             cafe_address.latitude, 
             cafe_address.longitude,
-            reviews.score
+            cafes.score
       HAVING distance <= 1
+      ORDER BY distance
        `,
       [longitude, latitude]
     );
     return result[queryResult];
   } catch (err) {
-    console.log(err);
     throw new Error(`GET_NEARBY_ADDRESS_ERROR`);
   } finally {
     conn.release();
@@ -59,7 +57,7 @@ const searchCafes = async (address) => {
        cafes.name              AS cafe_name,
        cafes.thumbnail         AS cafe_thumbnail,
        cafe_address.address    AS cafe_address,
-       reviews.score           AS score, 
+       cafes.score             AS score, 
        cafe_address.latitude   AS cafe_latitude,
        cafe_address.longitude  AS cafe_longitude,
        (CASE 
@@ -71,16 +69,15 @@ const searchCafes = async (address) => {
               ON cafes.cafe_address_id = cafe_address.id
        LEFT JOIN photos
               ON cafes.id = photos.cafe_id
-       LEFT JOIN reviews
-              ON cafes.id = reviews.cafe_id
       WHERE  cafe_address.address LIKE CONCAT('%', ?, '%') 
       GROUP BY 
             cafes.id,
             cafes.name, 
             cafes.thumbnail, 
             cafe_address.address, 
+            cafes.score,
             cafe_address.latitude, 
-            cafe_address.longitude             
+            cafe_address.longitude
        `,
       [address]
     );
@@ -129,10 +126,10 @@ const updateRate = async (ratesToUpdate) => {
   try {
     for (const rate of ratesToUpdate) {
       await conn.query(
-        `INSERT INTO reviews (cafe_id, score) 
-         VALUES (?, ?)
-         ON DUPLICATE KEY UPDATE score = VALUES(score)`,
-        [rate.cafe_id, rate.score]
+        `UPDATE cafes 
+         SET score = ? 
+         WHERE id = ?`,
+        [rate.score, rate.cafe_id]
       );
     }
     return true;
