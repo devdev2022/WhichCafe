@@ -3,6 +3,7 @@ CREATE TABLE cafes (
     id                 INT            NOT NULL   AUTO_INCREMENT,
     name               VARCHAR(100)   NOT NULL,
     cafe_address_id    INT            NOT NULL,
+    score              DECIMAL(3,2)   NULL,
     thumbnail          VARCHAR(2083)  NULL,
 
     PRIMARY KEY(id),
