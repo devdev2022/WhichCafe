@@ -1,8 +1,7 @@
 -- migrate:up
 CREATE TABLE reviews (
     id        INT             NOT NULL    AUTO_INCREMENT,
-    cafe_id   INT             NOT NULL UNIQUE,
-    score     INT             NOT NULL,
+    cafe_id   INT             NOT NULL,
     content   VARCHAR(255)    NULL,
     user_id   INT             NULL UNIQUE,
 
