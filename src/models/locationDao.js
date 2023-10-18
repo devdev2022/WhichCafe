@@ -11,6 +11,7 @@ const getNearbyAddress = async (latitude, longitude) => {
        cafes.name              AS cafe_name,
        cafes.thumbnail         AS cafe_thumbnail,
        cafe_address.address    AS cafe_address,
+       reviews.score           AS score,
        cafe_address.latitude   AS cafe_latitude,
        cafe_address.longitude  AS cafe_longitude,
        (CASE 
@@ -24,13 +25,16 @@ const getNearbyAddress = async (latitude, longitude) => {
                     ON cafes.cafe_address_id = cafe_address.id
              LEFT JOIN photos
                     ON cafes.id = photos.cafe_id
+             LEFT JOIN reviews
+                    ON cafes.id = reviews.cafe_id
       GROUP BY 
             cafes.id,
             cafes.name, 
             cafes.thumbnail, 
             cafe_address.address, 
             cafe_address.latitude, 
-            cafe_address.longitude
+            cafe_address.longitude,
+            reviews.score
       HAVING distance <= 1
        `,
       [longitude, latitude]
@@ -51,18 +55,32 @@ const searchCafes = async (address) => {
     const result = await conn.query(
       `
       SELECT 
-       cafes.id               AS cafe_id,
-       cafes.name             AS cafe_name,
-       cafes.thumbnail        AS cafe_thumbnail,
-       cafe_address.address   AS cafe_address,
-       cafe_address.latitude  AS cafe_latitude,
-       cafe_address.longitude AS cafe_longitude
+       cafes.id                AS cafe_id,
+       cafes.name              AS cafe_name,
+       cafes.thumbnail         AS cafe_thumbnail,
+       cafe_address.address    AS cafe_address,
+       reviews.score           AS score, 
+       cafe_address.latitude   AS cafe_latitude,
+       cafe_address.longitude  AS cafe_longitude,
+       (CASE 
+            WHEN COUNT(photos.url) = 0 THEN JSON_ARRAY(NULL) 
+            ELSE JSON_ARRAYAGG(photos.url) 
+        END) AS cafe_photos
       FROM   cafe_address
-             LEFT JOIN cafes
-                    ON cafe_address.id = cafes.cafe_address_id
-             LEFT JOIN photos
-                    ON photos.cafe_id = cafes.id
-      WHERE cafe_address.address LIKE CONCAT('%', ?, '%')              
+       LEFT JOIN cafes
+              ON cafes.cafe_address_id = cafe_address.id
+       LEFT JOIN photos
+              ON cafes.id = photos.cafe_id
+       LEFT JOIN reviews
+              ON cafes.id = reviews.cafe_id
+      WHERE  cafe_address.address LIKE CONCAT('%', ?, '%') 
+      GROUP BY 
+            cafes.id,
+            cafes.name, 
+            cafes.thumbnail, 
+            cafe_address.address, 
+            cafe_address.latitude, 
+            cafe_address.longitude             
        `,
       [address]
     );
