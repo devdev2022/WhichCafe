@@ -1,0 +1,74 @@
+openapi: 3.0.0
+info:
+  title: "WhichCafe API"
+  version: "1.0.0"
+components:
+  schemas:
+    UserSignUp:
+      type: object
+      properties:
+        account:
+          type: string
+          description: 사용자의 계정명입니다.
+        password:
+          type: string
+          description: 사용자의 비밀번호입니다.
+        nickname:
+          type: string
+          description: 사용자의 닉네임입니다.
+        question_answer:
+          type: string
+          description: 사용자의 보안 질문에 대한 답변입니다.
+      required:
+        - account
+        - password
+        - nickname
+        - question_answer
+    UserSignIn:
+      type: object
+      properties:
+        account:
+          type: string
+          description: 로그인에 사용되는 사용자의 계정명입니다.
+        password:
+          type: string
+          description: 로그인에 사용되는 사용자의 비밀번호입니다.
+      required:
+        - account
+        - password
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+paths:
+  /users/signup:
+    post:
+      summary: Register a new user
+      requestBody:
+        description: 회원가입을 하기 위해 필요한 정보입니다.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserSignUp"
+      responses:
+        "201":
+          description: Successfully registered a new user.
+        "400":
+          description: Bad request, unable to process the request due to an error in client input.
+  /users/signin:
+    post:
+      summary: User login
+      requestBody:
+        description: 유저가 로그인하기 위해 필요한 회원정보 입니다.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserSignIn"
+      responses:
+        "200":
+          description: Successfully logged in.
+        "400":
+          description: Bad request, unable to process the request due to an error in client input.
