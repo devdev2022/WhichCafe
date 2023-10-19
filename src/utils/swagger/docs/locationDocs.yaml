@@ -104,7 +104,7 @@ paths:
             type: string
       responses:
         "200":
-          description: 검색 성공, 주변 카페의 목록을 반환합니다.
+          description: 검색 성공, 주소에 대한 카페의 목록을 반환합니다.
           content:
             application/json:
               schema:
