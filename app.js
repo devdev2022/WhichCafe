@@ -29,8 +29,8 @@ const createApp = () => {
     },
 
     apis: [
-      "./src/utils/swagger/docs/userDocs.yaml",
-      "./src/utils/swagger/docs/locationDocs.yaml",
+      "./src/utils/swagger/userDocs.yaml",
+      "./src/utils/swagger/locationDocs.yaml",
     ],
   };
   const swaggerSpec = swaggerJsdoc(options);
