@@ -1,0 +1,113 @@
+openapi: 3.0.0
+info:
+  title: "WhichCafe API"
+  version: "1.0.0"
+components:
+  schemas:
+    Location:
+      type: object
+      properties:
+        cafe_id:
+          type: int
+          description: DB의 번호입니다.
+        cafe_name:
+          type: string
+          description: 카페의 이름 입니다.
+        cafe_thumbnail:
+          type: string
+          description: 카페에 대한 정보를 불러올때 나타나는 이미지 입니다.
+        cafe_address:
+          type: string
+          description: 카페 주소입니다.
+        score:
+          type: int
+          description: 카페에 대한 평점입니다.
+        cafe_latitude:
+          type: int
+          description: 카페의 위도 입니다.
+        cafe_longitude:
+          type: int
+          description: 카페의 경도입니다.
+        cafe_photos:
+          type: int
+          description: 카페에 대한 사진입니다.
+      required:
+        - cafe_id
+        - cafe_name
+        - cafe_thumbnail
+        - score
+        - cafe_address
+        - cafe_latitude
+        - cafe_longitude
+        - cafe_photos
+    LocationSearch:
+      type: object
+      properties:
+        cafe_id:
+          type: int
+          description: DB의 번호입니다.
+        cafe_name:
+          type: string
+          description: 카페의 이름 입니다.
+        cafe_thumbnail:
+          type: string
+          description: 카페에 대한 정보를 불러올때 나타나는 이미지 입니다.
+        cafe_address:
+          type: string
+          description: 카페 주소입니다.
+        score:
+          type: int
+          description: 카페에 대한 평점입니다.
+        cafe_latitude:
+          type: int
+          description: 카페의 위도 입니다.
+        cafe_longitude:
+          type: int
+          description: 카페의 경도입니다.
+        cafe_photos:
+          type: int
+          description: 카페에 대한 사진입니다.
+paths:
+  /location:
+    get:
+      summary: 주변의 카페 정보를 검색합니다.
+      parameters:
+        - name: latitude
+          in: query
+          required: true
+          schema:
+            type: number
+            format: float
+        - name: longitude
+          in: query
+          required: true
+          schema:
+            type: number
+            format: float
+      responses:
+        "200":
+          description: 검색 성공, 주변 카페의 목록을 반환합니다.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CafeList"
+        "400":
+          description: Bad request, unable to process the request due to an error in client input.
+  /location/search:
+    get:
+      summary: 주어진 주소에 대한 카페 목록을 검색합니다.
+      parameters:
+        - name: address
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: 검색 성공, 주소에 대한 카페의 목록을 반환합니다.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CafeList"
+        "400":
+          description: Bad request, unable to process the request due to an error in client input.

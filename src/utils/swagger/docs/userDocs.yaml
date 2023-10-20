@@ -1,0 +1,265 @@
+openapi: 3.0.0
+info:
+  title: "WhichCafe API"
+  version: "1.0.0"
+components:
+  schemas:
+    UserSignUp:
+      type: object
+      properties:
+        account:
+          type: string
+          description: 사용자의 계정명입니다.
+        password:
+          type: string
+          description: 사용자의 비밀번호입니다.
+        nickname:
+          type: string
+          description: 사용자의 닉네임입니다.
+        question_answer:
+          type: string
+          description: 사용자의 보안 질문에 대한 답변입니다.
+      required:
+        - account
+        - password
+        - nickname
+        - question_answer
+
+    UserSignIn:
+      type: object
+      properties:
+        account:
+          type: string
+          description: 로그인에 사용되는 사용자의 계정명입니다.
+        password:
+          type: string
+          description: 로그인에 사용되는 사용자의 비밀번호입니다.
+      required:
+        - account
+        - password
+
+    UsersMyPage:
+      type: object
+      properties:
+        account:
+          type: string
+          description: 유저의 계정 입니다.
+        nickname:
+          type: string
+          description: 유저의 계정 닉네임 입니다.
+        question_answer:
+          type: string
+          description: 유저의 계정보안 질문입니다.
+      required:
+        - account
+        - nickname
+        - question_answer
+
+    UserUpdateInfo:
+      type: object
+      properties:
+        password:
+          type: string
+          description: 유저가 변경할 새로운 비밀번호 입니다.
+        nickname:
+          type: string
+          description: 유저가 변경할 새로운 닉네임 입니다.
+
+    AccountRecovery:
+      type: object
+      properties:
+        account:
+          type: string
+          description: 계정을 복구할 유저의 계정입니다.
+        answer:
+          type: string
+          description: 계정복구에 필요한 답변입니다.
+        editPassword:
+          type: string
+          description: 유저가 변경할 새로운 비밀번호 입니다.
+      required:
+        - account
+        - answer
+        - editPassword
+
+    UserDelete:
+      type: object
+      properties:
+        deleteMessage:
+          type: string
+          description: 계정을 삭제하기 위한 메세지입니다.
+      required:
+        - deleteMessage
+
+    FavoriteCafe:
+      type: object
+      properties:
+        name:
+          type: string
+          description: 즐겨찾기 항목에 있는 카페의 이름입니다.
+        address:
+          type: string
+          description: 즐겨찾기 항목에 있는 카페의 주소입니다.
+        score:
+          type: string
+          description: 즐겨찾기 항목에 있는 카페의 평점입니다.
+        thumbnail:
+          type: string
+          description: 즐겨찾기 항목에 있는 카페의 프로필입니다.
+
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+paths:
+  /users/signup:
+    post:
+      summary: Register a new user
+      requestBody:
+        description: 회원가입을 하기 위해 필요한 정보입니다.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserSignUp"
+      responses:
+        "201":
+          description: 계정이 성공적으로 등록되었습니다.
+        "400":
+          description: 클라이언트의 잘못된 요청에 의해 요청을 처리할 수 없습니다.
+
+  /users/signin:
+    post:
+      summary: User login
+      requestBody:
+        description: 유저가 로그인하기 위해 필요한 회원정보 입니다.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserSignIn"
+      responses:
+        "200":
+          description: 성공적으로 로그인을 하였습니다.
+        "400":
+          description: 클라이언트의 잘못된 요청에 의해 요청을 처리할 수 없습니다.
+
+  /users/mypage:
+    get:
+      summary: 사용자 정보 조회
+      description: 로그인된 사용자의 정보를 가져옵니다.
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: 사용자 정보를 성공적으로 가져옴.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UsersMyPage"
+        "401":
+          description: 인증이 필요합니다. JWT 토큰이 필요한 요청.
+        "404":
+          description: 사용자 정보가 없음.
+
+    patch:
+      summary: 사용자 정보 업데이트
+      description: 사용자의 비밀번호나 닉네임을 업데이트합니다.
+      security:
+        - BearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserUpdateInfo"
+        required: true
+      responses:
+        "200":
+          description: 사용자 정보가 성공적으로 업데이트되었습니다.
+        "400":
+          description: 잘못된 요청입니다.
+        "401":
+          description: 인증이 필요합니다.
+
+    delete:
+      summary: 사용자 계정 삭제
+      description: 사용자의 계정을 삭제합니다.
+      security:
+        - BearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserDelete"
+        required: true
+      responses:
+        "204":
+          description: 사용자 계정이 성공적으로 삭제되었습니다.
+        "400":
+          description: 잘못된 요청입니다.
+        "401":
+          description: 인증이 필요합니다.
+
+  /users/search:
+    patch:
+      summary: 사용자 비밀번호 찾기
+      description: 회원가입 질문을 통해 비밀번호를 변경합니다.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AccountRecovery"
+        required: true
+      responses:
+        "200":
+          description: 비밀번호가 성공적으로 변경되었습니다.
+        "400":
+          description: 잘못된 요청입니다.
+        "401":
+          description: 인증이 필요합니다.
+
+  /users/favorites/{cafeId}:
+    post:
+      summary: Add a new favorite cafe
+      description: Allows the user to add a cafe to their list of favorites.
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: cafeId
+          required: true
+          schema:
+            type: string
+          description: 즐겨찾기에 추가할 카페의 id값 입니다.
+      responses:
+        "200":
+          description: 즐겨찾기 항목에 있는 카페가 성공적으로 추가되었습니다.
+        "401":
+          description: 권한없는 요청입니다.
+        "404":
+          description: 카페가 존재하지 않습니다.
+
+    delete:
+      summary: Remove a favorite cafe
+      description: Allows the user to remove a cafe from their list of favorites.
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: cafeId
+          required: true
+          schema:
+            type: string
+          description: 즐겨찾기에서 삭제할 카페의 id값 입니다.
+      responses:
+        "204":
+          description: 즐겨찾기 항목에 있는 카페가 성공적으로 삭제되었습니다.
+        "401":
+          description: 권한없는 요청입니다.
+        "404":
+          description: 즐겨찾기 목록에 존재하지 않습니다.
+
+security:
+  - BearerAuth: []
