@@ -1,11 +1,12 @@
 const express = require("express");
 const cors = require("cors");
 const morgan = require("morgan");
+
 const swaggerJsdoc = require("swagger-jsdoc");
 const swaggerUi = require("swagger-ui-express");
+const { authMiddleware } = require("./src/utils/swaggerAuth");
 require("./src/scheduler/updatePlaceData");
 
-const { swaggerAuthentication } = require("./src/utils/swagger/swaggerAuth");
 const { router } = require("./src/routes");
 const { globalErrorHandler } = require("./src/utils/error");
 
@@ -33,7 +34,12 @@ const createApp = () => {
     ],
   };
   const swaggerSpec = swaggerJsdoc(options);
-  app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+  app.use(
+    "/docs",
+    authMiddleware,
+    swaggerUi.serve,
+    swaggerUi.setup(swaggerSpec)
+  );
 
   app.use(router);
 
