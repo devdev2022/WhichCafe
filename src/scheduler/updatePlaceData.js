@@ -111,12 +111,28 @@ async function getPlacePhoto(photoReference) {
   return response.data;
 }
 
+async function checkFileExistenceInS3(bucketName, imageName) {
+  try {
+    const params = {
+      Bucket: bucketName,
+      Key: imageName,
+    };
+
+    await s3Client.send(new HeadObjectCommand(params));
+    return true;
+  } catch (error) {
+    if (error.name === "NotFound") {
+      return false;
+    }
+    throw error;
+  }
+}
+
 async function uploadImageToS3(bucketName, imageName, imageData) {
   try {
     const doesImageExist = await checkFileExistenceInS3(bucketName, imageName);
 
     if (doesImageExist) {
-      console.log("Image already exists. Skipping the upload.");
       return `Image already exists in S3 at location - ${bucketName}/${imageName}`;
     }
 
@@ -132,23 +148,6 @@ async function uploadImageToS3(bucketName, imageName, imageData) {
     return `https://${bucketName}.s3.amazonaws.com/${imageName}`;
   } catch (error) {
     console.error(`Error during the upload process: ${error}`);
-    throw error;
-  }
-}
-
-async function checkFileExistenceInS3(bucketName, imageName) {
-  try {
-    const params = {
-      Bucket: bucketName,
-      Key: imageName,
-    };
-
-    await s3Client.send(new HeadObjectCommand(params));
-    return true;
-  } catch (error) {
-    if (error.name === "NotFound") {
-      return false;
-    }
     throw error;
   }
 }
@@ -261,7 +260,7 @@ async function main() {
 
           try {
             imageData = await getPlacePhoto(details.photos[i].photo_reference);
-            const imageUrl = await uploadImageToS3(
+            await uploadImageToS3(
               "s3-hosting-whichcafe",
               `cafeImage/${imageName}`,
               imageData
