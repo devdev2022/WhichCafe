@@ -76,10 +76,8 @@ function deg2rad(deg) {
 }
 
 const checkDataByDistance = async (lat1, lon1, lat2, lon2, limit = 20) => {
-  return new Promise((resolve) => {
-    const distance = getDistance(lat1, lon1, lat2, lon2);
-    resolve(distance <= limit);
-  });
+  const distance = getDistance(lat1, lon1, lat2, lon2);
+  return distance <= limit;
 };
 
 async function getPlacePhoto(photoReference) {
@@ -110,7 +108,7 @@ async function main() {
     const allCafes = await locationDao.getAllCafeData();
     let ratesToUpdate = [];
 
-    const allTasks = allCafes.slice(0, 10).map(async (cafe) => {
+    for (const cafe of allCafes.slice(0, 10)) {
       const cafeName = cafe.name;
       const cafeId = cafe.id;
 
@@ -120,11 +118,11 @@ async function main() {
         placeId = await getPlaceId(cafeName);
         if (!placeId) {
           console.error(`No location data found for cafe ${cafeName}`);
-          return null;
+          continue;
         }
       } catch (err) {
         console.error(`getPlaceId Error : ${cafeName}, ${err.message}`);
-        return null;
+        continue;
       }
 
       let placeData;
@@ -133,12 +131,14 @@ async function main() {
         placeData = await getPlaceDetails(placeId);
         if (!placeData || !placeData.geometry.location) {
           console.error(`getPlaceDetails Error : ${cafeName} is not available`);
-          return null;
+          continue;
         }
       } catch (err) {
         console.error(err.message);
-        return null;
+        continue;
       }
+
+      console.log(placeData.geometry.location);
 
       const googleLocation = {
         lat: placeData.geometry.location.lat,
@@ -149,61 +149,53 @@ async function main() {
         lng: cafe.cafe_longitude,
       };
 
-      if (
-        !checkDataByDistance(
-          googleLocation.lat,
-          googleLocation.lng,
-          dbLocation.lat,
-          dbLocation.lng
-        )
-      ) {
-        return null;
+      const checkResponseData = checkDataByDistance(
+        googleLocation.lat,
+        googleLocation.lng,
+        dbLocation.lat,
+        dbLocation.lng
+      );
+
+      if (!checkResponseData) {
+        continue;
       }
 
-      let details;
-
-      try {
-        details = await getPlaceDetails(placeData.place_id);
-      } catch (err) {
-        console.error(
-          `placeDetails Error : fetching place ID for cafe ${cafeName}, ${err.message}`
-        );
-        return null;
-      }
-
-      if (details.rating !== undefined && details.rating !== null) {
+      if (placeData.rating !== undefined && placeData.rating !== null) {
         ratesToUpdate.push({
           cafe_id: cafeId,
-          score: details.rating,
+          score: placeData.rating,
         });
       }
 
-      await locationDao.updateRate(ratesToUpdate);
-
-      if (details.photos && details.photos.length > 0) {
-        const maxPhotos = Math.min(details.photos.length, 3);
+      if (placeData.photos && placeData.photos.length > 0) {
+        const maxPhotos = Math.min(placeData.photos.length, 3);
 
         let imageData;
 
         for (let i = 0; i < maxPhotos; i++) {
-          const imageName = `${cafeName.replace(/ /g, "_")}${i + 1}.jpg`;
-          const savePath = `/Users/khs/Documents/WhichCafe/projectmaterial/cafeimage/${imageName}`;
-
-          const excludedCafes = [
-            "만월경",
-            "에그카페24",
-            "카페일분",
-            "데이롱카페",
-            "커피에반하다",
-            "카페인24",
-          ];
-
-          if (fs.existsSync(savePath) || excludedCafes.includes(cafeName)) {
-            continue;
-          }
-
+          let imageName;
           try {
-            imageData = await getPlacePhoto(details.photos[i].photo_reference);
+            imageData = await getPlacePhoto(
+              placeData.photos[i].photo_reference
+            );
+            if (!imageData) continue;
+
+            imageName = `${cafeName.replace(/ /g, "_")}${i + 1}.jpg`;
+            const savePath = `/Users/khs/Documents/WhichCafe/projectmaterial/cafeimage/${imageName}`;
+
+            const excludedCafes = [
+              "만월경",
+              "에그카페24",
+              "카페일분",
+              "데이롱카페",
+              "커피에반하다",
+              "카페인24",
+            ];
+
+            if (fs.existsSync(savePath) || excludedCafes.includes(cafeName)) {
+              continue;
+            }
+
             await fs.promises.writeFile(savePath, imageData);
           } catch (err) {
             console.error(`getPlacePhoto Error : ${cafeName}, ${err.message}`);
@@ -212,33 +204,29 @@ async function main() {
 
           try {
             const htmlAttribution =
-              details.photos[i].html_attributions &&
-              details.photos[i].html_attributions.length > 0
-                ? details.photos[i].html_attributions[0]
+              placeData.photos[i].html_attributions &&
+              placeData.photos[i].html_attributions.length > 0
+                ? placeData.photos[i].html_attributions[0]
                 : null;
             await locationDao.savePhotoInfo(cafeId, htmlAttribution, imageName);
           } catch (err) {
+            console.log(imageName);
             console.error(`savePhotoInfo Error : ${cafeName}, ${err.message}`);
             return null;
           }
         }
       }
-    });
+    }
 
-    const results = await Promise.allSettled(allTasks);
-
-    const errors = results.filter((result) => result.status === "rejected");
-    for (const error of errors) {
-      console.error(error.reason);
+    if (ratesToUpdate.length > 0) {
+      await locationDao.updateRate(ratesToUpdate);
     }
   } catch (error) {
-    console.log(
-      error.response ? error.response.data.error_message : error.message
-    );
+    console.error("Error in main function: ", error);
   }
 }
 
-const scheduledTask = schedule.scheduleJob("0 18 21 * * *", async function () {
+const scheduledTask = schedule.scheduleJob("0 02 16 * * *", async function () {
   await main();
 });
 
