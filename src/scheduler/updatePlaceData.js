@@ -8,6 +8,12 @@ const {
   placeDetailsSchema,
   validateResponse,
 } = require("./responseCheck");
+const {
+  S3Client,
+  PutObjectCommand,
+  HeadObjectCommand,
+} = require("@aws-sdk/client-s3");
+const s3Client = new S3Client({ region: "ap-northeast-2" });
 
 const client = new Client({});
 
@@ -105,6 +111,48 @@ async function getPlacePhoto(photoReference) {
   return response.data;
 }
 
+async function uploadImageToS3(bucketName, imageName, imageData) {
+  try {
+    const doesImageExist = await checkFileExistenceInS3(bucketName, imageName);
+
+    if (doesImageExist) {
+      console.log("Image already exists. Skipping the upload.");
+      return `Image already exists in S3 at location - ${bucketName}/${imageName}`;
+    }
+
+    const uploadParams = {
+      Bucket: bucketName,
+      Key: imageName,
+      Body: imageData,
+      ContentType: "image/jpeg",
+    };
+
+    await s3Client.send(new PutObjectCommand(uploadParams));
+
+    return `https://${bucketName}.s3.amazonaws.com/${imageName}`;
+  } catch (error) {
+    console.error(`Error during the upload process: ${error}`);
+    throw error;
+  }
+}
+
+async function checkFileExistenceInS3(bucketName, imageName) {
+  try {
+    const params = {
+      Bucket: bucketName,
+      Key: imageName,
+    };
+
+    await s3Client.send(new HeadObjectCommand(params));
+    return true;
+  } catch (error) {
+    if (error.name === "NotFound") {
+      return false;
+    }
+    throw error;
+  }
+}
+
 async function main() {
   try {
     const allCafes = await locationDao.getAllCafeData();
@@ -187,7 +235,6 @@ async function main() {
 
         for (let i = 0; i < maxPhotos; i++) {
           const imageName = `${cafeName.replace(/ /g, "_")}${i + 1}.jpg`;
-          const savePath = `/Users/khs/Documents/WhichCafe/projectmaterial/cafeimage/${imageName}`;
 
           const excludedCafes = [
             "만월경",
@@ -198,13 +245,27 @@ async function main() {
             "카페인24",
           ];
 
-          if (fs.existsSync(savePath) || excludedCafes.includes(cafeName)) {
+          if (excludedCafes.includes(cafeName)) {
             continue;
+          }
+
+          const fileExistsInS3 = await checkFileExistenceInS3(
+            "s3-hosting-whichcafe",
+            imageName
+          );
+
+          if (fileExistsInS3) {
+            console.log(`File already exists in S3: ${imageName}`);
+            return `Image already exists in S3 at location - ${bucketName}/${imageName}`;
           }
 
           try {
             imageData = await getPlacePhoto(details.photos[i].photo_reference);
-            await fs.promises.writeFile(savePath, imageData);
+            const imageUrl = await uploadImageToS3(
+              "s3-hosting-whichcafe",
+              `cafeImage/${imageName}`,
+              imageData
+            );
           } catch (err) {
             console.error(`getPlacePhoto Error : ${cafeName}, ${err.message}`);
             continue;
@@ -238,7 +299,7 @@ async function main() {
   }
 }
 
-const scheduledTask = schedule.scheduleJob("0 18 21 * * *", async function () {
+const scheduledTask = schedule.scheduleJob("0 14 19 * * *", async function () {
   await main();
 });
 
