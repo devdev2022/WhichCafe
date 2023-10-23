@@ -5,6 +5,20 @@ const userDao = require("../models/userDao");
 const { validateAccount, validatePw } = require("../utils/validation");
 const { customError } = require("../utils/error");
 
+const duplicationCheck = async (account) => {
+  try {
+    const user = await userDao.getUserByAccount(account);
+
+    if (user) {
+      customError("ACCOUNT ALREADY EXIST", 400);
+    }
+
+    return user;
+  } catch (error) {
+    throw error;
+  }
+};
+
 const signUp = async (account, password, nickname, question_answer) => {
   try {
     validateAccount(account);
@@ -15,10 +29,10 @@ const signUp = async (account, password, nickname, question_answer) => {
       customError("DUPLICATED ACCOUNT", 400);
     }
 
-    const checkNicknameDup = await userDao.getUserByNickname(nickname);
+    /*const checkNicknameDup = await userDao.getUserByNickname(nickname);
     if (checkNicknameDup) {
       customError("DUPLICATED NICKNAME", 400);
-    }
+    }*/
 
     const hashedPassword = await bcrypt.hash(
       password,
@@ -241,6 +255,7 @@ const deleteAccount = async (account, deleteMessage) => {
 };
 
 module.exports = {
+  duplicationCheck,
   signUp,
   signIn,
   getUserByAccount,

@@ -4,6 +4,8 @@ const router = express.Router();
 const userController = require("../controllers/userController");
 const { validateToken } = require("../utils/TokenValidation");
 
+router.get("/duplicationCheck/:account", userController.duplicationCheck);
+
 router.post("/signup", userController.signUp);
 router.post("/signin", userController.signIn);
 
