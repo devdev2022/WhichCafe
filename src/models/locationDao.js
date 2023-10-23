@@ -141,18 +141,19 @@ const updateRate = async (ratesToUpdate) => {
   }
 };
 
-const savePhotoInfo = async (cafeId, htmlAttribution, imageName) => {
+const savePhotoInfo = async (cafeId, htmlAttribution, imageName, imageUrl) => {
   const conn = await database.getConnection();
   try {
     let query = `
-    INSERT INTO photos (cafe_id, html_attributions, photo_name) 
-    VALUES (?, ?, ?)
+    INSERT INTO photos (cafe_id, html_attributions, photo_name, url) 
+    VALUES (?, ?, ?, ?)
     ON DUPLICATE KEY UPDATE 
     html_attributions = VALUES(html_attributions),
-    photo_name = VALUES(photo_name);
+    photo_name = VALUES(photo_name),
+    url = VALUES(url);
     `;
 
-    const queryParams = [cafeId, htmlAttribution, imageName];
+    const queryParams = [cafeId, htmlAttribution, imageName, imageUrl];
 
     await conn.query(query, queryParams);
     return true;

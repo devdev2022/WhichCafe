@@ -133,7 +133,10 @@ async function uploadImageToS3(bucketName, imageName, imageData) {
     const doesImageExist = await checkFileExistenceInS3(bucketName, imageName);
 
     if (doesImageExist) {
-      return `Image already exists in S3 at location - ${bucketName}/${imageName}`;
+      console.log(
+        `Image already exists in S3 at location - ${bucketName}/${imageName}`
+      );
+      return `https://${bucketName}.s3.amazonaws.com/${imageName}`;
     }
 
     const uploadParams = {
@@ -230,8 +233,6 @@ async function main() {
       if (details.photos && details.photos.length > 0) {
         const maxPhotos = Math.min(details.photos.length, 3);
 
-        let imageData;
-
         for (let i = 0; i < maxPhotos; i++) {
           const imageName = `${cafeName.replace(/ /g, "_")}${i + 1}.jpg`;
 
@@ -258,9 +259,13 @@ async function main() {
             return `Image already exists in S3 at location - ${bucketName}/${imageName}`;
           }
 
+          let imageUrl;
+
           try {
-            imageData = await getPlacePhoto(details.photos[i].photo_reference);
-            await uploadImageToS3(
+            const imageData = await getPlacePhoto(
+              details.photos[i].photo_reference
+            );
+            imageUrl = await uploadImageToS3(
               "s3-hosting-whichcafe",
               `cafeImage/${imageName}`,
               imageData
@@ -276,7 +281,12 @@ async function main() {
               details.photos[i].html_attributions.length > 0
                 ? details.photos[i].html_attributions[0]
                 : null;
-            await locationDao.savePhotoInfo(cafeId, htmlAttribution, imageName);
+            await locationDao.savePhotoInfo(
+              cafeId,
+              htmlAttribution,
+              imageName,
+              imageUrl
+            );
           } catch (err) {
             console.error(`savePhotoInfo Error : ${cafeName}, ${err.message}`);
             return null;
@@ -298,7 +308,7 @@ async function main() {
   }
 }
 
-const scheduledTask = schedule.scheduleJob("0 14 19 * * *", async function () {
+const scheduledTask = schedule.scheduleJob("0 27 23 * * *", async function () {
   await main();
 });
 

@@ -8,6 +8,14 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
+SET @MYSQLDUMP_TEMP_LOG_BIN = @@SESSION.SQL_LOG_BIN;
+SET @@SESSION.SQL_LOG_BIN= 0;
+
+--
+-- GTID state at the beginning of the backup
+--
+
+SET @@GLOBAL.GTID_PURGED=/*!80000 '+'*/ '';
 
 --
 -- Table structure for table `cafe_address`
@@ -88,12 +96,11 @@ CREATE TABLE `photos` (
 CREATE TABLE `reviews` (
   `id` int NOT NULL AUTO_INCREMENT,
   `cafe_id` int NOT NULL,
-  `score` int NOT NULL,
   `content` varchar(255) DEFAULT NULL,
   `user_id` int DEFAULT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `cafe_id` (`cafe_id`),
   UNIQUE KEY `user_id` (`user_id`),
+  KEY `fk_cafes_id` (`cafe_id`),
   CONSTRAINT `fk_cafes_id` FOREIGN KEY (`cafe_id`) REFERENCES `cafes` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -132,6 +139,7 @@ CREATE TABLE `users` (
 --
 -- Dumping routines for database 'WhichCafe'
 --
+SET @@SESSION.SQL_LOG_BIN = @MYSQLDUMP_TEMP_LOG_BIN;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
@@ -153,7 +161,6 @@ INSERT INTO `schema_migrations` (version) VALUES
   ('20230913114506'),
   ('20230913114508'),
   ('20230913114510'),
-  ('20230913114512'),
   ('20230913114518'),
   ('20230913114525'),
   ('20230913114537');
