@@ -2,7 +2,7 @@ require("dotenv").config({ path: "../../.env" });
 const schedule = require("node-schedule");
 const { Client } = require("@googlemaps/google-maps-services-js");
 const locationDao = require("../models/locationDao");
-const fs = require("fs");
+
 const {
   placeIdSchema,
   placeDetailsSchema,

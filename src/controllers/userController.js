@@ -1,6 +1,19 @@
 const userService = require("../services/userService");
 const { catchAsync } = require("../utils/error");
 
+const duplicationCheck = catchAsync(async (req, res) => {
+  const account = req.params.account;
+
+  if (!account) {
+    return res.status(400).json({ message: "KEY_ERROR" });
+  }
+
+  await userService.duplicationCheck(account);
+  return res.status(200).json({
+    message: "DUPLICATION_CHECK_PASS",
+  });
+});
+
 const signUp = catchAsync(async (req, res) => {
   const { account, password, nickname, question_answer } = req.body;
 
@@ -107,6 +120,7 @@ const deleteAccount = catchAsync(async (req, res) => {
 });
 
 module.exports = {
+  duplicationCheck,
   signIn,
   signUp,
   getFavorites,

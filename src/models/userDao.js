@@ -44,7 +44,7 @@ const signIn = async (account) => {
   }
 };
 
-const getUserByNickname = async (nickname) => {
+/*const getUserByNickname = async (nickname) => {
   const conn = await database.getConnection();
 
   try {
@@ -63,7 +63,7 @@ const getUserByNickname = async (nickname) => {
   } finally {
     conn.release();
   }
-};
+};*/
 
 const getUserByAccount = async (account) => {
   const conn = await database.getConnection();
@@ -266,7 +266,6 @@ const deleteAccount = async (account) => {
 module.exports = {
   signUp,
   signIn,
-  getUserByNickname,
   getUserByAccount,
   getFavorites,
   getIdByAccount,
