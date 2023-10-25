@@ -93,6 +93,7 @@ const getFavorites = async (account) => {
     const [result] = await conn.query(
       `
       SELECT 
+        C.id,
         C.name,
         CA.address,
         C.score,

@@ -240,7 +240,7 @@ async function main() {
             "만월경",
             "에그카페24",
             "카페일분",
-            "데이롱카페",
+            "데이롱",
             "커피에반하다",
             "카페인24",
           ];
@@ -308,7 +308,7 @@ async function main() {
   }
 }
 
-const scheduledTask = schedule.scheduleJob("0 27 23 * * *", async function () {
+const scheduledTask = schedule.scheduleJob("0 24 22 * * *", async function () {
   await main();
 });
 
