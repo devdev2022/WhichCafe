@@ -10,9 +10,15 @@ components:
         account:
           type: string
           description: 사용자의 계정명입니다.
+          minLength: 3
+          maxLength: 30
+          pattern: '^(?=.*[a-zA-Z])(?=.*\d)[a-zA-Z\d]{3,30}$'
         password:
           type: string
           description: 사용자의 비밀번호입니다.
+          minLength: 8
+          maxLength: 64
+          pattern: '^(?=.*[a-zA-Z])(?=.*\d)[a-zA-Z\d]{8,64}$'
         nickname:
           type: string
           description: 사용자의 닉네임입니다.
@@ -112,6 +118,11 @@ components:
       type: http
       scheme: bearer
       bearerFormat: JWT
+      description: |
+        JWT 토큰을 사용한 Bearer 인증 스키마입니다. 인증을 위해서는 다음의 단계를 따르십시오:
+        1. `/auth` 엔드포인트를 사용하여 로그인하고 JWT 토큰을 획득합니다.
+        2. 인증이 필요한 각 요청에 대해 `Authorization` 헤더를 추가하십시오.
+        3. `Authorization` 헤더 값은 'Bearer ' 다음에 획득한 토큰을 붙여 넣으십시오.
 
 paths:
   /users/signup:
@@ -317,6 +328,16 @@ paths:
       responses:
         "200":
           description: 사용자 정보를 성공적으로 가져옴.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: 업데이트 성공 메시지
+              example:
+                message: "UPDATE_DATA_SUCCESS"
         "400":
           description: 클라이언트의 잘못된 요청으로 인한 오류입니다.
           content:
