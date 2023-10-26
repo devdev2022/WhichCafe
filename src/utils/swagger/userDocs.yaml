@@ -159,6 +159,7 @@ paths:
                   summary: "필수 키 누락"
                   value:
                     message: "KEY_ERROR"
+                    explaination: "필수 데이터가 전송되지 않았습니다."
                 duplicatedAccount:
                   summary: "계정 중복"
                   value:
