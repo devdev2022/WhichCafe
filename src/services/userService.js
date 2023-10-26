@@ -45,11 +45,6 @@ const signUp = async (account, password, nickname, question_answer) => {
       nickname,
       question_answer
     );
-    if (!signUp) {
-      const error = new Error("SIGNUP FAILED");
-      error.statusCode = 500;
-      throw error;
-    }
 
     return signUp;
   } catch (error) {
@@ -109,13 +104,6 @@ const getFavorites = async (account) => {
 const addFavorites = async (account, cafe_id) => {
   try {
     const userAccount = await userDao.getIdByAccount(account);
-    if (!userAccount) {
-      customError("USER ID DOES NOT EXIST", 400);
-    }
-
-    if (!cafe_id) {
-      customError("CAFE ID NOT PROVIDED", 400);
-    }
 
     const findFavData = await userDao.findFavData(userAccount, cafe_id);
     if (findFavData) {
@@ -135,7 +123,7 @@ const deleteFavorites = async (account, cafe_id) => {
 
     const findFavData = await userDao.findFavData(userAccount, cafe_id);
     if (!findFavData) {
-      customError("FAVORITES_DATA NOT EXIST", 400);
+      customError("FAVORITES_DATA NOT EXIST", 404);
     }
 
     const deletedFavoriteId = await userDao.deleteFavorites(
@@ -173,13 +161,6 @@ const updateUserInfo = async (updateData, account) => {
           const checkNickname = await userDao.getUserByAccount(account);
           if (checkNickname.nickname === updateData["nickname"]) {
             customError("YOUR NICKNAME IS SAME WITH CURRENT NICKNAME", 400);
-          }
-
-          const checkNicknameDup = await userDao.getUserByNickname(
-            updateData["nickname"]
-          );
-          if (checkNicknameDup) {
-            customError("DUPLICATED NICKNAME", 400);
           }
         }
 

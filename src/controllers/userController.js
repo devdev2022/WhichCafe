@@ -7,7 +7,6 @@ const duplicationCheck = catchAsync(async (req, res) => {
   if (!account) {
     return res.status(400).json({
       message: "KEY_ERROR",
-      explaination: "필수 데이터가 전송되지 않았습니다.",
     });
   }
 
@@ -23,7 +22,6 @@ const signUp = catchAsync(async (req, res) => {
   if (!account || !password || !nickname || !question_answer) {
     return res.status(400).json({
       message: "KEY_ERROR",
-      explaination: "필수 데이터가 전송되지 않았습니다.",
     });
   }
 
@@ -39,7 +37,6 @@ const signIn = catchAsync(async (req, res) => {
   if (!account || !password) {
     return res.status(400).json({
       message: "KEY_ERROR",
-      explaination: "필수 데이터가 전송되지 않았습니다.",
     });
   }
 
@@ -52,7 +49,6 @@ const getFavorites = catchAsync(async (req, res) => {
   if (!account) {
     return res.status(400).json({
       message: "KEY_ERROR",
-      explaination: "필수 데이터가 전송되지 않았습니다.",
     });
   }
 
@@ -67,7 +63,6 @@ const addFavorites = catchAsync(async (req, res) => {
   if (!account || !cafe_id) {
     return res.status(400).json({
       message: "KEY_ERROR",
-      explaination: "필수 데이터가 전송되지 않았습니다.",
     });
   }
 
@@ -84,7 +79,6 @@ const deleteFavorites = catchAsync(async (req, res) => {
   if (!account || !cafe_id) {
     return res.status(400).json({
       message: "KEY_ERROR",
-      explaination: "필수 데이터가 전송되지 않았습니다.",
     });
   }
 
@@ -104,7 +98,6 @@ const updateUserInfo = catchAsync(async (req, res) => {
   if (!account) {
     return res.status(400).json({
       message: "KEY_ERROR",
-      explaination: "필수 데이터가 전송되지 않았습니다.",
     });
   }
 
@@ -123,7 +116,6 @@ const searchPassword = catchAsync(async (req, res) => {
   if (!account || !answer || !editPassword) {
     return res.status(400).json({
       message: "KEY_ERROR",
-      explaination: "필수 데이터가 전송되지 않았습니다.",
     });
   }
 
@@ -138,7 +130,6 @@ const deleteAccount = catchAsync(async (req, res) => {
   if (!account || !deleteMessage) {
     return res.status(400).json({
       message: "KEY_ERROR",
-      explaination: "필수 데이터가 전송되지 않았습니다.",
     });
   }
 

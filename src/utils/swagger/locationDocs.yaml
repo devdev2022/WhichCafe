@@ -4,11 +4,11 @@ info:
   version: "1.0.0"
 components:
   schemas:
-    Location:
+    Cafe:
       type: object
       properties:
         cafe_id:
-          type: int
+          type: integer
           description: DB의 번호입니다.
         cafe_name:
           type: string
@@ -16,57 +16,46 @@ components:
         cafe_thumbnail:
           type: string
           description: 카페에 대한 정보를 불러올때 나타나는 이미지 입니다.
+          nullable: true
         cafe_address:
           type: string
           description: 카페 주소입니다.
         score:
-          type: int
+          type: number
           description: 카페에 대한 평점입니다.
+          format: float
+          nullable: true
         cafe_latitude:
-          type: int
+          type: float
           description: 카페의 위도 입니다.
         cafe_longitude:
-          type: int
+          type: float
           description: 카페의 경도입니다.
         cafe_photos:
-          type: int
-          description: 카페에 대한 사진입니다.
+          type: array
+          items:
+            type: string
+            description: 카페에 대한 사진입니다.
+            nullable: true
+        distance:
+          type: string
+          description: 현재 위치로부터 떨어진 거리입니다.
       required:
         - cafe_id
         - cafe_name
-        - cafe_thumbnail
-        - score
         - cafe_address
         - cafe_latitude
         - cafe_longitude
-        - cafe_photos
-    LocationSearch:
+        - distance
+
+    NearbyCafeResponse:
       type: object
       properties:
-        cafe_id:
-          type: int
-          description: DB의 번호입니다.
-        cafe_name:
-          type: string
-          description: 카페의 이름 입니다.
-        cafe_thumbnail:
-          type: string
-          description: 카페에 대한 정보를 불러올때 나타나는 이미지 입니다.
-        cafe_address:
-          type: string
-          description: 카페 주소입니다.
-        score:
-          type: int
-          description: 카페에 대한 평점입니다.
-        cafe_latitude:
-          type: int
-          description: 카페의 위도 입니다.
-        cafe_longitude:
-          type: int
-          description: 카페의 경도입니다.
-        cafe_photos:
-          type: int
-          description: 카페에 대한 사진입니다.
+        nearbyAddress:
+          type: array
+          items:
+            $ref: "#/components/schemas/Cafe"
+
 paths:
   /location:
     get:
@@ -86,13 +75,67 @@ paths:
             format: float
       responses:
         "200":
-          description: 검색 성공, 주변 카페의 목록을 반환합니다.
+          description: 현재위치 주변의 카페 목록을 반환합니다.
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/CafeList"
+                $ref: "#/components/schemas/NearbyCafeResponse"
+              example:
+                value:
+                  nearbyAddress:
+                    - cafe_id: 1
+                      cafe_name: "빵파남 커파남"
+                      cafe_thumbnail: "https://lh3.googleusercontent.com/p/AF1QipPDO5-hxv0EAuwtrh4_yTnc4vy6XsZr-zgFfLHi=s1360-w1360-h1020"
+                      cafe_address: "서울 강남구 논현동 242-20"
+                      score: null
+                      cafe_latitude: "37.516063"
+                      cafe_longitude: "127.040926"
+                      cafe_photos:
+                        - "https://lh3.googleusercontent.com/p/AF1QipNc3m1MtLv0CfcJRDv6Te1WXHeUB6wioWRZWX_U=s1360-w1360-h1020"
+                        - "https://lh3.googleusercontent.com/p/AF1QipNkxaTzsf8Rbp6GFYGHnalYAZ1n3nhw7Lcc-PZ1=s1360-w1360-h1020"
+                      distance: "0.1km"
+                    - cafe_id: 5
+                      cafe_name: "카페드아마폴라 강남점"
+                      cafe_thumbnail: null
+                      cafe_address: "서울 강남구 역삼동 653"
+                      cafe_latitude: 37.508142
+                      cafe_longitude: 127.037541
+                      cafe_photos:
+                        - null
+                      distance: "0.9km"
+
+                    - cafe_id: 8
+                      cafe_name: "카페 만월경 강남점"
+                      cafe_thumbnail: null
+                      cafe_address: "서울 강남구 삼성동 44-36"
+                      cafe_latitude: 37.512333
+                      cafe_longitude: 127.048478
+                      cafe_photos:
+                        - null
+                      distance: "0.9km"
+
         "400":
-          description: Bad request, unable to process the request due to an error in client input.
+          description: 클라이언트의 잘못된 요청으로 인한 오류입니다.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+              example:
+                message: "KEY_ERROR"
+        "500":
+          description: 웹 서버 내부의 데이터베이스에 의한 오류입니다.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+              example:
+                message: "GET_NEARBY_ADDRESS_ERROR"
   /location/search:
     get:
       summary: 주어진 주소에 대한 카페 목록을 검색합니다.
@@ -104,10 +147,63 @@ paths:
             type: string
       responses:
         "200":
-          description: 검색 성공, 주소에 대한 카페의 목록을 반환합니다.
+          description: 검색 성공, 주변 카페의 목록을 반환합니다.
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/CafeList"
+                $ref: "#/components/schemas/NearbyCafeResponse"
+              example:
+                value:
+                  nearbyAddress:
+                    - cafe_id: 1
+                      cafe_name: "빵파남 커파남"
+                      cafe_thumbnail: "https://lh3.googleusercontent.com/p/AF1QipPDO5-hxv0EAuwtrh4_yTnc4vy6XsZr-zgFfLHi=s1360-w1360-h1020"
+                      cafe_address: "서울 강남구 논현동 242-20"
+                      score: null
+                      cafe_latitude: "37.516063"
+                      cafe_longitude: "127.040926"
+                      cafe_photos:
+                        - "https://lh3.googleusercontent.com/p/AF1QipNc3m1MtLv0CfcJRDv6Te1WXHeUB6wioWRZWX_U=s1360-w1360-h1020"
+                        - "https://lh3.googleusercontent.com/p/AF1QipNkxaTzsf8Rbp6GFYGHnalYAZ1n3nhw7Lcc-PZ1=s1360-w1360-h1020"
+                      distance: "0.1km"
+                    - cafe_id: 5
+                      cafe_name: "카페드아마폴라 강남점"
+                      cafe_thumbnail: null
+                      cafe_address: "서울 강남구 역삼동 653"
+                      cafe_latitude: 37.508142
+                      cafe_longitude: 127.037541
+                      cafe_photos:
+                        - null
+                      distance: "0.9km"
+
+                    - cafe_id: 8
+                      cafe_name: "카페 만월경 강남점"
+                      cafe_thumbnail: null
+                      cafe_address: "서울 강남구 삼성동 44-36"
+                      cafe_latitude: 37.512333
+                      cafe_longitude: 127.048478
+                      cafe_photos:
+                        - null
+                      distance: "0.9km"
         "400":
-          description: Bad request, unable to process the request due to an error in client input.
+          description: 클라이언트의 잘못된 요청으로 인한 오류입니다.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+              example:
+                message: "KEY_ERROR"
+        "500":
+          description: 웹 서버 내부의 데이터베이스에 의한 오류입니다.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+              example:
+                message: "SEARCH_CAFES_ERROR"

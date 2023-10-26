@@ -7,7 +7,6 @@ const getNearbyAddress = catchAsync(async (req, res) => {
   if (!latitude || !longitude) {
     return res.status(400).json({
       message: "KEY_ERROR",
-      explaination: "필수 데이터가 전송되지 않았습니다.",
     });
   }
 
@@ -24,7 +23,6 @@ const searchCafes = catchAsync(async (req, res) => {
   if (!address) {
     return res.status(400).json({
       message: "KEY_ERROR",
-      explaination: "필수 데이터가 전송되지 않았습니다.",
     });
   }
 
