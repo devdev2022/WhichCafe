@@ -116,9 +116,15 @@ components:
 paths:
   /users/signup:
     post:
-      summary: Register a new user
+      summary: 회원가입
       requestBody:
-        description: 회원가입을 하기 위해 필요한 정보입니다.
+        description: |
+          회원가입을 하기 위해 필요한 정보입니다. 
+
+          1. 유저의 계정은 최소 하나 이상의 알파벳 문자와 숫자가 포함되어야 하며, 알파벳 문자와 숫자만을 포함해야 합니다.
+          2. 계정은 3자리에서 30자리 사이의 길이여야 합니다.
+          3. 유저의 비밀번호는 최소 하나 이상의 알파벳 문자와 숫자, 특수문자가 포함되어야 합니다.
+          4. 비밀번호는 8자리에서 64자리 사이의 길이여야 합니다.
         required: true
         content:
           application/json:
@@ -127,12 +133,64 @@ paths:
       responses:
         "201":
           description: 계정이 성공적으로 등록되었습니다.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: 회원가입 성공 메시지
+              example:
+                message: "SIGNUP_SUCCESS"
         "400":
-          description: 클라이언트의 잘못된 요청에 의해 요청을 처리할 수 없습니다.
+          description: 클라이언트의 잘못된 요청으로 인한 오류입니다.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                  message:
+                    type: string
+              examples:
+                keyError:
+                  summary: "필수 키 누락"
+                  value:
+                    message: "KEY_ERROR"
+                duplicatedAccount:
+                  summary: "계정 중복"
+                  value:
+                    message: "DUPLICATED_ACCOUNT"
+                invalidPassword:
+                  summary: "유효성 검사 기준에 맞지 않는 계정"
+                  value:
+                    message: "INVALID ACCOUNT"
+                invalidAccount:
+                  summary: "유효성 검사 기준에 맞지 않는 비밀번호"
+                  value:
+                    message: "INVALID PASSWORD"
+        "500":
+          description: 웹 서버 내부에 의한 오류입니다.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                  message:
+                    type: string
+              examples:
+                signupFailed:
+                  summary: "회원가입 실패"
+                  value:
+                    message: "SIGNUP FAILED"
 
   /users/signin:
     post:
-      summary: User login
+      summary: 유저 로그인
       requestBody:
         description: 유저가 로그인하기 위해 필요한 회원정보 입니다.
         required: true
@@ -145,6 +203,15 @@ paths:
           description: 성공적으로 로그인을 하였습니다.
         "400":
           description: 클라이언트의 잘못된 요청에 의해 요청을 처리할 수 없습니다.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: 오류 메시지 설명입니다.
+                    example: ACCOUNT DOES NOT EXIST OR INVALID PASSWORD
 
   /users/mypage:
     get:
@@ -222,7 +289,7 @@ paths:
 
   /users/favorites/{cafeId}:
     post:
-      summary: Add a new favorite cafe
+      summary: 즐겨찾기 목록에 카페 추가
       description: Allows the user to add a cafe to their list of favorites.
       security:
         - BearerAuth: []
@@ -242,7 +309,7 @@ paths:
           description: 카페가 존재하지 않습니다.
 
     delete:
-      summary: Remove a favorite cafe
+      summary: 즐겨찾기 항목의 카페 삭제
       description: Allows the user to remove a cafe from their list of favorites.
       security:
         - BearerAuth: []

@@ -18,7 +18,10 @@ const signUp = catchAsync(async (req, res) => {
   const { account, password, nickname, question_answer } = req.body;
 
   if (!account || !password || !nickname || !question_answer) {
-    return res.status(400).json({ message: "KEY_ERROR" });
+    return res.status(400).json({
+      error: "KEY_ERROR",
+      message: "필수 데이터가 전송되지 않았습니다.",
+    });
   }
 
   await userService.signUp(account, password, nickname, question_answer);
@@ -31,7 +34,10 @@ const signIn = catchAsync(async (req, res) => {
   const { account, password } = req.body;
 
   if (!account || !password) {
-    return res.status(400).json({ message: "KEY_ERROR" });
+    return res.status(400).json({
+      error: "KEY_ERROR",
+      message: "필수 데이터가 전송되지 않았습니다.",
+    });
   }
 
   const accessToken = await userService.signIn(account, password);
@@ -41,7 +47,10 @@ const signIn = catchAsync(async (req, res) => {
 const getFavorites = catchAsync(async (req, res) => {
   const account = req.user;
   if (!account) {
-    return res.status(400).json({ message: "KEY_ERROR" });
+    return res.status(400).json({
+      message: "KEY_ERROR",
+      message: "필수 데이터가 전송되지 않았습니다.",
+    });
   }
 
   const favorites = await userService.getFavorites(account);
@@ -53,7 +62,10 @@ const addFavorites = catchAsync(async (req, res) => {
   const cafe_id = req.params.cafeId;
 
   if (!account || !cafe_id) {
-    return res.status(400).json({ message: "KEY_ERROR" });
+    return res.status(400).json({
+      message: "KEY_ERROR",
+      message: "필수 데이터가 전송되지 않았습니다.",
+    });
   }
 
   await userService.addFavorites(account, cafe_id);
@@ -67,7 +79,10 @@ const deleteFavorites = catchAsync(async (req, res) => {
   const cafe_id = req.params.cafeId;
 
   if (!account || !cafe_id) {
-    return res.status(400).json({ message: "KEY_ERROR" });
+    return res.status(400).json({
+      message: "KEY_ERROR",
+      message: "필수 데이터가 전송되지 않았습니다.",
+    });
   }
 
   await userService.deleteFavorites(account, cafe_id);
@@ -84,7 +99,10 @@ const getUserInfo = catchAsync(async (req, res) => {
 const updateUserInfo = catchAsync(async (req, res) => {
   const account = req.user;
   if (!account) {
-    return res.status(400).json({ message: "KEY_ERROR" });
+    return res.status(400).json({
+      error: "KEY_ERROR",
+      message: "필수 데이터가 전송되지 않았습니다.",
+    });
   }
 
   const updateData = {
@@ -100,7 +118,10 @@ const searchPassword = catchAsync(async (req, res) => {
   const { account, answer, editPassword } = req.body;
 
   if (!account || !answer || !editPassword) {
-    return res.status(400).json({ message: "KEY_ERROR" });
+    return res.status(400).json({
+      error: "KEY_ERROR",
+      message: "필수 데이터가 전송되지 않았습니다.",
+    });
   }
 
   await userService.searchPassword(account, answer, editPassword);
@@ -112,7 +133,10 @@ const deleteAccount = catchAsync(async (req, res) => {
   const { deleteMessage } = req.body;
 
   if (!account || !deleteMessage) {
-    return res.status(400).json({ message: "KEY_ERROR" });
+    return res.status(400).json({
+      error: "KEY_ERROR",
+      message: "필수 데이터가 전송되지 않았습니다.",
+    });
   }
 
   await userService.deleteAccount(account, deleteMessage);
