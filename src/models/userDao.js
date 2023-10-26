@@ -15,7 +15,9 @@ const signUp = async (account, hashedPassword, nickname, question_answer) => {
     }
     return result;
   } catch (err) {
-    throw new Error(`SIGN_UP_ERROR`);
+    const error = new Error(`SIGN_UP_ERROR`);
+    error.statusCode = 500;
+    throw error;
   } finally {
     conn.release();
   }
@@ -38,7 +40,9 @@ const signIn = async (account) => {
     const queryResult = 0;
     return result[queryResult];
   } catch (err) {
-    throw new Error(`SIGN_IN_ERROR`);
+    const error = new Error(`SIGN_IN_ERROR`);
+    error.statusCode = 500;
+    throw error;
   } finally {
     conn.release();
   }
@@ -80,7 +84,9 @@ const getUserByAccount = async (account) => {
     );
     return result.length > 0 ? result[0] : null;
   } catch (err) {
-    throw new Error(`GET_USER_BY_ACCOUNT_ERROR`);
+    const error = new Error(`GET_USER_BY_ACCOUNT_ERROR`);
+    error.statusCode = 500;
+    throw error;
   } finally {
     conn.release();
   }
@@ -112,7 +118,9 @@ const getFavorites = async (account) => {
     );
     return result.length > 0 ? result : null;
   } catch (err) {
-    throw new Error(`GET_FAVORITES_ERROR`);
+    const error = new Error(`GET_FAVORITES_ERROR`);
+    error.statusCode = 500;
+    throw error;
   } finally {
     conn.release();
   }
@@ -135,7 +143,9 @@ const getIdByAccount = async (account) => {
     const queryResult = 0;
     return result[queryResult].id;
   } catch (err) {
-    throw new Error(`GET_ID_ERROR`);
+    const error = new Error(`GET_ID_ERROR`);
+    error.statusCode = 500;
+    throw error;
   } finally {
     conn.release();
   }
@@ -157,7 +167,9 @@ const findFavData = async (userAccount, cafe_id) => {
     const queryResult = 0;
     return result.length > 0 ? result[queryResult] : null;
   } catch (err) {
-    throw new Error(`FIND_FAVORITES_ERROR`);
+    const error = new Error(`FIND_FAVORITES_ERROR`);
+    error.statusCode = 500;
+    throw error;
   } finally {
     conn.release();
   }
@@ -174,8 +186,9 @@ const addFavorites = async (userAccount, cafe_id) => {
     );
     return result;
   } catch (err) {
-    console.log(err);
-    throw new Error(`ADD_FAVORITES_ERROR`);
+    const error = new Error(`ADD_FAVORITES_ERROR`);
+    error.statusCode = 500;
+    throw error;
   } finally {
     conn.release();
   }
@@ -196,7 +209,9 @@ const deleteFavorites = async (userAccount, cafeId) => {
     );
     return result;
   } catch (err) {
-    throw new Error(`DELETE_FAVORITES_ERROR`);
+    const error = new Error(`DELETE_FAVORITES_ERROR`);
+    error.statusCode = 500;
+    throw error;
   } finally {
     conn.release();
   }
@@ -217,7 +232,9 @@ const updateUserInfo = async (updateFields, values, account) => {
     );
     return result;
   } catch (err) {
-    throw new Error(`UPDATE_USERINFO_ERROR`);
+    const error = new Error(`UPDATE_USERINFO_ERROR`);
+    error.statusCode = 500;
+    throw error;
   } finally {
     conn.release();
   }
@@ -238,7 +255,9 @@ const searchPassword = async (updateFields, values, account) => {
     );
     return result;
   } catch (err) {
-    throw new Error(`UPDATE_USERINFO_ERROR`);
+    const error = new Error(`UPDATE_USERINFO_ERROR`);
+    error.statusCode = 500;
+    throw error;
   } finally {
     conn.release();
   }
@@ -257,8 +276,9 @@ const deleteAccount = async (account) => {
     );
     return result;
   } catch (err) {
-    console.log(err);
-    throw new Error(`DELETE_ACCOUNT_ERROR`);
+    const error = new Error(`DELETE_ACCOUNT_ERROR`);
+    error.statusCode = 500;
+    throw error;
   } finally {
     conn.release();
   }
