@@ -74,7 +74,7 @@ function getDistance(lat1, lon1, lat2, lon2) {
       Math.sin(dLon / 2);
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   const distance = R * c; // Distance, km
-  return distance * 1000; // Convert to meters
+  return distance * 1000; // Convert to meter
 }
 
 function deg2rad(deg) {
@@ -160,7 +160,7 @@ async function main() {
     const allCafes = await locationDao.getAllCafeData();
     let ratesToUpdate = [];
 
-    const allTasks = allCafes.slice(0, 10).map(async (cafe) => {
+    const allTasks = allCafes.map(async (cafe) => {
       const cafeName = cafe.name;
       const cafeId = cafe.id;
 
@@ -308,7 +308,7 @@ async function main() {
   }
 }
 
-const scheduledTask = schedule.scheduleJob("0 24 22 * * *", async function () {
+const scheduledTask = schedule.scheduleJob("0 33 22 * * *", async function () {
   await main();
 });
 
