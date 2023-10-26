@@ -5,7 +5,10 @@ const duplicationCheck = catchAsync(async (req, res) => {
   const account = req.params.account;
 
   if (!account) {
-    return res.status(400).json({ message: "KEY_ERROR" });
+    return res.status(400).json({
+      error: "KEY_ERROR",
+      message: "필수 데이터가 전송되지 않았습니다.",
+    });
   }
 
   await userService.duplicationCheck(account);
@@ -48,7 +51,7 @@ const getFavorites = catchAsync(async (req, res) => {
   const account = req.user;
   if (!account) {
     return res.status(400).json({
-      message: "KEY_ERROR",
+      error: "KEY_ERROR",
       message: "필수 데이터가 전송되지 않았습니다.",
     });
   }
@@ -63,7 +66,7 @@ const addFavorites = catchAsync(async (req, res) => {
 
   if (!account || !cafe_id) {
     return res.status(400).json({
-      message: "KEY_ERROR",
+      error: "KEY_ERROR",
       message: "필수 데이터가 전송되지 않았습니다.",
     });
   }
@@ -80,7 +83,7 @@ const deleteFavorites = catchAsync(async (req, res) => {
 
   if (!account || !cafe_id) {
     return res.status(400).json({
-      message: "KEY_ERROR",
+      error: "KEY_ERROR",
       message: "필수 데이터가 전송되지 않았습니다.",
     });
   }
