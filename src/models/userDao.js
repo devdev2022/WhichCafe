@@ -48,27 +48,6 @@ const signIn = async (account) => {
   }
 };
 
-/*const getUserByNickname = async (nickname) => {
-  const conn = await database.getConnection();
-
-  try {
-    const [result] = await conn.query(
-      `
-      SELECT *
-      FROM 
-        users AS U
-      WHERE
-        U.nickname = ?`,
-      [nickname]
-    );
-    return result.length > 0 ? result[0] : null;
-  } catch (err) {
-    throw new Error(`GET_USER_BY_NICKNAME_ERROR`);
-  } finally {
-    conn.release();
-  }
-};*/
-
 const getUserByAccount = async (account) => {
   const conn = await database.getConnection();
 

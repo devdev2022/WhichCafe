@@ -1,159 +1,9 @@
-require("dotenv").config({ path: "../../.env" });
 const schedule = require("node-schedule");
-const { Client } = require("@googlemaps/google-maps-services-js");
 const locationDao = require("../models/locationDao");
+const { GoogleMapsClient, GeoCalculator } = require("./helpers");
 
-const {
-  placeIdSchema,
-  placeDetailsSchema,
-  validateResponse,
-} = require("./responseCheck");
-const {
-  S3Client,
-  PutObjectCommand,
-  HeadObjectCommand,
-} = require("@aws-sdk/client-s3");
-const s3Client = new S3Client({ region: "ap-northeast-2" });
-
-const client = new Client({});
-
-async function getPlaceId(query) {
-  try {
-    const response = await client.findPlaceFromText({
-      params: {
-        input: query,
-        inputtype: "textquery",
-        key: process.env.GOOGLE_MAPS_API_KEY,
-      },
-    });
-
-    const errors = validateResponse(placeIdSchema, response.data);
-    if (errors) {
-      console.error("Validation Error:", errors);
-      return null;
-    }
-
-    return response.data.candidates && response.data.candidates.length > 0
-      ? response.data.candidates[0].place_id
-      : null;
-  } catch (error) {
-    console.error(`findPlaceFromText Error : ${query}, ${error.message}`);
-    return null;
-  }
-}
-
-async function getPlaceDetails(placeId) {
-  try {
-    const response = await client.placeDetails({
-      params: {
-        place_id: placeId,
-        key: process.env.GOOGLE_MAPS_API_KEY,
-      },
-    });
-    const errors = validateResponse(placeDetailsSchema, response.data);
-    if (errors) {
-      console.error("Validation Error:", errors);
-      return null;
-    }
-
-    return response.data.result;
-  } catch (error) {
-    console.error(`getPlaceDetails Error : ${query}, ${error.message}`);
-  }
-}
-
-function getDistance(lat1, lon1, lat2, lon2) {
-  const R = 6371; // Earth's radius, km
-  const dLat = deg2rad(lat2 - lat1);
-  const dLon = deg2rad(lon2 - lon1);
-  const a =
-    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos(deg2rad(lat1)) *
-      Math.cos(deg2rad(lat2)) *
-      Math.sin(dLon / 2) *
-      Math.sin(dLon / 2);
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-  const distance = R * c; // Distance, km
-  return distance * 1000; // Convert to meter
-}
-
-function deg2rad(deg) {
-  return deg * (Math.PI / 180);
-}
-
-const checkDataByDistance = async (lat1, lon1, lat2, lon2, limit = 20) => {
-  return new Promise((resolve) => {
-    const distance = getDistance(lat1, lon1, lat2, lon2);
-    resolve(distance <= limit);
-  });
-};
-
-async function getPlacePhoto(photoReference) {
-  const response = await client.placePhoto({
-    params: {
-      photoreference: photoReference,
-      maxwidth: 400,
-      maxheight: 400,
-      key: process.env.GOOGLE_MAPS_API_KEY,
-    },
-    responseType: "arraybuffer",
-  });
-
-  if (response.status !== 200) {
-    console.error("Error fetching photo:", response.status);
-    return null;
-  }
-
-  if (!response.headers["content-type"].startsWith("image/")) {
-    console.error("Invalid content type:", response.headers["content-type"]);
-    return null;
-  }
-  return response.data;
-}
-
-async function checkFileExistenceInS3(bucketName, imageName) {
-  try {
-    const params = {
-      Bucket: bucketName,
-      Key: imageName,
-    };
-
-    await s3Client.send(new HeadObjectCommand(params));
-    return true;
-  } catch (error) {
-    if (error.name === "NotFound") {
-      return false;
-    }
-    throw error;
-  }
-}
-
-async function uploadImageToS3(bucketName, imageName, imageData) {
-  try {
-    const doesImageExist = await checkFileExistenceInS3(bucketName, imageName);
-
-    if (doesImageExist) {
-      console.log(
-        `Image already exists in S3 at location - ${bucketName}/${imageName}`
-      );
-      return `https://${bucketName}.s3.amazonaws.com/${imageName}`;
-    }
-
-    const uploadParams = {
-      Bucket: bucketName,
-      Key: imageName,
-      Body: imageData,
-      ContentType: "image/jpeg",
-    };
-
-    await s3Client.send(new PutObjectCommand(uploadParams));
-
-    return `https://${bucketName}.s3.amazonaws.com/${imageName}`;
-  } catch (error) {
-    console.error(`Error during the upload process: ${error}`);
-    throw error;
-  }
-}
+const googleMapsClient = new GoogleMapsClient();
+const geoCalculator = new GeoCalculator();
 
 async function main() {
   try {
@@ -167,7 +17,7 @@ async function main() {
       let placeId;
 
       try {
-        placeId = await getPlaceId(cafeName);
+        placeId = await googleMapsClient.getPlaceId(cafeName);
         if (!placeId) {
           console.error(`No location data found for cafe ${cafeName}`);
           return null;
@@ -180,7 +30,7 @@ async function main() {
       let placeData;
 
       try {
-        placeData = await getPlaceDetails(placeId);
+        placeData = await googleMapsClient.getPlaceDetails(placeId);
         if (!placeData || !placeData.geometry.location) {
           console.error(`getPlaceDetails Error : ${cafeName} is not available`);
           return null;
@@ -200,7 +50,7 @@ async function main() {
       };
 
       if (
-        !checkDataByDistance(
+        !geoCalculator.checkDataByDistance(
           googleLocation.lat,
           googleLocation.lng,
           dbLocation.lat,
@@ -213,7 +63,7 @@ async function main() {
       let details;
 
       try {
-        details = await getPlaceDetails(placeData.place_id);
+        details = await googleMapsClient.getPlaceDetails(placeData.place_id);
       } catch (err) {
         console.error(
           `placeDetails Error : fetching place ID for cafe ${cafeName}, ${err.message}`
@@ -256,13 +106,13 @@ async function main() {
 
           if (fileExistsInS3) {
             console.log(`File already exists in S3: ${imageName}`);
-            return `Image already exists in S3 at location - ${bucketName}/${imageName}`;
+            continue;
           }
 
           let imageUrl;
 
           try {
-            const imageData = await getPlacePhoto(
+            const imageData = await googleMapsClient.getPlacePhoto(
               details.photos[i].photo_reference
             );
             imageUrl = await uploadImageToS3(
@@ -308,7 +158,7 @@ async function main() {
   }
 }
 
-const scheduledTask = schedule.scheduleJob("0 33 22 * * *", async function () {
+const scheduledTask = schedule.scheduleJob("0 59 15 * * *", async function () {
   await main();
 });
 
