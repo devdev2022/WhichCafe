@@ -1,16 +1,21 @@
 const schedule = require("node-schedule");
 const locationDao = require("../models/locationDao");
-const { GoogleMapsClient, GeoCalculator } = require("./helpers");
+const {
+  GoogleMapsClient,
+  GeoCalculator,
+  S3ClientModule,
+} = require("./helpers");
 
 const googleMapsClient = new GoogleMapsClient();
 const geoCalculator = new GeoCalculator();
+const s3ClientModule = new S3ClientModule();
 
 async function main() {
   try {
     const allCafes = await locationDao.getAllCafeData();
     let ratesToUpdate = [];
 
-    const allTasks = allCafes.map(async (cafe) => {
+    const allTasks = allCafes.slice(0, 10).map(async (cafe) => {
       const cafeName = cafe.name;
       const cafeId = cafe.id;
 
@@ -60,28 +65,17 @@ async function main() {
         return null;
       }
 
-      let details;
-
-      try {
-        details = await googleMapsClient.getPlaceDetails(placeData.place_id);
-      } catch (err) {
-        console.error(
-          `placeDetails Error : fetching place ID for cafe ${cafeName}, ${err.message}`
-        );
-        return null;
-      }
-
-      if (details.rating !== undefined && details.rating !== null) {
+      if (placeData.rating !== undefined && placeData.rating !== null) {
         ratesToUpdate.push({
           cafe_id: cafeId,
-          score: details.rating,
+          score: placeData.rating,
         });
       }
 
       await locationDao.updateRate(ratesToUpdate);
 
-      if (details.photos && details.photos.length > 0) {
-        const maxPhotos = Math.min(details.photos.length, 3);
+      if (placeData.photos && placeData.photos.length > 0) {
+        const maxPhotos = Math.min(placeData.photos.length, 3);
 
         for (let i = 0; i < maxPhotos; i++) {
           const imageName = `${cafeName.replace(/ /g, "_")}${i + 1}.jpg`;
@@ -99,7 +93,7 @@ async function main() {
             continue;
           }
 
-          const fileExistsInS3 = await checkFileExistenceInS3(
+          const fileExistsInS3 = await s3ClientModule.checkFileExistenceInS3(
             "s3-hosting-whichcafe",
             imageName
           );
@@ -113,9 +107,9 @@ async function main() {
 
           try {
             const imageData = await googleMapsClient.getPlacePhoto(
-              details.photos[i].photo_reference
+              placeData.photos[i].photo_reference
             );
-            imageUrl = await uploadImageToS3(
+            imageUrl = await s3ClientModule.uploadImageToS3(
               "s3-hosting-whichcafe",
               `cafeImage/${imageName}`,
               imageData
@@ -127,9 +121,9 @@ async function main() {
 
           try {
             const htmlAttribution =
-              details.photos[i].html_attributions &&
-              details.photos[i].html_attributions.length > 0
-                ? details.photos[i].html_attributions[0]
+              placeData.photos[i].html_attributions &&
+              placeData.photos[i].html_attributions.length > 0
+                ? placeData.photos[i].html_attributions[0]
                 : null;
             await locationDao.savePhotoInfo(
               cafeId,
@@ -151,6 +145,8 @@ async function main() {
     for (const error of errors) {
       console.error(error.reason);
     }
+
+    console.log("UPDATE COMPLETE");
   } catch (error) {
     console.log(
       error.response ? error.response.data.error_message : error.message
@@ -158,7 +154,7 @@ async function main() {
   }
 }
 
-const scheduledTask = schedule.scheduleJob("0 59 15 * * *", async function () {
+const scheduledTask = schedule.scheduleJob("0 35 18 * * *", async function () {
   await main();
 });
 
