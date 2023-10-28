@@ -352,10 +352,6 @@ paths:
                   summary: "필수 키 누락"
                   value:
                     message: "KEY_ERROR"
-                checkCurrentNickname:
-                  summary: "현재 닉네임과 동일"
-                  value:
-                    message: "YOUR NICKNAME IS SAME WITH CURRENT NICKNAME"
                 checkUpdateField:
                   summary: "제공된 데이터가 없음"
                   value:
