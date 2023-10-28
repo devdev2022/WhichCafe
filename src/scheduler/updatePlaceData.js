@@ -15,7 +15,7 @@ async function main() {
     const allCafes = await locationDao.getAllCafeData();
     let ratesToUpdate = [];
 
-    const allTasks = allCafes.slice(0, 10).map(async (cafe) => {
+    const allTasks = allCafes.map(async (cafe) => {
       const cafeName = cafe.name;
       const cafeId = cafe.id;
 
@@ -54,14 +54,14 @@ async function main() {
         lng: cafe.cafe_longitude,
       };
 
-      if (
-        !geoCalculator.checkDataByDistance(
-          googleLocation.lat,
-          googleLocation.lng,
-          dbLocation.lat,
-          dbLocation.lng
-        )
-      ) {
+      const distanceCheckResult = await geoCalculator.checkDataByDistance(
+        googleLocation.lat,
+        googleLocation.lng,
+        dbLocation.lat,
+        dbLocation.lng
+      );
+
+      if (!distanceCheckResult) {
         return null;
       }
 
@@ -154,7 +154,7 @@ async function main() {
   }
 }
 
-const scheduledTask = schedule.scheduleJob("0 35 18 * * *", async function () {
+const scheduledTask = schedule.scheduleJob("0 33 21 * * *", async function () {
   await main();
 });
 
