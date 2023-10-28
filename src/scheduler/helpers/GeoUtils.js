@@ -23,10 +23,8 @@ class GeoCalculator {
   }
 
   async checkDataByDistance(lat1, lon1, lat2, lon2, limit = 20) {
-    return new Promise((resolve) => {
-      const distance = this.getDistance(lat1, lon1, lat2, lon2);
-      resolve(distance <= limit);
-    });
+    const distance = this.getDistance(lat1, lon1, lat2, lon2);
+    return distance <= limit;
   }
 }
 
