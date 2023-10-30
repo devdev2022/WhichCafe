@@ -2,7 +2,8 @@ const Ajv = require("ajv");
 const ajv = new Ajv({ allErrors: true });
 require("ajv-formats")(ajv);
 
-ajv.addKeyword("isNotEmpty", {
+ajv.addKeyword({
+  keyword: "isNotEmpty",
   type: "object",
   validate: function (schema, data) {
     return data !== null && Object.keys(data).length > 0;

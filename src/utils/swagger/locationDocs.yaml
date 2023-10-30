@@ -51,10 +51,9 @@ components:
     NearbyCafeResponse:
       type: object
       properties:
-        nearbyAddress:
-          type: array
-          items:
-            $ref: "#/components/schemas/Cafe"
+        type: array
+        items:
+          $ref: "#/components/schemas/Cafe"
 
 paths:
   /location:
@@ -81,38 +80,36 @@ paths:
               schema:
                 $ref: "#/components/schemas/NearbyCafeResponse"
               example:
-                value:
-                  nearbyAddress:
-                    - cafe_id: 1
-                      cafe_name: "빵파남 커파남"
-                      cafe_thumbnail: "https://lh3.googleusercontent.com/p/AF1QipPDO5-hxv0EAuwtrh4_yTnc4vy6XsZr-zgFfLHi=s1360-w1360-h1020"
-                      cafe_address: "서울 강남구 논현동 242-20"
-                      score: null
-                      cafe_latitude: "37.516063"
-                      cafe_longitude: "127.040926"
-                      cafe_photos:
-                        - "https://lh3.googleusercontent.com/p/AF1QipNc3m1MtLv0CfcJRDv6Te1WXHeUB6wioWRZWX_U=s1360-w1360-h1020"
-                        - "https://lh3.googleusercontent.com/p/AF1QipNkxaTzsf8Rbp6GFYGHnalYAZ1n3nhw7Lcc-PZ1=s1360-w1360-h1020"
-                      distance: "0.1km"
-                    - cafe_id: 5
-                      cafe_name: "카페드아마폴라 강남점"
-                      cafe_thumbnail: null
-                      cafe_address: "서울 강남구 역삼동 653"
-                      cafe_latitude: 37.508142
-                      cafe_longitude: 127.037541
-                      cafe_photos:
-                        - null
-                      distance: "0.9km"
+                - cafe_id: 1
+                  cafe_name: "빵파남 커파남"
+                  cafe_thumbnail: "https://lh3.googleusercontent.com/p/AF1QipPDO5-hxv0EAuwtrh4_yTnc4vy6XsZr-zgFfLHi=s1360-w1360-h1020"
+                  cafe_address: "서울 강남구 논현동 242-20"
+                  score: null
+                  cafe_latitude: "37.516063"
+                  cafe_longitude: "127.040926"
+                  cafe_photos:
+                    - "https://lh3.googleusercontent.com/p/AF1QipNc3m1MtLv0CfcJRDv6Te1WXHeUB6wioWRZWX_U=s1360-w1360-h1020"
+                    - "https://lh3.googleusercontent.com/p/AF1QipNkxaTzsf8Rbp6GFYGHnalYAZ1n3nhw7Lcc-PZ1=s1360-w1360-h1020"
+                  distance: "0.1km"
+                - cafe_id: 5
+                  cafe_name: "카페드아마폴라 강남점"
+                  cafe_thumbnail: null
+                  cafe_address: "서울 강남구 역삼동 653"
+                  cafe_latitude: 37.508142
+                  cafe_longitude: 127.037541
+                  cafe_photos:
+                    - null
+                  distance: "0.9km"
 
-                    - cafe_id: 8
-                      cafe_name: "카페 만월경 강남점"
-                      cafe_thumbnail: null
-                      cafe_address: "서울 강남구 삼성동 44-36"
-                      cafe_latitude: 37.512333
-                      cafe_longitude: 127.048478
-                      cafe_photos:
-                        - null
-                      distance: "0.9km"
+                - cafe_id: 8
+                  cafe_name: "카페 만월경 강남점"
+                  cafe_thumbnail: null
+                  cafe_address: "서울 강남구 삼성동 44-36"
+                  cafe_latitude: 37.512333
+                  cafe_longitude: 127.048478
+                  cafe_photos:
+                    - null
+                  distance: "0.9km"
 
         "400":
           description: 클라이언트의 잘못된 요청으로 인한 오류입니다.
@@ -153,38 +150,36 @@ paths:
               schema:
                 $ref: "#/components/schemas/NearbyCafeResponse"
               example:
-                value:
-                  nearbyAddress:
-                    - cafe_id: 1
-                      cafe_name: "빵파남 커파남"
-                      cafe_thumbnail: "https://lh3.googleusercontent.com/p/AF1QipPDO5-hxv0EAuwtrh4_yTnc4vy6XsZr-zgFfLHi=s1360-w1360-h1020"
-                      cafe_address: "서울 강남구 논현동 242-20"
-                      score: null
-                      cafe_latitude: "37.516063"
-                      cafe_longitude: "127.040926"
-                      cafe_photos:
-                        - "https://lh3.googleusercontent.com/p/AF1QipNc3m1MtLv0CfcJRDv6Te1WXHeUB6wioWRZWX_U=s1360-w1360-h1020"
-                        - "https://lh3.googleusercontent.com/p/AF1QipNkxaTzsf8Rbp6GFYGHnalYAZ1n3nhw7Lcc-PZ1=s1360-w1360-h1020"
-                      distance: "0.1km"
-                    - cafe_id: 5
-                      cafe_name: "카페드아마폴라 강남점"
-                      cafe_thumbnail: null
-                      cafe_address: "서울 강남구 역삼동 653"
-                      cafe_latitude: 37.508142
-                      cafe_longitude: 127.037541
-                      cafe_photos:
-                        - null
-                      distance: "0.9km"
+                - cafe_id: 1
+                  cafe_name: "빵파남 커파남"
+                  cafe_thumbnail: "https://lh3.googleusercontent.com/p/AF1QipPDO5-hxv0EAuwtrh4_yTnc4vy6XsZr-zgFfLHi=s1360-w1360-h1020"
+                  cafe_address: "서울 강남구 논현동 242-20"
+                  score: null
+                  cafe_latitude: "37.516063"
+                  cafe_longitude: "127.040926"
+                  cafe_photos:
+                    - "https://lh3.googleusercontent.com/p/AF1QipNc3m1MtLv0CfcJRDv6Te1WXHeUB6wioWRZWX_U=s1360-w1360-h1020"
+                    - "https://lh3.googleusercontent.com/p/AF1QipNkxaTzsf8Rbp6GFYGHnalYAZ1n3nhw7Lcc-PZ1=s1360-w1360-h1020"
+                  distance: "0.1km"
+                - cafe_id: 5
+                  cafe_name: "카페드아마폴라 강남점"
+                  cafe_thumbnail: null
+                  cafe_address: "서울 강남구 역삼동 653"
+                  cafe_latitude: 37.508142
+                  cafe_longitude: 127.037541
+                  cafe_photos:
+                    - null
+                  distance: "0.9km"
 
-                    - cafe_id: 8
-                      cafe_name: "카페 만월경 강남점"
-                      cafe_thumbnail: null
-                      cafe_address: "서울 강남구 삼성동 44-36"
-                      cafe_latitude: 37.512333
-                      cafe_longitude: 127.048478
-                      cafe_photos:
-                        - null
-                      distance: "0.9km"
+                - cafe_id: 8
+                  cafe_name: "카페 만월경 강남점"
+                  cafe_thumbnail: null
+                  cafe_address: "서울 강남구 삼성동 44-36"
+                  cafe_latitude: 37.512333
+                  cafe_longitude: 127.048478
+                  cafe_photos:
+                    - null
+                  distance: "0.9km"
         "400":
           description: 클라이언트의 잘못된 요청으로 인한 오류입니다.
           content:
