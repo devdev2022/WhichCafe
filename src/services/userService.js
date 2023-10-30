@@ -4,16 +4,29 @@ const bcrypt = require("bcrypt");
 const userDao = require("../models/userDao");
 const { validateAccount, validatePw } = require("../utils/validation");
 const { customError } = require("../utils/error");
+const {
+  getUserIdSchema,
+  getUserSchema,
+  getFavoritesSchema,
+  findFavDataSchema,
+  validateResponse,
+} = require("../utils/ajvValidation/userValidation");
 
 const duplicationCheck = async (account) => {
   try {
     const user = await userDao.getUserByAccount(account);
+    const validationResult = validateResponse(getUserSchema, user);
+    if (validationResult) {
+      const error = new Error(
+        "Validation Error: " + JSON.stringify(validationResult)
+      );
+      error.statusCode = 500;
+      throw error;
+    }
 
     if (user) {
       customError("ACCOUNT ALREADY EXIST", 400);
     }
-
-    return user;
   } catch (error) {
     throw error;
   }
@@ -28,11 +41,6 @@ const signUp = async (account, password, nickname, question_answer) => {
     if (user) {
       customError("DUPLICATED ACCOUNT", 400);
     }
-
-    /*const checkNicknameDup = await userDao.getUserByNickname(nickname);
-    if (checkNicknameDup) {
-      customError("DUPLICATED NICKNAME", 400);
-    }*/
 
     const hashedPassword = await bcrypt.hash(
       password,
@@ -55,6 +63,14 @@ const signUp = async (account, password, nickname, question_answer) => {
 const signIn = async (account, password) => {
   try {
     const user = await userDao.getUserByAccount(account);
+    const validationResult = validateResponse(getUserSchema, user);
+    if (validationResult) {
+      const error = new Error(
+        "Validation Error: " + JSON.stringify(validationResult)
+      );
+      error.statusCode = 500;
+      throw error;
+    }
 
     if (!user) {
       customError("ACCOUNT DOES NOT EXIST OR INVALID PASSWORD", 400);
@@ -76,6 +92,14 @@ const signIn = async (account, password) => {
 const getUserByAccount = async (account) => {
   try {
     const user = await userDao.getUserByAccount(account);
+    const validationResult = validateResponse(getUserSchema, user);
+    if (validationResult) {
+      const error = new Error(
+        "Validation Error: " + JSON.stringify(validationResult)
+      );
+      error.statusCode = 500;
+      throw error;
+    }
 
     if (!user) {
       const error = new Error("USER DOES NOT EXIST");
@@ -91,6 +115,17 @@ const getUserByAccount = async (account) => {
 const getFavorites = async (account) => {
   try {
     const userFavorites = await userDao.getFavorites(account);
+    const validationResult = validateResponse(
+      getFavoritesSchema,
+      userFavorites
+    );
+    if (validationResult) {
+      const error = new Error(
+        "Validation Error: " + JSON.stringify(validationResult)
+      );
+      error.statusCode = 500;
+      throw error;
+    }
 
     if (!userFavorites) {
       customError("FAVORITES DOES NOT EXIST", 400);
@@ -104,8 +139,31 @@ const getFavorites = async (account) => {
 const addFavorites = async (account, cafe_id) => {
   try {
     const userAccount = await userDao.getIdByAccount(account);
+    const GetIdValidationResult = validateResponse(
+      getUserIdSchema,
+      userAccount
+    );
+    if (GetIdValidationResult) {
+      const error = new Error(
+        "Validation Error: " + JSON.stringify(GetIdValidationResult)
+      );
+      error.statusCode = 500;
+      throw error;
+    }
 
     const findFavData = await userDao.findFavData(userAccount, cafe_id);
+    const finFavValidationResult = validateResponse(
+      findFavDataSchema,
+      findFavData
+    );
+    if (finFavValidationResult) {
+      const error = new Error(
+        "Validation Error: " + JSON.stringify(finFavValidationResult)
+      );
+      error.statusCode = 500;
+      throw error;
+    }
+
     if (findFavData) {
       customError("FAVOIRTES ALREADY REGISTERED", 400);
     }
@@ -120,8 +178,25 @@ const addFavorites = async (account, cafe_id) => {
 const deleteFavorites = async (account, cafe_id) => {
   try {
     const userAccount = await userDao.getIdByAccount(account);
+    const validationResult = validateResponse(getUserIdSchema, user);
+    if (validationResult) {
+      const error = new Error(
+        "Validation Error: " + JSON.stringify(validationResult)
+      );
+      error.statusCode = 500;
+      throw error;
+    }
 
     const findFavData = await userDao.findFavData(userAccount, cafe_id);
+    const finFavValidationResult = validateResponse(findFavDataSchema, user);
+    if (finFavValidationResult) {
+      const error = new Error(
+        "Validation Error: " + JSON.stringify(validationResult)
+      );
+      error.statusCode = 500;
+      throw error;
+    }
+
     if (!findFavData) {
       customError("FAVORITES_DATA NOT EXIST", 404);
     }
@@ -141,8 +216,17 @@ const getUserInfoByAccount = async (account) => {
     if (!account) {
       throw new Error("USER_ACCOUNT NOT PROVIDED");
     }
-    const userInfo = await userDao.getUserByAccount(account);
-    const { id, password, created_at, ...filteredInfo } = userInfo;
+    const user = await userDao.getUserByAccount(account);
+    const validationResult = validateResponse(getUserSchema, user);
+    if (validationResult) {
+      const error = new Error(
+        "Validation Error: " + JSON.stringify(validationResult)
+      );
+      error.statusCode = 500;
+      throw error;
+    }
+
+    const { id, password, created_at, ...filteredInfo } = user;
     return filteredInfo;
   } catch (error) {
     throw error;
@@ -158,8 +242,16 @@ const updateUserInfo = async (updateData, account) => {
     for (let field of validFields) {
       if (updateData[field]) {
         if (field === "nickname") {
-          const checkNickname = await userDao.getUserByAccount(account);
-          if (checkNickname.nickname === updateData["nickname"]) {
+          const user = await userDao.getUserByAccount(account);
+          const validationResult = validateResponse(getUserSchema, user);
+          if (validationResult) {
+            const error = new Error(
+              "Validation Error: " + JSON.stringify(validationResult)
+            );
+            error.statusCode = 500;
+            throw error;
+          }
+          if (user.nickname === updateData["nickname"]) {
             customError("YOUR NICKNAME IS SAME WITH CURRENT NICKNAME", 400);
           }
         }
@@ -195,6 +287,14 @@ const updateUserInfo = async (updateData, account) => {
 const searchPassword = async (account, answer, editPassword) => {
   try {
     const checkAnswer = await userDao.getUserByAccount(account);
+    const validationResult = validateResponse(getUserSchema, checkAnswer);
+    if (validationResult) {
+      const error = new Error(
+        "Validation Error: " + JSON.stringify(validationResult)
+      );
+      error.statusCode = 500;
+      throw error;
+    }
     if (!checkAnswer || answer !== checkAnswer.question_answer) {
       customError("ANSWER OR ACCOUNT DOES NOT MATCH", 400);
     }

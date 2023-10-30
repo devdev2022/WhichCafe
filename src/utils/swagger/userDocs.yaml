@@ -4,6 +4,18 @@ info:
   version: "1.0.0"
 components:
   schemas:
+    UserDuplicationCheck:
+      type: object
+      properties:
+        account:
+          type: string
+          description: 사용자의 계정명입니다.
+          minLength: 3
+          maxLength: 30
+          pattern: '^(?=.*[a-zA-Z])(?=.*\d)[a-zA-Z\d]{3,30}$'
+      required:
+        - account
+
     UserSignUp:
       type: object
       properties:
@@ -125,6 +137,59 @@ components:
         3. `Authorization` 헤더 값은 'Bearer ' 다음에 획득한 토큰을 붙여 넣으십시오.
 
 paths:
+  /users/duplicationCheck/{account}:
+    get:
+      summary: 중복확인
+      description: 유저의 계정에 중복이 있는지 확인합니다.
+      parameters:
+        - in: path
+          name: account
+          required: true
+          schema:
+            type: string
+          description: 회원가입을 위해 확인해야할 계정의 account 입니다.
+      responses:
+        "200":
+          description: 사용자 정보를 성공적으로 가져옴.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: 계정 중복 없음
+              example:
+                message: "DUPLICATION_CHECK_PASS"
+        "400":
+          description: 클라이언트의 잘못된 요청으로 인한 오류입니다.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+              examples:
+                keyError:
+                  summary: "필수 키 누락"
+                  value:
+                    message: "KEY_ERROR"
+                duplicatedAccount:
+                  summary: "계정 중복"
+                  value:
+                    message: "ACCOUNT ALREADY EXIST"
+        "500":
+          description: 웹 서버 내부의 데이터베이스에 의한 오류입니다.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+              example:
+                message: "GET_USER_BY_ACCOUNT_ERROR"
   /users/signup:
     post:
       summary: 회원가입

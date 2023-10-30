@@ -14,7 +14,7 @@ const getNearbyAddress = catchAsync(async (req, res) => {
     latitude,
     longitude
   );
-  return res.status(200).json({ nearbyAddress });
+  return res.status(200).json(nearbyAddress);
 });
 
 const searchCafes = catchAsync(async (req, res) => {
@@ -27,7 +27,7 @@ const searchCafes = catchAsync(async (req, res) => {
   }
 
   const cafeList = await locationService.searchCafes(address);
-  return res.status(200).json({ cafeList });
+  return res.status(200).json(cafeList);
 });
 
 module.exports = { getNearbyAddress, searchCafes };

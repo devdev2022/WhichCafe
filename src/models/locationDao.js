@@ -134,7 +134,6 @@ const updateRate = async (ratesToUpdate) => {
     }
     return true;
   } catch (err) {
-    console.log(err);
     throw new Error(`UPDATE_RATE_ERROR`);
   } finally {
     conn.release();

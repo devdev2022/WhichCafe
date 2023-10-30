@@ -4,7 +4,7 @@ const {
   placeIdSchema,
   placeDetailsSchema,
   validateResponse,
-} = require("../ajvValidation/GoogleMapsAjv");
+} = require("../../utils/ajvValidation/GoogleMapsAjv");
 
 class GoogleMapsClient {
   constructor() {
