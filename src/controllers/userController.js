@@ -40,8 +40,21 @@ const signIn = catchAsync(async (req, res) => {
     });
   }
 
-  const accessToken = await userService.signIn(account, password);
-  return res.status(200).json({ accessToken: accessToken });
+  const tokens = await userService.signIn(account, password);
+  return res.status(200).json(tokens);
+});
+
+const logOut = catchAsync(async (req, res) => {
+  const { userId, refreshToken } = req.body;
+
+  if (!userId || !refreshToken) {
+    return res.status(400).json({
+      message: "KEY_ERROR",
+    });
+  }
+
+  await userService.logOut(userId, refreshToken);
+  return res.status(204).send();
 });
 
 const getFavorites = catchAsync(async (req, res) => {
@@ -139,8 +152,9 @@ const deleteAccount = catchAsync(async (req, res) => {
 
 module.exports = {
   duplicationCheck,
-  signIn,
   signUp,
+  signIn,
+  logOut,
   getFavorites,
   addFavorites,
   deleteFavorites,

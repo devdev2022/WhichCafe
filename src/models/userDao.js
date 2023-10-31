@@ -48,6 +48,70 @@ const signIn = async (account) => {
   }
 };
 
+const addRefreshToken = async (userId, refreshToken) => {
+  const conn = await database.getConnection();
+  try {
+    const result = await conn.query(
+      `
+      INSERT INTO refreshtokens(user_id, refresh_token) 
+      VALUES (?, ?);`,
+      [userId, refreshToken]
+    );
+    return result;
+  } catch (err) {
+    const error = new Error(`ADD_REFRESHTOKEN_ERROR`);
+    error.statusCode = 500;
+    throw error;
+  } finally {
+    conn.release();
+  }
+};
+
+const findRefreshToken = async (userId, refreshToken) => {
+  const conn = await database.getConnection();
+  try {
+    const result = await conn.query(
+      `
+      SELECT *
+      FROM 
+        refreshtokens AS R
+      WHERE
+        R.user_id = ? AND refresh_token = ?`,
+      [userId, refreshToken]
+    );
+    return result;
+  } catch (err) {
+    const error = new Error(`FIND_REFRESHTOKEN_ERROR`);
+    error.statusCode = 500;
+    throw error;
+  } finally {
+    conn.release();
+  }
+};
+
+const deleteRefreshToken = async (userId, refreshToken) => {
+  const conn = await database.getConnection();
+  try {
+    const result = await conn.query(
+      `
+      DELETE FROM refreshtokens
+      WHERE 
+        user_id=?
+      AND
+        refresh_token=?
+      `,
+      [userId, refreshToken]
+    );
+    return result;
+  } catch (err) {
+    const error = new Error(`DELETE_REFRESHTOKEN_ERROR`);
+    error.statusCode = 500;
+    throw error;
+  } finally {
+    conn.release();
+  }
+};
+
 const getUserByAccount = async (account) => {
   const conn = await database.getConnection();
 
@@ -266,6 +330,9 @@ const deleteAccount = async (account) => {
 module.exports = {
   signUp,
   signIn,
+  addRefreshToken,
+  findRefreshToken,
+  deleteRefreshToken,
   getUserByAccount,
   getFavorites,
   getIdByAccount,

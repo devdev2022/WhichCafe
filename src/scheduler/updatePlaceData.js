@@ -146,7 +146,7 @@ async function main() {
       console.error(error.reason);
     }
 
-    console.log("UPDATE COMPLETE");
+    console.log("DB UPDATE COMPLETE");
   } catch (error) {
     console.log(
       error.response ? error.response.data.error_message : error.message
