@@ -1,6 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const morgan = require("morgan");
+const cookieParser = require("cookie-parser");
 
 const swaggerJsdoc = require("swagger-jsdoc");
 const swaggerUi = require("swagger-ui-express");
@@ -14,6 +15,8 @@ const createApp = () => {
   const app = express();
 
   app.use(express.static("src/utils/swagger"));
+
+  app.use(cookieParser());
 
   app.use(cors());
   app.use(express.json());

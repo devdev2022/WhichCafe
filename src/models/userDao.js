@@ -71,16 +71,16 @@ const findRefreshToken = async (userId, refreshToken) => {
   const conn = await database.getConnection();
   try {
     const result = await conn.query(
-      `
-      SELECT *
+      `SELECT *
       FROM 
         refreshtokens AS R
       WHERE
-        R.user_id = ? AND refresh_token = ?`,
+        R.user_id = ? AND R.refresh_token = ?`,
       [userId, refreshToken]
     );
     return result;
   } catch (err) {
+    console.log(err);
     const error = new Error(`FIND_REFRESHTOKEN_ERROR`);
     error.statusCode = 500;
     throw error;
