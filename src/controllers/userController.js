@@ -57,6 +57,18 @@ const logOut = catchAsync(async (req, res) => {
   return res.status(204).send();
 });
 
+const reissueAccessToken = catchAsync(async (req, res) => {
+  const refreshToken = req.refreshToken;
+  if (!refreshToken) {
+    return res.status(400).json({
+      message: "KEY_ERROR",
+    });
+  }
+
+  const AccessToken = await userService.reissueAccessToken(refreshToken);
+  return res.status(200).json({ accessToken: AccessToken });
+});
+
 const getFavorites = catchAsync(async (req, res) => {
   const account = req.user;
   if (!account) {
@@ -155,6 +167,7 @@ module.exports = {
   signUp,
   signIn,
   logOut,
+  reissueAccessToken,
   getFavorites,
   addFavorites,
   deleteFavorites,

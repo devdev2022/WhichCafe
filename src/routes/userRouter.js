@@ -2,22 +2,24 @@ const express = require("express");
 const router = express.Router();
 
 const userController = require("../controllers/userController");
-const { validateToken } = require("../utils/TokenValidation");
+const { validateAccessToken, validateTokens } = require("../utils/TokenValidation");
 
 router.get("/duplicationCheck/:account", userController.duplicationCheck);
 
 router.post("/signup", userController.signUp);
 router.post("/signin", userController.signIn);
 
-router.delete("/logout", validateToken, userController.logOut);
+router.delete("/logout", validateAccessToken, userController.logOut);
 
-router.get("/favorites", validateToken, userController.getFavorites);
-router.post("/favorites/:cafeId", validateToken, userController.addFavorites);
-router.delete("/favorites/:cafeId", validateToken, userController.deleteFavorites);
+router.post("/refreshtoken", validateTokens, userController.reissueAccessToken);
 
-router.get("/mypage", validateToken, userController.getUserInfo);
-router.patch("/mypage", validateToken, userController.updateUserInfo);
-router.delete("/mypage", validateToken, userController.deleteAccount);
+router.get("/favorites", validateAccessToken, userController.getFavorites);
+router.post("/favorites/:cafeId", validateAccessToken, userController.addFavorites);
+router.delete("/favorites/:cafeId", validateAccessToken, userController.deleteFavorites);
+
+router.get("/mypage", validateAccessToken, userController.getUserInfo);
+router.patch("/mypage", validateAccessToken, userController.updateUserInfo);
+router.delete("/mypage", validateAccessToken, userController.deleteAccount);
 
 router.patch("/search", userController.searchPassword);
 

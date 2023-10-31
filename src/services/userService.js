@@ -136,6 +136,36 @@ const logOut = async (userId, refreshToken) => {
   }
 };
 
+const reissueAccessToken = async (refreshToken) => {
+  try {
+    const userId = refreshToken.userId;
+    const account = refreshToken.account;
+    const token = refreshToken.token;
+
+    const user = await userDao.getUserByAccount(account);
+    if (!user) {
+      customError("USER DOES NOT EXIST", 400);
+    }
+
+    const storedRefreshToken = await userDao.findRefreshToken(userId, token);
+    if (!storedRefreshToken) {
+      customError("INVALID REFRESH TOKEN", 401);
+    }
+
+    const newAccessToken = jwt.sign(
+      { account: user.account },
+      process.env.JWT_SECRET_KEY,
+      {
+        expiresIn: "1h",
+      }
+    );
+
+    return newAccessToken;
+  } catch (error) {
+    throw error;
+  }
+};
+
 const getUserByAccount = async (account) => {
   try {
     const user = await userDao.getUserByAccount(account);
@@ -387,6 +417,7 @@ module.exports = {
   signUp,
   signIn,
   logOut,
+  reissueAccessToken,
   getUserByAccount,
   getFavorites,
   addFavorites,

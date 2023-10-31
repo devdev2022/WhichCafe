@@ -3,7 +3,7 @@ const { promisify } = require("util");
 const { getUserByAccount } = require("../services/userService");
 const { customError, catchAsync } = require("../utils/error");
 
-const validateToken = catchAsync(async (req, res, next) => {
+const validateAccessToken = catchAsync(async (req, res, next) => {
   const tokenParts = 1;
   const accessToken = req.headers.authorization.split(" ")[tokenParts];
 
@@ -28,4 +28,42 @@ const validateToken = catchAsync(async (req, res, next) => {
   }
 });
 
-module.exports = { validateToken };
+const validateTokens = catchAsync(async (req, res, next) => {
+  const refreshToken = req.cookies.refreshtoken;
+  const tokenParts = 1;
+  const accessToken = req.headers.authorization.split(" ")[tokenParts];
+
+  if (!refreshToken || !accessToken) {
+    customError("NEED BOTH ACCESS AND REFRESH TOKEN", 401);
+  }
+
+  const verifyAsync = promisify(jwt.verify);
+
+  try {
+    const decodedRefreshToken = await verifyAsync(
+      refreshToken,
+      process.env.JWT_REFRESH_SECRET_KEY,
+      { ignoreExpiration: true }
+    );
+    const decodedAccessToken = await verifyAsync(
+      accessToken,
+      process.env.JWT_SECRET_KEY,
+      { ignoreExpiration: true }
+    );
+
+    if (decodedRefreshToken.account !== decodedAccessToken.account) {
+      customError("Access and Refresh Tokens do not match", 400);
+    }
+
+    const user = await getUserByAccount(decodedRefreshToken.account);
+    req.user = user.account;
+    req.refreshToken = decodedRefreshToken;
+    next();
+  } catch (jwtError) {
+    const error = new Error("Refresh Token validation process failed");
+    error.statusCode = 500;
+    throw error;
+  }
+});
+
+module.exports = { validateAccessToken, validateTokens };
