@@ -80,6 +80,25 @@ CREATE TABLE `photos` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `refreshtokens`
+--
+
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `refreshtokens` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `user_id` char(36) NOT NULL,
+  `refresh_token` varchar(255) NOT NULL,
+  `device_info` varchar(255) DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `expires_at` timestamp NOT NULL DEFAULT ((now() + interval 7 day)),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `user_id` (`user_id`),
+  CONSTRAINT `fk_refreshtokens_users` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE RESTRICT
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `reviews`
 --
 
@@ -89,7 +108,7 @@ CREATE TABLE `reviews` (
   `id` int NOT NULL AUTO_INCREMENT,
   `cafe_id` int NOT NULL,
   `content` varchar(255) DEFAULT NULL,
-  `user_id` int DEFAULT NULL,
+  `user_id` char(36) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `user_id` (`user_id`),
   KEY `fk_cafes_id` (`cafe_id`),
@@ -154,5 +173,7 @@ INSERT INTO `schema_migrations` (version) VALUES
   ('20230913114512'),
   ('20230913114518'),
   ('20230913114525'),
-  ('20230913114537');
+  ('20230913114537'),
+  ('20231031064659'),
+  ('20231031071426');
 UNLOCK TABLES;

@@ -9,6 +9,8 @@ router.get("/duplicationCheck/:account", userController.duplicationCheck);
 router.post("/signup", userController.signUp);
 router.post("/signin", userController.signIn);
 
+router.delete("/logout", validateToken, userController.logOut);
+
 router.get("/favorites", validateToken, userController.getFavorites);
 router.post("/favorites/:cafeId", validateToken, userController.addFavorites);
 router.delete("/favorites/:cafeId", validateToken, userController.deleteFavorites);
