@@ -1,4 +1,5 @@
 const jwt = require("jsonwebtoken");
+const moment = require("moment");
 const bcrypt = require("bcrypt");
 
 const userDao = require("../models/userDao");
@@ -89,17 +90,30 @@ const signIn = async (account, password) => {
       }
     );
 
+    const expiresIn = "7d";
     const refreshToken = jwt.sign(
       { account: user.account },
       process.env.JWT_REFRESH_SECRET_KEY,
-      {
-        expiresIn: "7d",
-      }
+      { expiresIn }
     );
+
+    const expirationArray = expiresIn.split("");
+    const expirationNumber = parseInt(expirationArray[0], 10);
+    const expirationUnit = expirationArray[1];
+
+    const unitMapping = {
+      d: "days",
+      h: "hours",
+      m: "minutes",
+    };
+
+    const expires_at = moment()
+      .add(expirationNumber, unitMapping[expirationUnit])
+      .toDate();
 
     const userId = user.id;
 
-    await userDao.addRefreshToken(userId, refreshToken);
+    await userDao.addRefreshToken(userId, refreshToken, expires_at);
 
     return { accessToken, refreshToken };
   } catch (error) {

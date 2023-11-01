@@ -5,7 +5,7 @@ CREATE TABLE refreshtokens (
     refresh_token   VARCHAR(255)   NOT NULL,
     device_info     VARCHAR(255),
     created_at      TIMESTAMP      NOT NULL DEFAULT current_timestamp,
-    expires_at      TIMESTAMP      NOT NULL DEFAULT (CURRENT_TIMESTAMP + INTERVAL 7 DAY),
+    expires_at      TIMESTAMP      NOT NULL,
 
     PRIMARY KEY(id),
     CONSTRAINT fk_refreshtokens_users FOREIGN KEY(user_id)
