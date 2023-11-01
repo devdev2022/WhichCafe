@@ -75,12 +75,11 @@ const findRefreshToken = async (userId, refreshToken) => {
       FROM 
         refreshtokens AS R
       WHERE
-        R.user_id = ? AND R.refresh_token = ?`,
+        R.user_id = ?`,
       [userId, refreshToken]
     );
     return result;
   } catch (err) {
-    console.log(err);
     const error = new Error(`FIND_REFRESHTOKEN_ERROR`);
     error.statusCode = 500;
     throw error;
@@ -89,7 +88,7 @@ const findRefreshToken = async (userId, refreshToken) => {
   }
 };
 
-const deleteRefreshToken = async (userId, refreshToken) => {
+const deleteRefreshToken = async (userId) => {
   const conn = await database.getConnection();
   try {
     const result = await conn.query(
@@ -97,10 +96,8 @@ const deleteRefreshToken = async (userId, refreshToken) => {
       DELETE FROM refreshtokens
       WHERE 
         user_id=?
-      AND
-        refresh_token=?
       `,
-      [userId, refreshToken]
+      [userId]
     );
     return result;
   } catch (err) {

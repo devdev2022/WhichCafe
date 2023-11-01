@@ -45,7 +45,8 @@ const signIn = catchAsync(async (req, res) => {
 });
 
 const logOut = catchAsync(async (req, res) => {
-  const { userId, refreshToken } = req.body;
+  const { userId } = req.body;
+  const refreshToken = req.refreshToken;
 
   if (!userId || !refreshToken) {
     return res.status(400).json({
@@ -113,6 +114,12 @@ const deleteFavorites = catchAsync(async (req, res) => {
 
 const getUserInfo = catchAsync(async (req, res) => {
   const account = req.user;
+
+  if (!account) {
+    return res.status(400).json({
+      message: "KEY_ERROR",
+    });
+  }
 
   const result = await userService.getUserInfoByAccount(account);
   return res.status(200).json(result);
