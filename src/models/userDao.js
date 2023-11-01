@@ -48,14 +48,14 @@ const signIn = async (account) => {
   }
 };
 
-const addRefreshToken = async (userId, refreshToken) => {
+const addRefreshToken = async (userId, refreshToken, expires_at) => {
   const conn = await database.getConnection();
   try {
     const result = await conn.query(
       `
-      INSERT INTO refreshtokens(user_id, refresh_token) 
-      VALUES (?, ?);`,
-      [userId, refreshToken]
+      INSERT INTO refreshtokens(user_id, refresh_token, expires_at) 
+      VALUES (?, ?, ?);`,
+      [userId, refreshToken, expires_at]
     );
     return result;
   } catch (err) {

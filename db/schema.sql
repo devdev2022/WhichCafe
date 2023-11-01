@@ -91,7 +91,7 @@ CREATE TABLE `refreshtokens` (
   `refresh_token` varchar(255) NOT NULL,
   `device_info` varchar(255) DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `expires_at` timestamp NOT NULL DEFAULT ((now() + interval 7 day)),
+  `expires_at` timestamp NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `user_id` (`user_id`),
   CONSTRAINT `fk_refreshtokens_users` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE RESTRICT
