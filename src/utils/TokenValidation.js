@@ -52,7 +52,7 @@ const validateTokens = catchAsync(async (req, res, next) => {
     );
 
     if (decodedRefreshToken.account !== decodedAccessToken.account) {
-      customError("Access and Refresh Tokens do not match", 400);
+      customError("Access and Refresh Tokens do not match", 401);
     }
 
     const user = await getUserByAccount(decodedRefreshToken.account);

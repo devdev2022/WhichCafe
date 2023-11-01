@@ -123,21 +123,10 @@ const signIn = async (account, password) => {
 
 const logOut = async (userId, refreshToken) => {
   try {
-    const findRefreshToken = await userDao.findRefreshToken(
-      userId,
-      refreshToken
-    );
-    /*const findRfTokenValidationResult = validateResponse(findRfTokenDataSchema, user);
-    if (findRfTokenValidationResult) {
-      const error = new Error(
-        "Validation Error: " + JSON.stringify(findRfTokenValidationResult)
-      );
-      error.statusCode = 500;
-      throw error;
-    }*/
+    const findRefreshToken = await userDao.findRefreshToken(userId, refreshToken);
 
     if (!findRefreshToken) {
-      customError("REFRESHTOKEN DOES NOT EXIST", 404);
+      customError("REFRESHTOKEN DOES NOT EXIST", 400);
     }
 
     const deletedFavoriteId = await userDao.deleteRefreshToken(
@@ -304,9 +293,6 @@ const deleteFavorites = async (account, cafe_id) => {
 
 const getUserInfoByAccount = async (account) => {
   try {
-    if (!account) {
-      throw new Error("USER_ACCOUNT NOT PROVIDED");
-    }
     const user = await userDao.getUserByAccount(account);
     const validationResult = validateResponse(getUserSchema, user);
     if (validationResult) {
@@ -315,6 +301,9 @@ const getUserInfoByAccount = async (account) => {
       );
       error.statusCode = 500;
       throw error;
+    }
+    if (!user) {
+      customError("USER DOES NOT EXIST", 400);
     }
 
     const { id, password, created_at, ...filteredInfo } = user;
@@ -341,6 +330,9 @@ const updateUserInfo = async (updateData, account) => {
             );
             error.statusCode = 500;
             throw error;
+          }
+          if (!user) {
+            customError("USER DOES NOT EXIST", 400);
           }
           if (user.nickname === updateData["nickname"]) {
             customError("YOUR NICKNAME IS SAME WITH CURRENT NICKNAME", 400);

@@ -58,6 +58,8 @@ components:
 paths:
   /location:
     get:
+      tags:
+        - 위치 정보
       summary: 주변의 카페 정보를 검색합니다.
       parameters:
         - name: latitude
@@ -135,6 +137,8 @@ paths:
                 message: "GET_NEARBY_ADDRESS_ERROR"
   /location/search:
     get:
+      tags:
+        - 위치 정보
       summary: 주어진 주소에 대한 카페 목록을 검색합니다.
       parameters:
         - name: address

@@ -56,6 +56,28 @@ components:
         - account
         - password
 
+    UserLogOut:
+      type: object
+      properties:
+        userId:
+          type: string
+          description: DB에 있는 유저 계정에 대한 ID 입니다.
+      required:
+        - userId
+
+    IssueAccessToken:
+      type: object
+      properties:
+        userId:
+          type: string
+          description: DB에 있는 유저 계정에 대한 ID 입니다.
+        refreshToken:
+          type: string
+          description: 유저의 리프레시 토큰 입니다.
+      required:
+        - userId
+        - refreshToken
+
     UsersMyPage:
       type: object
       properties:
@@ -112,6 +134,9 @@ components:
     FavoriteCafe:
       type: object
       properties:
+        id:
+          type: number
+          description: 카페의 DB 번호입니다.
         name:
           type: string
           description: 즐겨찾기 항목에 있는 카페의 이름입니다.
@@ -139,6 +164,8 @@ components:
 paths:
   /users/duplicationCheck/{account}:
     get:
+      tags:
+        - 유저 인증
       summary: 중복확인
       description: 유저의 계정에 중복이 있는지 확인합니다.
       parameters:
@@ -147,7 +174,11 @@ paths:
           required: true
           schema:
             type: string
-          description: 회원가입을 위해 확인해야할 계정의 account 입니다.
+          description: |
+            회원가입을 위해 확인해야할 계정의 account 입니다. 
+
+            1. 유저의 계정은 최소 하나 이상의 알파벳 문자와 숫자가 포함되어야 하며, 알파벳 문자와 숫자만을 포함해야 합니다.
+            2. 계정은 3자리에서 30자리 사이의 길이여야 합니다.
       responses:
         "200":
           description: 사용자 정보를 성공적으로 가져옴.
@@ -180,7 +211,7 @@ paths:
                   value:
                     message: "ACCOUNT ALREADY EXIST"
         "500":
-          description: 웹 서버 내부의 데이터베이스에 의한 오류입니다.
+          description: 웹 서버 내부의 데이터베이스에서 발생한 오류입니다.
           content:
             application/json:
               schema:
@@ -192,6 +223,8 @@ paths:
                 message: "GET_USER_BY_ACCOUNT_ERROR"
   /users/signup:
     post:
+      tags:
+        - 유저 인증
       summary: 회원가입
       requestBody:
         description: |
@@ -252,7 +285,7 @@ paths:
                   value:
                     message: "INVALID PASSWORD"
         "500":
-          description: 웹 서버 내부의 데이터베이스에 의한 오류입니다.
+          description: 웹 서버 내부의 데이터베이스에서 발생한 오류입니다.
           content:
             application/json:
               schema:
@@ -265,6 +298,8 @@ paths:
 
   /users/signin:
     post:
+      tags:
+        - 유저 인증
       summary: 유저 로그인
       requestBody:
         description: |
@@ -316,7 +351,152 @@ paths:
                   value:
                     message: "ACCOUNT DOES NOT EXIST OR INVALID PASSWORD"
         "500":
-          description: 웹 서버 내부의 데이터베이스에 의한 오류입니다.
+          description: 웹 서버 내부의 데이터베이스에서 발생한 오류입니다.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                  message:
+                    type: string
+              examples:
+                RetrieveUserError:
+                  summary: "계정별 사용자 조회 실패"
+                  value:
+                    message: "GET_USER_BY_ACCOUNT_ERROR"
+                saveRefreshTokenError:
+                  summary: "리프레시 토큰 저장 실패"
+                  value:
+                    message: "ADD_REFRESHTOKEN_ERROR"
+                CheckLoginDataError:
+                  summary: "로그인 오류"
+                  value:
+                    message: "SIGN_IN_ERROR"
+
+  /users/logout:
+    delete:
+      tags:
+        - 유저 인증
+      summary: 유저 로그아웃
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: Cookie
+          in: cookie
+          description: 유저의 리프레시 토큰
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: |
+          로그아웃을 하기위해 필요한 정보입니다. 
+
+          회원의 계정의 id, 리프레시 토큰이 필요합니다.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserLogOut"
+            example:
+              userId: "2c4ccc70-77d3-11ee-8332-c4a904145880"
+      responses:
+        "204":
+          description: 성공적으로 로그아웃을 하였습니다.
+        "400":
+          description: 클라이언트의 잘못된 요청으로 인한 오류입니다.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: 오류 메시지 설명입니다.
+              examples:
+                keyError:
+                  summary: "필수 키 누락"
+                  value:
+                    message: "KEY_ERROR"
+                NoRefreshToken:
+                  summary: "리프레시 토큰이 존재하지 않습니다."
+                  value:
+                    message: "REFRESHTOKEN DOES NOT EXIST"
+        "500":
+          description: 웹 서버 내부의 데이터베이스에서 발생한 오류입니다.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                  message:
+                    type: string
+              examples:
+                RetrieveUserError:
+                  summary: "리프레시 토큰 탐색 실패"
+                  value:
+                    message: "FIND_REFRESHTOKEN_ERROR"
+                CheckLoginDataError:
+                  summary: "리프레시토큰 삭제 실패"
+                  value:
+                    message: "DELETE_REFRESHTOKEN_ERROR"
+
+  /users/refreshtoken:
+    post:
+      tags:
+        - 유저 인증
+      summary: 액세스 토큰 재발급
+      parameters:
+        - name: refreshToken
+          in: cookie
+          description: 유저의 리프레시 토큰
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: 액세스 토큰 성공적으로 발급
+          content:
+            application/json:
+              example:
+                accessToken: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2NvdW50IjoidGVzdGluZzEwIiwiaWF0IjoxNjk4ODI0MzAzLCJleHAiOjE2OTg4Mjc5MDN9.9Pm5VNFAxhzwN2aU4Wq4j6Wz0hqYR7trh4n4lNCWS-c"
+
+        "400":
+          description: 클라이언트의 잘못된 요청으로 인한 오류입니다.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: 오류 메시지 설명입니다.
+              examples:
+                keyError:
+                  summary: "필수 키 누락"
+                  value:
+                    message: "KEY_ERROR"
+                NoUserExist:
+                  summary: "DB에 저장되지 않은 유저입니다."
+                  value:
+                    message: "USER DOES NOT EXIST"
+                NoRefreshToken:
+                  summary: "리프레시 토큰이 일치하지 않습니다."
+                  value:
+                    message: "INVALID REFRESH TOKEN"
+
+        "401":
+          description: 클라이언트의 잘못된 요청으로 인한 오류입니다.
+          content:
+            application/json:
+              example:
+                message: "INVALID REFRESH TOKEN"
+
+        "500":
+          description: 웹 서버 내부의 데이터베이스에서 발생한 오류입니다.
           content:
             application/json:
               schema:
@@ -332,12 +512,14 @@ paths:
                   value:
                     message: "GET_USER_BY_ACCOUNT_ERROR"
                 CheckLoginDataError:
-                  summary: "로그인 오류"
+                  summary: "리프레시 토큰 탐색 실패"
                   value:
-                    message: "SIGN_IN_ERROR"
+                    message: "FIND_REFRESHTOKEN_ERROR"
 
   /users/mypage:
     get:
+      tags:
+        - 유저 정보
       summary: 사용자 정보 조회
       description: 로그인된 사용자의 정보를 가져옵니다.
       security:
@@ -365,7 +547,7 @@ paths:
               example:
                 message: "Token expired. Please refresh token"
         "500":
-          description: 웹 서버 내부의 데이터베이스에 의한 오류입니다.
+          description: 웹 서버 내부의 데이터베이스에서 발생한 오류입니다.
           content:
             application/json:
               schema:
@@ -377,6 +559,8 @@ paths:
                 message: "GET_USER_BY_ACCOUNT_ERROR"
 
     patch:
+      tags:
+        - 유저 정보
       summary: 사용자 정보 업데이트
       description: 사용자의 비밀번호나 닉네임을 업데이트합니다.
       security:
@@ -433,7 +617,7 @@ paths:
               example:
                 message: "Token expired. Please refresh token"
         "500":
-          description: 웹 서버 내부의 데이터베이스에 의한 오류입니다.
+          description: 웹 서버 내부의 데이터베이스에서 발생한 오류입니다.
           content:
             application/json:
               schema:
@@ -454,6 +638,8 @@ paths:
                     message: "UPDATE_USERINFO_ERROR"
 
     delete:
+      tags:
+        - 유저 정보
       summary: 사용자 계정 삭제
       description: 사용자의 계정을 삭제합니다.
       security:
@@ -492,7 +678,7 @@ paths:
               example:
                 message: "Token expired. Please refresh token"
         "500":
-          description: 웹 서버 내부의 데이터베이스에 의한 오류입니다.
+          description: 웹 서버 내부의 데이터베이스에서 발생한 오류입니다.
           content:
             application/json:
               schema:
@@ -505,6 +691,8 @@ paths:
 
   /users/search:
     patch:
+      tags:
+        - 유저 정보
       summary: 사용자 비밀번호 찾기
       description: |
         회원가입 질문을 통해 비밀번호를 변경합니다. 
@@ -556,7 +744,7 @@ paths:
                   value:
                     message: "INVALID PASSWORD"
         "500":
-          description: 웹 서버 내부의 데이터베이스에 의한 오류입니다.
+          description: 웹 서버 내부의 데이터베이스에서 발생한 오류입니다.
           content:
             application/json:
               schema:
@@ -574,8 +762,61 @@ paths:
                   value:
                     message: "UPDATE_USERINFO_ERROR"
 
+  /users/favorites:
+    get:
+      tags:
+        - 유저 정보
+      summary: 즐겨찾기 항목 불러오기
+      description: 유저의 계정에 저장되어있는 즐겨찾기 항목을 불러옵니다.
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: 즐겨찾기 항목을 성공적으로 가져옴.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserSignUp"
+              example:
+                id: 1
+                name: "빵파남 커파남"
+                address: "서울 강남구 논현동 242-20"
+                score: 4
+                thumbnail: https://s3-hosting-whichcafe.s3.ap-northeast-2.amazonaws.com/thumbnail/%E1%84%88%E1%85%A1%E1%86%BC%E1%84%91%E1%85%A1%E1%84%82%E1%85%A1%E1%86%B7+%E1%84%8F%E1%85%A5%E1%84%91%E1%85%A1%E1%84%82%E1%85%A1%E1%86%B7.png
+        "400":
+          description: 클라이언트의 잘못된 요청으로 인한 오류입니다.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+              examples:
+                keyError:
+                  summary: "필수 키 누락"
+                  value:
+                    message: "KEY_ERROR"
+                noCafeList:
+                  summary: "즐겨찾기 항목에 카페가 존재하지 않습니다"
+                  value:
+                    message: "FAVORITES DOES NOT EXIST"
+        "500":
+          description: 웹 서버 내부의 데이터베이스에서 발생한 오류입니다.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+              example:
+                message: "GET_FAVORITES_ERROR"
+
   /users/favorites/{cafeId}:
     post:
+      tags:
+        - 유저 정보
       summary: 즐겨찾기 목록에 카페 추가
       description: 카페목록에 있는 카페를 즐겨찾기에 추가합니다.
       security:
@@ -630,7 +871,7 @@ paths:
               example:
                 message: "Token expired. Please refresh token"
         "500":
-          description: 웹 서버 내부의 데이터베이스에 의한 오류입니다.
+          description: 웹 서버 내부의 데이터베이스에서 발생한 오류입니다.
           content:
             application/json:
               schema:
@@ -651,6 +892,8 @@ paths:
                     message: "ADD_FAVORITES_ERROR"
 
     delete:
+      tags:
+        - 유저 정보
       summary: 즐겨찾기 항목의 카페 삭제
       description: 유저 계정의 즐겨찾기 항목에 있는 카페를 삭제합니다.
       security:
@@ -699,7 +942,7 @@ paths:
               example:
                 message: "FAVORITES_DATA NOT EXIST"
         "500":
-          description: 웹 서버 내부의 데이터베이스에 의한 오류입니다.
+          description: 웹 서버 내부의 데이터베이스에서 발생한 오류입니다.
           content:
             application/json:
               schema:
