@@ -15,8 +15,8 @@ const validateAccessToken = catchAsync(async (req, res, next) => {
 
   try {
     const decoded = await verifyAsync(accessToken, process.env.JWT_SECRET_KEY);
-    const user = await getUserByAccount(decoded.account);
-    req.user = user.account;
+    const userInfo = await getUserByAccount(decoded.account);
+    req.user = userInfo.account;
     next();
   } catch (jwtError) {
     if (jwtError.name === "TokenExpiredError") {
@@ -45,6 +45,7 @@ const validateTokens = catchAsync(async (req, res, next) => {
       process.env.JWT_REFRESH_SECRET_KEY,
       { ignoreExpiration: true }
     );
+
     const decodedAccessToken = await verifyAsync(
       accessToken,
       process.env.JWT_SECRET_KEY,
@@ -55,8 +56,8 @@ const validateTokens = catchAsync(async (req, res, next) => {
       customError("Access and Refresh Tokens do not match", 401);
     }
 
-    const user = await getUserByAccount(decodedRefreshToken.account);
-    req.user = user.account;
+    const userInfo = await getUserByAccount(decodedRefreshToken.account);
+    req.account = userInfo.account;
     req.refreshToken = decodedRefreshToken;
     next();
   } catch (jwtError) {

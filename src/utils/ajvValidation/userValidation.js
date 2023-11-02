@@ -130,6 +130,29 @@ const findFavDataSchema = {
   },
 };
 
+const findRefreshTokenSchema = {
+  type: "object",
+  properties: {
+    id: { type: "number" },
+    user_id: { type: "string", format: "uuid" },
+    account: { type: "string" },
+    refresh_token: { type: "string", maxLength: 255 },
+    device_info: { type: ["string", "null"], maxLength: 255 },
+    created_at: { type: "object", isDateObject: true },
+    expires_at: { type: "object", isDateObject: true },
+  },
+  required: [
+    "id",
+    "user_id",
+    "account",
+    "refresh_token",
+    "created_at",
+    "expires_at",
+  ],
+  additionalProperties: false,
+  isNotEmpty: true,
+};
+
 function validateResponse(schema, data) {
   if (data === null) {
     return null;
@@ -148,5 +171,6 @@ module.exports = {
   getUserSchema,
   getFavoritesSchema,
   findFavDataSchema,
+  findRefreshTokenSchema,
   validateResponse,
 };

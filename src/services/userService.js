@@ -10,6 +10,7 @@ const {
   getUserSchema,
   getFavoritesSchema,
   findFavDataSchema,
+  findRefreshTokenSchema,
   validateResponse,
 } = require("../utils/ajvValidation/userValidation");
 
@@ -19,7 +20,7 @@ const duplicationCheck = async (account) => {
     const validationResult = validateResponse(getUserSchema, user);
     if (validationResult) {
       const error = new Error(
-        "Validation Error: " + JSON.stringify(validationResult)
+        "getUserValidation Error: " + JSON.stringify(validationResult)
       );
       error.statusCode = 500;
       throw error;
@@ -39,6 +40,14 @@ const signUp = async (account, password, nickname, question_answer) => {
     validatePw(password);
 
     const user = await userDao.getUserByAccount(account);
+    const validationResult = validateResponse(getUserSchema, user);
+    if (validationResult) {
+      const error = new Error(
+        "getUserValidation Error: " + JSON.stringify(validationResult)
+      );
+      error.statusCode = 500;
+      throw error;
+    }
     if (user) {
       customError("DUPLICATED ACCOUNT", 400);
     }
@@ -67,7 +76,7 @@ const signIn = async (account, password) => {
     const validationResult = validateResponse(getUserSchema, user);
     if (validationResult) {
       const error = new Error(
-        "Validation Error: " + JSON.stringify(validationResult)
+        "getUserValidation Error: " + JSON.stringify(validationResult)
       );
       error.statusCode = 500;
       throw error;
@@ -90,7 +99,7 @@ const signIn = async (account, password) => {
       }
     );
 
-    const expiresIn = "7d";
+    const expiresIn = "14d";
     const refreshToken = jwt.sign(
       { account: user.account },
       process.env.JWT_REFRESH_SECRET_KEY,
@@ -113,7 +122,7 @@ const signIn = async (account, password) => {
 
     const userId = user.id;
 
-    await userDao.addRefreshToken(userId, refreshToken, expires_at);
+    await userDao.addRefreshToken(userId, account, refreshToken, expires_at);
 
     return { accessToken, refreshToken };
   } catch (error) {
@@ -123,7 +132,10 @@ const signIn = async (account, password) => {
 
 const logOut = async (userId, refreshToken) => {
   try {
-    const findRefreshToken = await userDao.findRefreshToken(userId, refreshToken);
+    const findRefreshToken = await userDao.findRefreshToken(
+      userId,
+      refreshToken
+    );
 
     if (!findRefreshToken) {
       customError("REFRESHTOKEN DOES NOT EXIST", 400);
@@ -141,16 +153,36 @@ const logOut = async (userId, refreshToken) => {
 
 const reissueAccessToken = async (refreshToken) => {
   try {
-    const userId = refreshToken.userId;
     const account = refreshToken.account;
-    const token = refreshToken.token;
 
     const user = await userDao.getUserByAccount(account);
+    const validationResult = validateResponse(getUserSchema, user);
+    if (validationResult) {
+      const error = new Error(
+        "getUserValidation Error: " + JSON.stringify(validationResult)
+      );
+      error.statusCode = 500;
+      throw error;
+    }
     if (!user) {
       customError("USER DOES NOT EXIST", 400);
     }
 
-    const storedRefreshToken = await userDao.findRefreshToken(userId, token);
+    const storedRefreshToken = await userDao.findRefreshToken(account);
+    console.log(storedRefreshToken);
+    const refreshTokenvalidationResult = validateResponse(
+      findRefreshTokenSchema,
+      storedRefreshToken
+    );
+    console.log(refreshTokenvalidationResult);
+    if (refreshTokenvalidationResult) {
+      const error = new Error(
+        "refreshTokenValidation Error: " + JSON.stringify(validationResult)
+      );
+      error.statusCode = 500;
+      throw error;
+    }
+
     if (!storedRefreshToken) {
       customError("INVALID REFRESH TOKEN", 401);
     }
@@ -175,7 +207,7 @@ const getUserByAccount = async (account) => {
     const validationResult = validateResponse(getUserSchema, user);
     if (validationResult) {
       const error = new Error(
-        "Validation Error: " + JSON.stringify(validationResult)
+        "getUserValidation Error: " + JSON.stringify(validationResult)
       );
       error.statusCode = 500;
       throw error;
@@ -201,7 +233,7 @@ const getFavorites = async (account) => {
     );
     if (validationResult) {
       const error = new Error(
-        "Validation Error: " + JSON.stringify(validationResult)
+        "getFavValidation Error: " + JSON.stringify(validationResult)
       );
       error.statusCode = 500;
       throw error;
@@ -225,7 +257,7 @@ const addFavorites = async (account, cafe_id) => {
     );
     if (GetIdValidationResult) {
       const error = new Error(
-        "Validation Error: " + JSON.stringify(GetIdValidationResult)
+        "getIdValidation Error: " + JSON.stringify(GetIdValidationResult)
       );
       error.statusCode = 500;
       throw error;
@@ -238,7 +270,7 @@ const addFavorites = async (account, cafe_id) => {
     );
     if (findFavValidationResult) {
       const error = new Error(
-        "Validation Error: " + JSON.stringify(findFavValidationResult)
+        "findFavValidation Error: " + JSON.stringify(findFavValidationResult)
       );
       error.statusCode = 500;
       throw error;
@@ -261,7 +293,7 @@ const deleteFavorites = async (account, cafe_id) => {
     const validationResult = validateResponse(getUserIdSchema, user);
     if (validationResult) {
       const error = new Error(
-        "Validation Error: " + JSON.stringify(validationResult)
+        "getIdValidation Error: " + JSON.stringify(validationResult)
       );
       error.statusCode = 500;
       throw error;
@@ -271,7 +303,7 @@ const deleteFavorites = async (account, cafe_id) => {
     const findFavValidationResult = validateResponse(findFavDataSchema, user);
     if (findFavValidationResult) {
       const error = new Error(
-        "Validation Error: " + JSON.stringify(validationResult)
+        "findFavValidation Error: " + JSON.stringify(validationResult)
       );
       error.statusCode = 500;
       throw error;
@@ -297,7 +329,7 @@ const getUserInfoByAccount = async (account) => {
     const validationResult = validateResponse(getUserSchema, user);
     if (validationResult) {
       const error = new Error(
-        "Validation Error: " + JSON.stringify(validationResult)
+        "getUserValidation Error: " + JSON.stringify(validationResult)
       );
       error.statusCode = 500;
       throw error;
@@ -326,7 +358,7 @@ const updateUserInfo = async (updateData, account) => {
           const validationResult = validateResponse(getUserSchema, user);
           if (validationResult) {
             const error = new Error(
-              "Validation Error: " + JSON.stringify(validationResult)
+              "getUserValidation Error: " + JSON.stringify(validationResult)
             );
             error.statusCode = 500;
             throw error;
@@ -373,7 +405,7 @@ const searchPassword = async (account, answer, editPassword) => {
     const validationResult = validateResponse(getUserSchema, checkAnswer);
     if (validationResult) {
       const error = new Error(
-        "Validation Error: " + JSON.stringify(validationResult)
+        "getUserValidation Error: " + JSON.stringify(validationResult)
       );
       error.statusCode = 500;
       throw error;

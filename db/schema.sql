@@ -88,12 +88,14 @@ CREATE TABLE `photos` (
 CREATE TABLE `refreshtokens` (
   `id` int NOT NULL AUTO_INCREMENT,
   `user_id` char(36) NOT NULL,
+  `account` varchar(50) NOT NULL,
   `refresh_token` varchar(255) NOT NULL,
   `device_info` varchar(255) DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `expires_at` timestamp NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `user_id` (`user_id`),
+  UNIQUE KEY `account` (`account`),
   CONSTRAINT `fk_refreshtokens_users` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
