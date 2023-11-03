@@ -1,6 +1,4 @@
 -- migrate:up
-SET GLOBAL event_scheduler = ON;
-
 CREATE EVENT IF NOT EXISTS clean_expired_tokens
 ON SCHEDULE EVERY 1 HOUR
 DO
