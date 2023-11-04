@@ -9,7 +9,7 @@ router.get("/duplicationCheck/:account", userController.duplicationCheck);
 router.post("/signup", userController.signUp);
 router.post("/signin", userController.signIn);
 
-router.delete("/logout", validateTokens, userController.logOut);
+router.delete("/logout", validateAccessToken, userController.logOut);
 
 router.post("/refreshtoken", validateTokens, userController.reissueAccessToken);
 

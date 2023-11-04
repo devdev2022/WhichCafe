@@ -89,16 +89,16 @@ const findRefreshToken = async (account) => {
   }
 };
 
-const deleteRefreshToken = async (userId) => {
+const deleteRefreshToken = async (account) => {
   const conn = await database.getConnection();
   try {
     const result = await conn.query(
       `
       DELETE FROM refreshtokens
       WHERE 
-        user_id=?
+        account=?
       `,
-      [userId]
+      [account]
     );
     return result;
   } catch (err) {
