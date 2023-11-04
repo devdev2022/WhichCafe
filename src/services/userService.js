@@ -130,21 +130,27 @@ const signIn = async (account, password) => {
   }
 };
 
-const logOut = async (userId, refreshToken) => {
+const logOut = async (account) => {
   try {
-    const findRefreshToken = await userDao.findRefreshToken(
-      userId,
-      refreshToken
+    const findRefreshToken = await userDao.findRefreshToken(account);
+    const refreshTokenvalidationResult = validateResponse(
+      findRefreshTokenSchema,
+      findRefreshToken
     );
+    if (refreshTokenvalidationResult) {
+      const error = new Error(
+        "refreshTokenValidation Error: " +
+          JSON.stringify(refreshTokenvalidationResult)
+      );
+      error.statusCode = 500;
+      throw error;
+    }
 
     if (!findRefreshToken) {
       customError("REFRESHTOKEN DOES NOT EXIST", 400);
     }
 
-    const deletedFavoriteId = await userDao.deleteRefreshToken(
-      userId,
-      refreshToken
-    );
+    const deletedFavoriteId = await userDao.deleteRefreshToken(account);
     return deletedFavoriteId;
   } catch (error) {
     throw error;
@@ -169,15 +175,14 @@ const reissueAccessToken = async (refreshToken) => {
     }
 
     const storedRefreshToken = await userDao.findRefreshToken(account);
-    console.log(storedRefreshToken);
     const refreshTokenvalidationResult = validateResponse(
       findRefreshTokenSchema,
       storedRefreshToken
     );
-    console.log(refreshTokenvalidationResult);
     if (refreshTokenvalidationResult) {
       const error = new Error(
-        "refreshTokenValidation Error: " + JSON.stringify(validationResult)
+        "refreshTokenValidation Error: " +
+          JSON.stringify(refreshTokenvalidationResult)
       );
       error.statusCode = 500;
       throw error;
@@ -250,11 +255,8 @@ const getFavorites = async (account) => {
 
 const addFavorites = async (account, cafe_id) => {
   try {
-    const userAccount = await userDao.getIdByAccount(account);
-    const GetIdValidationResult = validateResponse(
-      getUserIdSchema,
-      userAccount
-    );
+    const userId = await userDao.getIdByAccount(account);
+    const GetIdValidationResult = validateResponse(getUserIdSchema, userId);
     if (GetIdValidationResult) {
       const error = new Error(
         "getIdValidation Error: " + JSON.stringify(GetIdValidationResult)
@@ -263,7 +265,8 @@ const addFavorites = async (account, cafe_id) => {
       throw error;
     }
 
-    const findFavData = await userDao.findFavData(userAccount, cafe_id);
+    const findFavData = await userDao.findFavData(userId, cafe_id);
+    console.log(findFavData);
     const findFavValidationResult = validateResponse(
       findFavDataSchema,
       findFavData
@@ -280,7 +283,7 @@ const addFavorites = async (account, cafe_id) => {
       customError("FAVOIRTES ALREADY REGISTERED", 400);
     }
 
-    const addFavorites = await userDao.addFavorites(userAccount, cafe_id);
+    const addFavorites = await userDao.addFavorites(userId, cafe_id);
     return addFavorites;
   } catch (error) {
     throw error;
@@ -289,21 +292,24 @@ const addFavorites = async (account, cafe_id) => {
 
 const deleteFavorites = async (account, cafe_id) => {
   try {
-    const userAccount = await userDao.getIdByAccount(account);
-    const validationResult = validateResponse(getUserIdSchema, user);
-    if (validationResult) {
+    const userId = await userDao.getIdByAccount(account);
+    const GetIdValidationResult = validateResponse(getUserIdSchema, userId);
+    if (GetIdValidationResult) {
       const error = new Error(
-        "getIdValidation Error: " + JSON.stringify(validationResult)
+        "getIdValidation Error: " + JSON.stringify(GetIdValidationResult)
       );
       error.statusCode = 500;
       throw error;
     }
 
-    const findFavData = await userDao.findFavData(userAccount, cafe_id);
-    const findFavValidationResult = validateResponse(findFavDataSchema, user);
+    const findFavData = await userDao.findFavData(userId, cafe_id);
+    const findFavValidationResult = validateResponse(
+      findFavDataSchema,
+      findFavData
+    );
     if (findFavValidationResult) {
       const error = new Error(
-        "findFavValidation Error: " + JSON.stringify(validationResult)
+        "findFavValidation Error: " + JSON.stringify(findFavValidationResult)
       );
       error.statusCode = 500;
       throw error;
@@ -313,10 +319,7 @@ const deleteFavorites = async (account, cafe_id) => {
       customError("FAVORITES_DATA NOT EXIST", 404);
     }
 
-    const deletedFavoriteId = await userDao.deleteFavorites(
-      userAccount,
-      cafe_id
-    );
+    const deletedFavoriteId = await userDao.deleteFavorites(userId, cafe_id);
     return deletedFavoriteId;
   } catch (error) {
     throw error;

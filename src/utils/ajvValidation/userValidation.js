@@ -82,38 +82,7 @@ const getFavoritesSchema = {
         maxLength: 100,
       },
       score: {
-        type: ["number", "null"],
-        minimum: 0,
-        maximum: 5,
-        multipleOf: 0.01,
-      },
-      thumbnail: {
-        type: "string",
-        format: "uri",
-        maxLength: 2083,
-      },
-    },
-    required: ["id", "name", "address", "thumbnail"],
-    additionalProperties: false,
-  },
-};
-
-const findFavDataSchema = {
-  type: "array",
-  items: {
-    type: "object",
-    properties: {
-      id: { type: "number" },
-      name: {
-        type: "string",
-        maxLength: 100,
-      },
-      address: {
-        type: "string",
-        maxLength: 100,
-      },
-      score: {
-        type: ["number", "null"],
+        type: ["number", "string", "null"],
         minimum: 0,
         maximum: 5,
         multipleOf: 0.01,
@@ -128,6 +97,16 @@ const findFavDataSchema = {
     additionalProperties: false,
     isNotEmpty: true,
   },
+};
+
+const findFavDataSchema = {
+  type: "object",
+  properties: {
+    user_id: { type: "string" },
+    cafe_id: { type: "number" },
+  },
+  additionalProperties: false,
+  isNotEmpty: true,
 };
 
 const findRefreshTokenSchema = {

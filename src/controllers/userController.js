@@ -45,16 +45,15 @@ const signIn = catchAsync(async (req, res) => {
 });
 
 const logOut = catchAsync(async (req, res) => {
-  const { userId } = req.body;
-  const refreshToken = req.refreshToken;
+  const account = req.account;
 
-  if (!userId || !refreshToken) {
+  if (!account) {
     return res.status(400).json({
       message: "KEY_ERROR",
     });
   }
 
-  await userService.logOut(userId, refreshToken);
+  await userService.logOut(account);
   return res.status(204).send();
 });
 
@@ -71,7 +70,7 @@ const reissueAccessToken = catchAsync(async (req, res) => {
 });
 
 const getFavorites = catchAsync(async (req, res) => {
-  const account = req.user;
+  const account = req.account;
   if (!account) {
     return res.status(400).json({
       message: "KEY_ERROR",
@@ -83,7 +82,7 @@ const getFavorites = catchAsync(async (req, res) => {
 });
 
 const addFavorites = catchAsync(async (req, res) => {
-  const account = req.user;
+  const account = req.account;
   const cafe_id = req.params.cafeId;
 
   if (!account || !cafe_id) {
@@ -99,7 +98,7 @@ const addFavorites = catchAsync(async (req, res) => {
 });
 
 const deleteFavorites = catchAsync(async (req, res) => {
-  const account = req.user;
+  const account = req.account;
   const cafe_id = req.params.cafeId;
 
   if (!account || !cafe_id) {
@@ -113,7 +112,7 @@ const deleteFavorites = catchAsync(async (req, res) => {
 });
 
 const getUserInfo = catchAsync(async (req, res) => {
-  const account = req.user;
+  const account = req.account;
 
   if (!account) {
     return res.status(400).json({
@@ -126,7 +125,7 @@ const getUserInfo = catchAsync(async (req, res) => {
 });
 
 const updateUserInfo = catchAsync(async (req, res) => {
-  const account = req.user;
+  const account = req.account;
   if (!account) {
     return res.status(400).json({
       message: "KEY_ERROR",
@@ -156,7 +155,7 @@ const searchPassword = catchAsync(async (req, res) => {
 });
 
 const deleteAccount = catchAsync(async (req, res) => {
-  const account = req.user;
+  const account = req.account;
   const { deleteMessage } = req.body;
 
   if (!account || !deleteMessage) {

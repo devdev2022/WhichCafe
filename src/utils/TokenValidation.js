@@ -16,7 +16,7 @@ const validateAccessToken = catchAsync(async (req, res, next) => {
   try {
     const decoded = await verifyAsync(accessToken, process.env.JWT_SECRET_KEY);
     const userInfo = await getUserByAccount(decoded.account);
-    req.user = userInfo.account;
+    req.account = userInfo.account;
     next();
   } catch (jwtError) {
     if (jwtError.name === "TokenExpiredError") {
