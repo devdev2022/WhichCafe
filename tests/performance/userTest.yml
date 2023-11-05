@@ -1,0 +1,14 @@
+config:
+  target: "http://127.0.0.1:3000"
+  phases:
+    - duration: 30
+      arrivalRate: 100
+scenarios:
+  - flow:
+      - post:
+          url: "/users/signup"
+          json:
+            account: "testuser{{ $randomString(5) }}"
+            password: "Test{{ $randomString(5) }}!@#123"
+            nickname: "TestUser"
+            question_answer: "TestAnswer"
