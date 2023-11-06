@@ -5,10 +5,33 @@ config:
       arrivalRate: 100
 scenarios:
   - flow:
+      - get:
+          url: "/users/duplicationCheck/testuser{{ $randomString(5) }}"
+          capture:
+            path: "url"
+            regex: "testuser([A-Za-z0-9]{5})"
+            as: "account"
       - post:
           url: "/users/signup"
           json:
-            account: "testuser{{ $randomString(5) }}"
+            account: "{{ account }}"
             password: "Test{{ $randomString(5) }}!@#123"
             nickname: "TestUser"
             question_answer: "TestAnswer"
+          capture:
+            json: "$.password"
+            as: "password"
+      - post:
+          url: "/users/signin"
+          json:
+            account: "precreated_user"
+            password: "precreated_password"
+          capture:
+            json: "$.access_token"
+            as: "access_token"
+      - delete:
+          url: "/users/logout"
+          headers:
+            Authorization: "Bearer {{ access_token }}"
+          json:
+            account: "precreated_user"
