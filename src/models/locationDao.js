@@ -83,6 +83,7 @@ const searchCafes = async (address) => {
     );
     return result[queryResult];
   } catch (err) {
+    console.log(err);
     throw new Error(`SEARCH_CAFES_ERROR`);
   } finally {
     conn.release();
@@ -145,11 +146,11 @@ const savePhotoInfo = async (cafeId, htmlAttribution, imageName, imageUrl) => {
   try {
     let query = `
     INSERT INTO photos (cafe_id, html_attributions, photo_name, url) 
-    VALUES (?, ?, ?, ?)
+                VALUES (?, ?, ?, ?)
     ON DUPLICATE KEY UPDATE 
-    html_attributions = VALUES(html_attributions),
-    photo_name = VALUES(photo_name),
-    url = VALUES(url);
+                html_attributions = VALUES(html_attributions),
+                photo_name = VALUES(photo_name),
+                url = VALUES(url);
     `;
 
     const queryParams = [cafeId, htmlAttribution, imageName, imageUrl];

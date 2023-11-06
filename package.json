@@ -4,7 +4,8 @@
   "description": "",
   "main": "server.js",
   "scripts": {
-    "test:performance": "artillery run ./tests/performance/userTest.yml"
+    "start": "nodemon server.js",
+    "test:performance": "artillery run ./tests/performance/locationTest.yml"
   },
   "repository": {
     "type": "git",
