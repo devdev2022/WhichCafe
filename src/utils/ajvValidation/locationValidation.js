@@ -40,10 +40,7 @@ const getNearbyAddressSchema = {
         maxLength: 100,
       },
       score: {
-        type: ["number", "null"],
-        minimum: 0,
-        maximum: 5,
-        multipleOf: 0.01,
+        type: ["string", "null"],
       },
       cafe_latitude: {
         type: "string",
@@ -105,10 +102,7 @@ const searchCafesSchema = {
         maxLength: 100,
       },
       score: {
-        type: ["number", "null"],
-        minimum: 0,
-        maximum: 5,
-        multipleOf: 0.01,
+        type: ["string", "null"],
       },
       cafe_latitude: {
         type: "string",

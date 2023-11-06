@@ -1,0 +1,22 @@
+config:
+  target: "http://localhost:3000" # 여기에는 실제 서비스의 URL을 사용합니다.
+  phases:
+    - duration: 60 # 테스트 지속 시간을 초 단위로 설정합니다.
+      arrivalRate: 5 # 초당 새로운 가상 사용자 수를 설정합니다.
+  variables:
+    latitude: ["37.5049", "37.5035", "37.5055", "37.4989", "37.5012"] # 위도 예시 값 리스트
+    longitude: ["127.0376", "127.0528", "127.0427", "127.0365", "127.0481"] # 경도 예시 값 리스트
+    address: ["서울시", "강남구"] # 검색할 주소 예시 값 리스트
+
+scenarios:
+  - flow:
+      - get:
+          url: "/location"
+          qs:
+            latitude: "{{ latitude }}"
+            longitude: "{{ longitude }}"
+      - think: 1 # 각 요청 사이에 휴식 시간을 초 단위로 설정합니다.
+      - get:
+          url: "/location/search"
+          qs:
+            address: "{{ address }}"
