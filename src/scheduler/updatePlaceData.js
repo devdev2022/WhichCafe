@@ -155,7 +155,9 @@ async function main() {
 }
 
 const scheduledTask = schedule.scheduleJob("0 0 4 1 * *", async function () {
-  await main();
+  if (process.env.NODE_APP_INSTANCE === "0") {
+    await main();
+  }
 });
 
 module.exports = { main, scheduledTask };
