@@ -8,10 +8,10 @@ const startServer = async () => {
   const PORT = process.env.PORT;
 
   try {
-    const conn= await database.getConnection();
+    const conn = await database.getConnection();
     if (conn) {
       console.log("Data Source has been initialized!!!");
-      conn.release(); 
+      conn.release();
     }
   } catch (error) {
     console.log("Error occured during Data Source initialization", error);
