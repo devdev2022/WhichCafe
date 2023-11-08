@@ -1,0 +1,69 @@
+# .github/workflows/deploy.yml
+name: CI
+
+env:
+  DOCKER_IMAGE: ghcr.io/${{ github.actor }}/nuxt-auto-deploy
+  VERSION: ${{ github.sha }}
+  NAME: go_cicd
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v1
+      with:
+        node-version: '20.1.0'
+
+    - name: Cache Node modules
+      uses: actions/cache@v2
+      env:
+        cache-name: cache-node-modules
+      with:
+        # node_modules 캐시 경로
+        path: ~/.npm
+        key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-build-${{ env.cache-name }}-
+          ${{ runner.os }}-build-
+          ${{ runner.os }}-
+
+    - name: Install Dependencies
+      run: npm ci
+
+    - name: Performance Test
+      run: npm run test:performance
+      # 성능 테스트 실패 시, 이 지점에 워크플로우 중지
+
+    - name: Build Docker Image
+      run: docker build -t $DOCKER_IMAGE:$VERSION .
+
+    - name: Login to GitHub Container Registry
+      uses: docker/login-action@v1
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.GHCR_TOKEN }}
+
+    - name: Push Docker Image to GHCR
+      run: docker push $DOCKER_IMAGE:$VERSION
+
+    - name: Deploy to AWS EC2
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.EC2_HOST }}
+        username: ${{ secrets.EC2_USER }}
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        script: |
+          docker pull $DOCKER_IMAGE:$VERSION
+          docker stop my-app || true
+          docker rm my-app || true
+          docker run -d --restart unless-stopped --name my-app -p 80:8080 $DOCKER_IMAGE:$VERSION
+          pm2 reload all  
