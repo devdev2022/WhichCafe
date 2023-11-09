@@ -45,12 +45,12 @@ jobs:
         run: |
           docker run -d --name my-app-test-container -p 8080:8080 \
           -e DATABASE_URL=${{ secrets.DATABASE_URL }} \
-          -e PORT= 3000 \
-          -e DB_CONNECTION= mysql \
+          -e PORT=3000 \
+          -e DB_CONNECTION=mysql \
           -e DB_HOST=${{ secrets.DB_HOST }} \
           -e DB_USERNAME=${{ secrets.DB_USERNAME }} \
           -e DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
-          -e DB_DATABASE= WhichCafe \
+          -e DB_DATABASE=WhichCafe \
           -e SALT_ROUNDS=${{ secrets.SALT_ROUNDS }} \
           -e JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }} \
           -e GOOGLE_API_KEY=${{ secrets.GOOGLE_API_KEY }} \
