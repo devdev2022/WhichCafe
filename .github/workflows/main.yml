@@ -86,9 +86,9 @@ jobs:
             docker rm my-app || true
             docker run -d --restart unless-stopped --name my-app -p 80:8080 \
             -e MYSQL_HOST=${{ secrets.MYSQL_HOST }} \
-            -e MYSQL_USERNAME=${{ secrets.MYSQL_USERNAME }} \
-            -e MYSQL_PASSWORD=${{ secrets.MYSQL_PASSWORD }} \
-            -e MYSQL_DATABASE=${{ secrets.MYSQL_DATABASE }} \
+            -e MYSQL_USERNAME=${{ secrets.DB_USERNAME }} \
+            -e MYSQL_PASSWORD=${{ secrets.DB_PASSWORD }} \
+            -e MYSQL_DATABASE=WhichCafe \
             $DOCKER_IMAGE:$VERSION
             if ! docker ps | grep -q my-app; then exit 1; fi
 
@@ -133,7 +133,7 @@ jobs:
             docker rm my-app || true
             docker run -d --restart unless-stopped --name my-app -p 80:8080 \
             -e MYSQL_HOST=${{ secrets.MYSQL_HOST }} \
-            -e MYSQL_USERNAME=${{ secrets.MYSQL_USERNAME }} \
-            -e MYSQL_PASSWORD=${{ secrets.MYSQL_PASSWORD }} \
-            -e MYSQL_DATABASE=${{ secrets.MYSQL_DATABASE }} \
+            -e MYSQL_USERNAME=${{ secrets.DB_USERNAME }} \
+            -e MYSQL_PASSWORD=${{ secrets.DB_PASSWORD }} \
+            -e MYSQL_DATABASE=WhichCafe \
             $DOCKER_IMAGE:$PREVIOUS_VERSION
