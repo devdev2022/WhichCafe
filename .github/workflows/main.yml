@@ -81,16 +81,24 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            docker pull $DOCKER_IMAGE:$VERSION
+            echo "Pulling Docker Image: $DOCKER_IMAGE:$VERSION"
+            docker pull $DOCKER_IMAGE:$VERSION || echo "Failed to pull Docker image"
+            echo "Stopping existing container if it exists"
             docker stop my-app || true
+            echo "Removing existing container if it exists"
             docker rm my-app || true
+            echo "Running new Docker container"
             docker run -d --restart unless-stopped --name my-app -p 80:8080 \
             -e MYSQL_HOST=${{ secrets.DB_HOST }} \
             -e MYSQL_USERNAME=${{ secrets.DB_USERNAME }} \
             -e MYSQL_PASSWORD=${{ secrets.DB_PASSWORD }} \
             -e MYSQL_DATABASE=WhichCafe \
-            $DOCKER_IMAGE:$VERSION
-            if ! docker ps | grep -q my-app; then exit 1; fi
+            $DOCKER_IMAGE:$VERSION || echo "Failed to run Docker container"
+            echo "Checking if the Docker container is running"
+            if ! docker ps | grep -q my-app; then
+              echo "Docker container is not running" 
+              exit 1
+            fi
 
       - name: Get previous Docker image version
         if: failure() # Only run if the previous step failed
