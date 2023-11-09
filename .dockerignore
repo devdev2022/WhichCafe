@@ -1,0 +1,24 @@
+# OS X 시스템 파일
+.DS_Store
+
+# Git 관련 파일
+.git
+.github
+.gitignore
+
+# 프로덕션과 관련 없는 파일들
+README.md
+projectmaterial
+
+# 환경 설정 파일
+.env
+.env.sample
+
+# 개발에 관련된 파일/디렉토리
+ecosystem.config.js
+node_modules
+*.log
+
+# 테스트 폴더
+tests
+
