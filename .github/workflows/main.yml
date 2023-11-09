@@ -60,6 +60,8 @@ jobs:
           -e AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} \
           -e AWS_REGION=${{ secrets.AWS_REGION }} \
           $DOCKER_IMAGE:$VERSION
+          echo "DOCKER_IMAGE: $DOCKER_IMAGE"
+          echo "VERSION: $VERSION"
 
       - name: Performance Test
         run: npm run test:performance
@@ -81,22 +83,31 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
+            echo "Logging Environment Variables..."
+            echo "DOCKER_IMAGE: $DOCKER_IMAGE"
+            echo "VERSION: $VERSION"
+            # 여기에서 민감한 정보는 출력하지 않습니다.
+
             echo "Pulling Docker Image: $DOCKER_IMAGE:$VERSION"
-            docker pull $DOCKER_IMAGE:$VERSION || echo "Failed to pull Docker image"
+            docker pull $DOCKER_IMAGE:$VERSION || echo "Failed to pull Docker image: $DOCKER_IMAGE:$VERSION"
+
             echo "Stopping existing container if it exists"
             docker stop my-app || true
+
             echo "Removing existing container if it exists"
             docker rm my-app || true
+
             echo "Running new Docker container"
             docker run -d --restart unless-stopped --name my-app -p 80:8080 \
             -e MYSQL_HOST=${{ secrets.DB_HOST }} \
             -e MYSQL_USERNAME=${{ secrets.DB_USERNAME }} \
             -e MYSQL_PASSWORD=${{ secrets.DB_PASSWORD }} \
             -e MYSQL_DATABASE=WhichCafe \
-            $DOCKER_IMAGE:$VERSION || echo "Failed to run Docker container"
+            $DOCKER_IMAGE:$VERSION || echo "Failed to run Docker container with image: $DOCKER_IMAGE:$VERSION"
+
             echo "Checking if the Docker container is running"
             if ! docker ps | grep -q my-app; then
-              echo "Docker container is not running" 
+              echo "Docker container is not running"
               exit 1
             fi
 
