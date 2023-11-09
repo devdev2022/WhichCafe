@@ -41,6 +41,26 @@ jobs:
       - name: Build Docker Image
         run: docker build -t $DOCKER_IMAGE:$VERSION .
 
+      - name: Start Docker Container for Testing
+        run: |
+          docker run -d --name my-app-test-container -p 8080:8080 \
+          -e DATABASE_URL=${{ secrets.DATABASE_URL }} \
+          -e PORT= 3000 \
+          -e DB_CONNECTION= mysql \
+          -e DB_HOST=${{ secrets.DB_HOST }} \
+          -e DB_USERNAME=${{ secrets.DB_USERNAME }} \
+          -e DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
+          -e DB_DATABASE= WhichCafe \
+          -e SALT_ROUNDS=${{ secrets.SALT_ROUNDS }} \
+          -e JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }} \
+          -e GOOGLE_API_KEY=${{ secrets.GOOGLE_API_KEY }} \
+          -e SWAGGER_USERNAME=${{ secrets.SWAGGER_USERNAME }} \
+          -e SWAGGER_PASSWORD=${{ secrets.SWAGGER_PASSWORD }} \
+          -e AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }} \
+          -e AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} \
+          -e AWS_REGION=${{ secrets.AWS_REGION }} \
+          $DOCKER_IMAGE:$VERSION
+
       - name: Performance Test
         run: npm run test:performance
 
