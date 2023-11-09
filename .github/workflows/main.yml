@@ -15,55 +15,105 @@ jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
+      - uses: actions/checkout@v2
 
-    - name: Setup Node.js
-      uses: actions/setup-node@v1
-      with:
-        node-version: '20.1.0'
+      - name: Setup Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: "20.1.0"
 
-    - name: Cache Node modules
-      uses: actions/cache@v2
-      env:
-        cache-name: cache-node-modules
-      with:
-        # node_modules 캐시 경로
-        path: ~/.npm
-        key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
-        restore-keys: |
-          ${{ runner.os }}-build-${{ env.cache-name }}-
-          ${{ runner.os }}-build-
-          ${{ runner.os }}-
+      - name: Cache Node modules
+        uses: actions/cache@v2
+        env:
+          cache-name: cache-node-modules
+        with:
+          # node_modules 캐시 경로
+          path: ~/.npm
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ env.cache-name }}-
+            ${{ runner.os }}-build-
+            ${{ runner.os }}-
 
-    - name: Install Dependencies
-      run: npm ci
+      - name: Install Dependencies
+        run: npm ci
 
-    - name: Performance Test
-      run: npm run test:performance
-      # 성능 테스트 실패 시, 이 지점에 워크플로우 중지
+      - name: Performance Test
+        run: npm run test:performance
 
-    - name: Build Docker Image
-      run: docker build -t $DOCKER_IMAGE:$VERSION .
+      - name: Build Docker Image
+        run: docker build -t $DOCKER_IMAGE:$VERSION .
 
-    - name: Login to GitHub Container Registry
-      uses: docker/login-action@v1
-      with:
-        registry: ghcr.io
-        username: ${{ github.actor }}
-        password: ${{ secrets.GHCR_TOKEN }}
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GHCR_TOKEN }}
 
-    - name: Push Docker Image to GHCR
-      run: docker push $DOCKER_IMAGE:$VERSION
+      - name: Push Docker Image to GHCR
+        run: docker push $DOCKER_IMAGE:$VERSION
 
-    - name: Deploy to AWS EC2
-      uses: appleboy/ssh-action@master
-      with:
-        host: ${{ secrets.EC2_HOST }}
-        username: ${{ secrets.EC2_USER }}
-        key: ${{ secrets.SSH_PRIVATE_KEY }}
-        script: |
-          docker pull $DOCKER_IMAGE:$VERSION
-          docker stop my-app || true
-          docker rm my-app || true
-          docker run -d --restart unless-stopped --name my-app -p 80:8080 $DOCKER_IMAGE:$VERSION
-          pm2 reload all  
+      - name: Deploy to AWS EC2
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            docker pull $DOCKER_IMAGE:$VERSION
+            docker stop my-app || true
+            docker rm my-app || true
+            docker run -d --restart unless-stopped --name my-app -p 80:8080 \
+            -e MYSQL_HOST=${{ secrets.MYSQL_HOST }} \
+            -e MYSQL_USERNAME=${{ secrets.MYSQL_USERNAME }} \
+            -e MYSQL_PASSWORD=${{ secrets.MYSQL_PASSWORD }} \
+            -e MYSQL_DATABASE=${{ secrets.MYSQL_DATABASE }} \
+            $DOCKER_IMAGE:$VERSION
+            if ! docker ps | grep -q my-app; then exit 1; fi
+
+      - name: Get previous Docker image version
+        if: failure() # Only run if the previous step failed
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo $GITHUB_TOKEN | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+          TAGS=$(curl -s -H "Authorization: Bearer $GITHUB_TOKEN" https://ghcr.io/v2/${{ github.repository }}/my-app/tags/list | jq -r '.tags[]' | sort -r)
+
+          LATEST_TAG=${{ github.sha }}
+          PREVIOUS_TAG=""
+          for TAG in $TAGS; do
+            if [ "$TAG" != "$LATEST_TAG" ]; then
+              PREVIOUS_TAG=$TAG
+              break
+            fi
+          done
+
+          if [ -z "$PREVIOUS_TAG" ]; then
+            echo "No previous tag found to rollback to."
+            exit 1
+          fi
+
+          echo "PREVIOUS_TAG=$PREVIOUS_TAG" >> $GITHUB_ENV
+
+      - name: Rollback if deployment failed
+        if: ${{ failure() }}
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            echo "Deployment failed! Rolling back to previous version..."
+            # 환경 변수에서 이전 태그 값 사용
+            PREVIOUS_VERSION=${{ env.PREVIOUS_TAG }}
+            docker pull $DOCKER_IMAGE:$PREVIOUS_VERSION
+            docker stop my-app || true
+            docker rm my-app || true
+            docker run -d --restart unless-stopped --name my-app -p 80:8080 \
+            -e MYSQL_HOST=${{ secrets.MYSQL_HOST }} \
+            -e MYSQL_USERNAME=${{ secrets.MYSQL_USERNAME }} \
+            -e MYSQL_PASSWORD=${{ secrets.MYSQL_PASSWORD }} \
+            -e MYSQL_DATABASE=${{ secrets.MYSQL_DATABASE }} \
+            $DOCKER_IMAGE:$PREVIOUS_VERSION
