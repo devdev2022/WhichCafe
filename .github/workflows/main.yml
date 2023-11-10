@@ -14,6 +14,9 @@ on:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+    env:
+      DOCKER_IMAGE: ghcr.io/${{ github.actor }}/nuxt-auto-deploy
+      VERSION: ${{ github.sha }}
     steps:
       - uses: actions/checkout@v2
 
@@ -75,9 +78,6 @@ jobs:
         run: docker push $DOCKER_IMAGE:$VERSION
 
       - name: Deploy to AWS EC2
-        env:
-          DOCKER_IMAGE: ghcr.io/${{ github.actor }}/nuxt-auto-deploy
-          VERSION: ${{ github.sha }}
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.EC2_HOST }}
