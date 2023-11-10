@@ -14,9 +14,6 @@ on:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-    env:
-      DOCKER_IMAGE: ghcr.io/${{ github.actor }}/nuxt-auto-deploy
-      VERSION: ${{ github.sha }}
     steps:
       - uses: actions/checkout@v2
 
@@ -83,6 +80,7 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
+          envs: DOCKER_IMAGE,VERSION
           script: |
             echo "Deploying with the following parameters:"
             echo "DOCKER_IMAGE: $DOCKER_IMAGE"
