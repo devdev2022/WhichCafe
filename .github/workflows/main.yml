@@ -84,16 +84,26 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
+            echo "Deploying with the following parameters:"
+            echo "DOCKER_IMAGE: $DOCKER_IMAGE"
+            echo "VERSION: $VERSION"
+
             docker pull $DOCKER_IMAGE:$VERSION || echo "Failed to pull Docker image: $DOCKER_IMAGE:$VERSION"
+
             docker stop my-app || true
             docker rm my-app || true
+
             docker run -d --restart unless-stopped --name my-app -p 80:8080 \
             -e MYSQL_HOST=${{ secrets.DB_HOST }} \
             -e MYSQL_USERNAME=${{ secrets.DB_USERNAME }} \
             -e MYSQL_PASSWORD=${{ secrets.DB_PASSWORD }} \
             -e MYSQL_DATABASE=WhichCafe \
             $DOCKER_IMAGE:$VERSION 
-            if ! docker ps | grep -q my-app; then exit 1; fi
+
+            if ! docker ps | grep -q my-app; then 
+              echo "Docker container is not running"
+              exit 1
+            fi
 
       - name: Get previous Docker image version
         if: failure() # Only run if the previous step failed
