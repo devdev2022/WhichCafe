@@ -21,6 +21,3 @@ node_modules
 
 # 테스트 폴더
 tests
-
-# 마이그레이션 폴더
-db
