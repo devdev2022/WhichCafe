@@ -91,12 +91,24 @@ jobs:
             docker stop my-app || true
             docker rm my-app || true
 
-            docker run -d --restart unless-stopped --name my-app -p 80:8080 \
+            docker run -d --restart unless-stopped --name my-app -p 3000:3000 \
             -e MYSQL_HOST=${{ secrets.DB_HOST }} \
+            -e MYSQL_PORT=3306 \
             -e MYSQL_USERNAME=${{ secrets.DB_USERNAME }} \
             -e MYSQL_PASSWORD=${{ secrets.DB_PASSWORD }} \
-            -e MYSQL_DATABASE=WhichCafe \
+            -e MYSQL_DATABASE=${{ secrets.DB_DATABASE }} \
+            -e PORT=3000 \
+            -e SWAGGER_USERNAME=${{ secrets.SWAGGER_USERNAME }} \
+            -e SWAGGER_PASSWORD=${{ secrets.SWAGGER_PASSWORD }} \
+            -e SALT_ROUNDS=${{ secrets.SALT_ROUNDS }} \
+            -e JWT_SECRET_KEY=fcdfa4e7064136b396b2e57b442a054679f02553f8a99118159fcf14257a4952 \
+            -e JWT_REFRESH_SECRET_KEY=5c5d83b1b719b112544f843ac86aa1cf9bf92b678dbaa9f5b60683e784d7ad9b54e62a72fce425848ebf4bf1280169eb9a278c2fe062e75de83dd636a25573b8 \
             $DOCKER_IMAGE:$VERSION 
+            -e GOOGLE_MAPS_API_KEY=${{ secrets.GOOGLE_MAPS_API_KEY }} \
+            -e AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }} \
+            -e AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} \
+            -e AWS_REGION=${{ secrets.AWS_REGION }} \
+            -v /etc/localtime:/etc/localtime:ro \
 
             if ! docker ps | grep -q my-app; then 
               echo "Docker container is not running"
@@ -106,7 +118,7 @@ jobs:
       - name: Get previous Docker image version
         if: failure() # Only run if the previous step failed
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GHCR_TOKEN }}
         run: |
           echo $GITHUB_TOKEN | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
