@@ -43,7 +43,7 @@ jobs:
 
       - name: Start Docker Container for Testing
         run: |
-          docker run -d --name my-app-test-container -p 8080:8080 \
+          docker run -d --name my-app-test-container -p 3000:3000 \
           -e DATABASE_URL=${{ secrets.DATABASE_URL }} \
           -e PORT=3000 \
           -e DB_CONNECTION=mysql \
