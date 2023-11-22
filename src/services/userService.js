@@ -157,11 +157,9 @@ const logOut = async (account) => {
   }
 };
 
-const reissueAccessToken = async (refreshToken) => {
+const reissueAccessToken = async (userInfo) => {
   try {
-    const account = refreshToken.account;
-
-    const user = await userDao.getUserByAccount(account);
+    const user = await userDao.getUserByAccount(userInfo);
     const validationResult = validateResponse(getUserSchema, user);
     if (validationResult) {
       const error = new Error(
@@ -174,7 +172,7 @@ const reissueAccessToken = async (refreshToken) => {
       customError("USER DOES NOT EXIST", 400);
     }
 
-    const storedRefreshToken = await userDao.findRefreshToken(account);
+    const storedRefreshToken = await userDao.findRefreshToken(userInfo);
     const refreshTokenvalidationResult = validateResponse(
       findRefreshTokenSchema,
       storedRefreshToken

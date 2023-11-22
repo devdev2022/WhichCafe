@@ -58,14 +58,8 @@ const logOut = catchAsync(async (req, res) => {
 });
 
 const reissueAccessToken = catchAsync(async (req, res) => {
-  const refreshToken = req.refreshToken;
-  if (!refreshToken) {
-    return res.status(400).json({
-      message: "KEY_ERROR",
-    });
-  }
-
-  const AccessToken = await userService.reissueAccessToken(refreshToken);
+  const userInfo = req.account;
+  const AccessToken = await userService.reissueAccessToken(userInfo);
   return res.status(200).json({ accessToken: AccessToken });
 });
 
