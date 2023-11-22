@@ -40,6 +40,11 @@ jobs:
 
       - name: Build Docker Image
         run: docker build -t $DOCKER_IMAGE:$VERSION .
+            - name: Clean up Docker Images and Containers
+        run: |
+          # Docker 이미지와 컨테이너 정리 스크립트
+          docker container prune -f --filter "until=168h"
+          docker image prune -a -f --filter "until=168h"
 
       - name: Start Docker Container for Testing
         run: |
