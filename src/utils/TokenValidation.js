@@ -57,6 +57,7 @@ const validateTokens = catchAsync(async (req, res, next) => {
     }
 
     const userInfo = await getUserByAccount(decodedRefreshToken.account);
+
     req.account = userInfo.account;
     req.refreshToken = decodedRefreshToken;
     next();
