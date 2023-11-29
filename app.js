@@ -20,11 +20,7 @@ const createApp = () => {
 
   app.use(
     cors({
-      origin: [
-        "http://localhost:3000",
-        "http://cafeeodi.com",
-        "http://www.cafeeodi.com",
-      ],
+      origin,
       credentials: true,
     })
   );
