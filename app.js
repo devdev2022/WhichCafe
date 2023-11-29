@@ -20,8 +20,11 @@ const createApp = () => {
 
   app.use(
     cors({
-      origin,
+      origin: "https://cafeeodi.com",
       credentials: true,
+      methods: "GET,POST,DELETE,PATCH,OPTIONS",
+      allowedHeaders:
+        "Origin, Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers, Authorization, Cookie",
     })
   );
   app.use(express.json());
