@@ -54,7 +54,9 @@ const addRefreshToken = async (userId, account, refreshToken, expires_at) => {
     const result = await conn.query(
       `
       INSERT INTO refreshtokens(user_id, account, refresh_token, expires_at) 
-      VALUES (?, ?, ?, ?);`,
+      VALUES (?, ?, ?, ?)
+      ON DUPLICATE KEY UPDATE
+      refresh_token = VALUES(refresh_token), expires_at = VALUES(expires_at);`,
       [userId, account, refreshToken, expires_at]
     );
     return result;

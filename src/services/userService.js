@@ -264,7 +264,6 @@ const addFavorites = async (account, cafe_id) => {
     }
 
     const findFavData = await userDao.findFavData(userId, cafe_id);
-    console.log(findFavData);
     const findFavValidationResult = validateResponse(
       findFavDataSchema,
       findFavData
