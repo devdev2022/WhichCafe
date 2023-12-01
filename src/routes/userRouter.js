@@ -7,7 +7,7 @@ const { validateAccessToken, validateTokens } = require("../utils/TokenValidatio
 router.get("/duplicationCheck/:account", userController.duplicationCheck);
 
 router.post("/signup", userController.signUp);
-router.post("/signin", userController.signIn);
+router.patch("/signin", userController.signIn);
 
 router.delete("/logout", validateAccessToken, userController.logOut);
 
