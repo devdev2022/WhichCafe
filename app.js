@@ -24,7 +24,7 @@ const createApp = () => {
       credentials: true,
       methods: "GET,POST,DELETE,PATCH,OPTIONS",
       allowedHeaders:
-        "Origin, Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers, Authorization, Cookie",
+        "Origin, Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers, Authorization, Cookie, refreshToken",
     })
   );
   app.use(express.json());

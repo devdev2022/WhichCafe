@@ -29,7 +29,7 @@ const validateAccessToken = catchAsync(async (req, res, next) => {
 });
 
 const validateTokens = catchAsync(async (req, res, next) => {
-  const refreshToken = req.cookies.refreshtoken;
+  const refreshToken = req.headers.refreshtoken;
   const tokenParts = 1;
   const accessToken = req.headers.authorization.split(" ")[tokenParts];
 
