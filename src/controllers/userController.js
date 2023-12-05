@@ -61,13 +61,6 @@ const reissueAccessToken = catchAsync(async (req, res) => {
   const userInfo = req.account;
   const AccessToken = await userService.reissueAccessToken(userInfo);
 
-  res.cookie("accessToken", AccessToken, {
-    maxAge: 3600000,
-    httpOnly: true,
-    secure: true,
-    sameSite: "None",
-  });
-
   return res.status(200).json({ accessToken: AccessToken });
 });
 
