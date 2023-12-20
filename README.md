@@ -20,7 +20,7 @@
 <br>
 ![EC2](https://img.shields.io/badge/EC2-FF9900.svg?style=for-the-badge&logo=EC2&logoColor=white)
 ![RDS](https://img.shields.io/badge/RDS-527FFF.svg?style=for-the-badge&logo=RDS&logoColor=white)
-![S3](https://img.shields.io/badge/github-569A31.svg?style=for-the-badge&logo=S3&logoColor=white)
+![S3](https://img.shields.io/badge/S3-569A31.svg?style=for-the-badge&logo=S3&logoColor=white)
 
 ## 어플리케이션 아키텍처
 ![Sequence_whichcafe](https://github.com/devdev2022/WhichCafe/blob/main/projectmaterial/Architecture.drawio.png)
