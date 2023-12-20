@@ -21,6 +21,8 @@
 ![EC2](https://img.shields.io/badge/Amazon%20EC2-FF9900?style=for-the-badge&logo=Amazon%20EC2&logoColor=white)
 ![RDS](https://img.shields.io/badge/S3-527FFF.svg?style=for-the-badge&logo=Amazon%20RDS&logoColor=white)
 ![S3](https://img.shields.io/badge/Amazon%20S3-569A31?style=for-the-badge&logo=Amazon%20S3&logoColor=white)
+![Cloud Watch](https://img.shields.io/badge/Amazon%20cloudwatch-FF4F8B?style=for-the-badge&logo=Amazon%20cloudwatch&logoColor=white)
+
 
 ## 어플리케이션 아키텍처
 ![Sequence_whichcafe](https://github.com/devdev2022/WhichCafe/blob/main/projectmaterial/Architecture.drawio.png)
