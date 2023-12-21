@@ -1,7 +1,7 @@
 # 카페어디
 https://cafeeodi.com
 
-## 개요
+## 설명
 사용자의 현재 위치를 중심으로 24시간 운영하는 카페의 위치를 보여주는 서비스 입니다. 
 
 ### 주요기능
@@ -9,7 +9,7 @@ https://cafeeodi.com
 - 주소 검색을 통해 자신이 갈 예정인 장소 근처의 카페정보를 확인할 수 있습니다. 
 - 즐겨찾기를 통해 카페정보를 저장할 수 있습니다.
 
-### Tech Stack
+### 기술스택
 ![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E.svg?&style=for-the-badge&logo=JavaScript&logoColor=white)
 ![Node.js](https://img.shields.io/badge/Node.js-339933.svg?&style=for-the-badge&logo=Node.js&logoColor=white)
 ![Express.js](https://img.shields.io/badge/Express.js-000000.svg?&style=for-the-badge&logo=Express&logoColor=white)
@@ -25,13 +25,17 @@ https://cafeeodi.com
 ![Cloud Watch](https://img.shields.io/badge/Amazon%20cloudwatch-FF4F8B?style=for-the-badge&logo=Amazon%20cloudwatch&logoColor=white)
 
 
-## 어플리케이션 아키텍처
+## 아키텍처
+
+### 어플리케이션 아키텍처
 ![Sequence_whichcafe](https://github.com/devdev2022/WhichCafe/blob/main/projectmaterial/Architecture.drawio.png)
 
-## 네트워크 아키텍처
+### 네트워크 아키텍처
 
-## 시퀀스 
+### 시퀀스 
 ![Architecture_whichcafe](https://github.com/devdev2022/WhichCafe/blob/main/projectmaterial/Sequence.drawio.png)
 
-## ERD
+### ERD
 ![ERD_whichcafe](https://github.com/devdev2022/WhichCafe/blob/main/projectmaterial/ERD.png)
+
+## 기술
