@@ -28,12 +28,13 @@ https://cafeeodi.com
 ## 아키텍처
 
 ### 어플리케이션 아키텍처
-![Sequence_whichcafe](https://github.com/devdev2022/WhichCafe/blob/main/projectmaterial/Architecture.drawio.png)
+![Architecture_whichcafe](https://github.com/devdev2022/WhichCafe/blob/main/projectmaterial/Architecture.drawio.png)
 
-### 네트워크 아키텍처
+### AWS 아키텍처
+![DevOps_Architecture](https://github.com/devdev2022/WhichCafe/blob/main/projectmaterial/DevOps_Architecture.drawio.png)
 
 ### 시퀀스 
-![Architecture_whichcafe](https://github.com/devdev2022/WhichCafe/blob/main/projectmaterial/Sequence.drawio.png)
+![Sequence_whichcafe](https://github.com/devdev2022/WhichCafe/blob/main/projectmaterial/Sequence.drawio.png)
 
 ### ERD
 ![ERD_whichcafe](https://github.com/devdev2022/WhichCafe/blob/main/projectmaterial/ERD.png)
