@@ -1,7 +1,8 @@
-const Ajv = require("ajv");
+import Ajv from "ajv";
+
 const ajv = new Ajv();
 
-const placeIdSchema = {
+const placeIdSchema: any = {
   type: "object",
   properties: {
     candidates: {
@@ -18,7 +19,7 @@ const placeIdSchema = {
   required: ["candidates"],
 };
 
-const placeDetailsSchema = {
+const placeDetailsSchema: any = {
   type: "object",
   properties: {
     result: {
@@ -40,11 +41,13 @@ const placeDetailsSchema = {
         },
         photos: {
           type: "array",
+          nullable: true,
           items: {
             type: "object",
             properties: {
-              photo_reference: { type: "string" },
+              photo_reference: { type: "string", nullable: true },
             },
+            required: [],
           },
         },
       },
@@ -54,7 +57,7 @@ const placeDetailsSchema = {
   required: ["result"],
 };
 
-function validateResponse(schema, data) {
+function validateResponse(schema: object, data: string) {
   const validate = ajv.compile(schema);
   const valid = validate(data);
   if (!valid) {
@@ -63,8 +66,4 @@ function validateResponse(schema, data) {
   return null;
 }
 
-module.exports = {
-  placeIdSchema,
-  placeDetailsSchema,
-  validateResponse,
-};
+export { placeIdSchema, placeDetailsSchema, validateResponse };

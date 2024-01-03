@@ -1,6 +1,7 @@
-const basicAuth = require("basic-auth");
+import basicAuth from "basic-auth";
+import { Request, Response, NextFunction } from "express";
 
-const authMiddleware = (req, res, next) => {
+const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
   const user = basicAuth(req);
 
   const ADMIN_USERNAME = process.env.SWAGGER_USERNAME;
@@ -14,4 +15,4 @@ const authMiddleware = (req, res, next) => {
   return next();
 };
 
-module.exports = { authMiddleware };
+export { authMiddleware };

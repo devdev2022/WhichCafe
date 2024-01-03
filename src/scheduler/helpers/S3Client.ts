@@ -1,15 +1,17 @@
-const {
+import {
   S3Client,
   PutObjectCommand,
   HeadObjectCommand,
-} = require("@aws-sdk/client-s3");
+} from "@aws-sdk/client-s3";
 
 class S3ClientModule {
+  private s3Client: S3Client;
+
   constructor(region = "ap-northeast-2") {
     this.s3Client = new S3Client({ region });
   }
 
-  async checkFileExistenceInS3(bucketName, imageName) {
+  async checkFileExistenceInS3(bucketName: string, imageName: string) {
     try {
       const params = {
         Bucket: bucketName,
@@ -19,14 +21,18 @@ class S3ClientModule {
       await this.s3Client.send(new HeadObjectCommand(params));
       return true;
     } catch (error) {
-      if (error.name === "NotFound") {
+      if ((error as Error).name === "NotFound") {
         return false;
       }
       throw error;
     }
   }
 
-  async uploadImageToS3(bucketName, imageName, imageData) {
+  async uploadImageToS3(
+    bucketName: string,
+    imageName: string,
+    imageData: string
+  ) {
     try {
       const doesImageExist = await this.checkFileExistenceInS3(
         bucketName,
@@ -57,4 +63,4 @@ class S3ClientModule {
   }
 }
 
-module.exports = { S3ClientModule };
+export { S3ClientModule };

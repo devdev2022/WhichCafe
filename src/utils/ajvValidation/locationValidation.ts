@@ -1,11 +1,13 @@
-const Ajv = require("ajv");
+import Ajv from "ajv";
+import addFormats from "ajv-formats";
+
 const ajv = new Ajv({ allErrors: true });
-require("ajv-formats")(ajv);
+addFormats(ajv);
 
 ajv.addKeyword({
   keyword: "isNotEmpty",
   type: "object",
-  validate: function (schema, data) {
+  validate: function (schema: any, data: any) {
     return data !== null && Object.keys(data).length > 0;
   },
   errors: true,
@@ -14,13 +16,13 @@ ajv.addKeyword({
 ajv.addKeyword({
   keyword: "isDateObject",
   type: "object",
-  validate: function (schema, data) {
+  validate: function (schema: any, data: any) {
     return data instanceof Date;
   },
   errors: false,
 });
 
-const getNearbyAddressSchema = {
+const getNearbyAddressSchema: any = {
   type: "array",
   items: {
     type: "object",
@@ -40,7 +42,7 @@ const getNearbyAddressSchema = {
         maxLength: 100,
       },
       score: {
-        type: ["string", "null"],
+        anyOf: [{ type: "string" }, { type: "null" }],
       },
       cafe_latitude: {
         type: "string",
@@ -82,7 +84,7 @@ const getNearbyAddressSchema = {
   },
 };
 
-const searchCafesSchema = {
+const searchCafesSchema: any = {
   type: "array",
   items: {
     type: "object",
@@ -140,7 +142,7 @@ const searchCafesSchema = {
   },
 };
 
-function validateResponse(schema, data) {
+function validateResponse(schema: object, data: string) {
   if (data === null) {
     return null;
   }
@@ -152,8 +154,4 @@ function validateResponse(schema, data) {
   return null;
 }
 
-module.exports = {
-  getNearbyAddressSchema,
-  searchCafesSchema,
-  validateResponse,
-};
+export { getNearbyAddressSchema, searchCafesSchema, validateResponse };
