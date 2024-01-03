@@ -11,6 +11,7 @@ https://cafeeodi.com
 
 ### 기술스택
 ![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E.svg?&style=for-the-badge&logo=JavaScript&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-3178C6.svg?&style=for-the-badge&logo=TypeScript&logoColor=white)
 ![Node.js](https://img.shields.io/badge/Node.js-339933.svg?&style=for-the-badge&logo=Node.js&logoColor=white)
 ![Express.js](https://img.shields.io/badge/Express.js-000000.svg?&style=for-the-badge&logo=Express&logoColor=white)
 <br>
@@ -21,6 +22,7 @@ https://cafeeodi.com
 <br>
 ![EC2](https://img.shields.io/badge/Amazon%20EC2-FF9900?style=for-the-badge&logo=Amazon%20EC2&logoColor=white)
 ![RDS](https://img.shields.io/badge/S3-527FFF.svg?style=for-the-badge&logo=Amazon%20RDS&logoColor=white)
+![Lambda](https://img.shields.io/badge/Amazon%20Lambda-FF9900?style=for-the-badge&logo=Amazon%20Lambda&logoColor=white)
 ![S3](https://img.shields.io/badge/Amazon%20S3-569A31?style=for-the-badge&logo=Amazon%20S3&logoColor=white)
 ![Cloud Watch](https://img.shields.io/badge/Amazon%20cloudwatch-FF4F8B?style=for-the-badge&logo=Amazon%20cloudwatch&logoColor=white)
 
