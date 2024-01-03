@@ -1,8 +1,13 @@
-const userService = require("../services/userService");
-const { catchAsync } = require("../utils/error");
+import { Request, Response } from "express";
+import userService from "../services/userService";
+import { catchAsync } from "../utils/error";
 
-const duplicationCheck = catchAsync(async (req, res) => {
-  const account = req.params.account;
+interface CustomRequest extends Request {
+  account?: string;
+}
+
+const duplicationCheck = catchAsync(async (req: Request, res: Response) => {
+  const account: string = req.params.account;
 
   if (!account) {
     return res.status(400).json({
@@ -16,8 +21,13 @@ const duplicationCheck = catchAsync(async (req, res) => {
   });
 });
 
-const signUp = catchAsync(async (req, res) => {
-  const { account, password, nickname, question_answer } = req.body;
+const signUp = catchAsync(async (req: Request, res: Response) => {
+  const { account, password, nickname, question_answer } = req.body as {
+    account: string;
+    password: string;
+    nickname: string;
+    question_answer: string;
+  };
 
   if (!account || !password || !nickname || !question_answer) {
     return res.status(400).json({
@@ -31,8 +41,11 @@ const signUp = catchAsync(async (req, res) => {
   });
 });
 
-const signIn = catchAsync(async (req, res) => {
-  const { account, password } = req.body;
+const signIn = catchAsync(async (req: Request, res: Response) => {
+  const { account, password } = req.body as {
+    account: string;
+    password: string;
+  };
 
   if (!account || !password) {
     return res.status(400).json({
@@ -44,7 +57,7 @@ const signIn = catchAsync(async (req, res) => {
   return res.status(200).json(tokens);
 });
 
-const logOut = catchAsync(async (req, res) => {
+const logOut = catchAsync(async (req: CustomRequest, res: Response) => {
   const account = req.account;
 
   if (!account) {
@@ -57,14 +70,19 @@ const logOut = catchAsync(async (req, res) => {
   return res.status(204).send();
 });
 
-const reissueAccessToken = catchAsync(async (req, res) => {
-  const userInfo = req.account;
-  const AccessToken = await userService.reissueAccessToken(userInfo);
+const reissueAccessToken = catchAsync(
+  async (req: CustomRequest, res: Response) => {
+    if (typeof req.account !== "string") {
+      throw new Error("Account information is required");
+    }
+    const userInfo: string = req.account;
+    const AccessToken = await userService.reissueAccessToken(userInfo);
 
-  return res.status(200).json({ accessToken: AccessToken });
-});
+    return res.status(200).json({ accessToken: AccessToken });
+  }
+);
 
-const getFavorites = catchAsync(async (req, res) => {
+const getFavorites = catchAsync(async (req: CustomRequest, res: Response) => {
   const account = req.account;
   if (!account) {
     return res.status(400).json({
@@ -76,9 +94,9 @@ const getFavorites = catchAsync(async (req, res) => {
   return res.status(200).json(favorites);
 });
 
-const addFavorites = catchAsync(async (req, res) => {
+const addFavorites = catchAsync(async (req: CustomRequest, res: Response) => {
   const account = req.account;
-  const cafe_id = req.params.cafeId;
+  const cafe_id: string = req.params.cafeId;
 
   if (!account || !cafe_id) {
     return res.status(400).json({
@@ -92,21 +110,23 @@ const addFavorites = catchAsync(async (req, res) => {
   });
 });
 
-const deleteFavorites = catchAsync(async (req, res) => {
-  const account = req.account;
-  const cafe_id = req.params.cafeId;
+const deleteFavorites = catchAsync(
+  async (req: CustomRequest, res: Response) => {
+    const account = req.account;
+    const cafe_id: string = req.params.cafeId;
 
-  if (!account || !cafe_id) {
-    return res.status(400).json({
-      message: "KEY_ERROR",
-    });
+    if (!account || !cafe_id) {
+      return res.status(400).json({
+        message: "KEY_ERROR",
+      });
+    }
+
+    await userService.deleteFavorites(account, cafe_id);
+    return res.status(204).send();
   }
+);
 
-  await userService.deleteFavorites(account, cafe_id);
-  return res.status(204).send();
-});
-
-const getUserInfo = catchAsync(async (req, res) => {
+const getUserInfo = catchAsync(async (req: CustomRequest, res: Response) => {
   const account = req.account;
 
   if (!account) {
@@ -119,7 +139,7 @@ const getUserInfo = catchAsync(async (req, res) => {
   return res.status(200).json(result);
 });
 
-const updateUserInfo = catchAsync(async (req, res) => {
+const updateUserInfo = catchAsync(async (req: CustomRequest, res: Response) => {
   const account = req.account;
   if (!account) {
     return res.status(400).json({
@@ -130,14 +150,18 @@ const updateUserInfo = catchAsync(async (req, res) => {
   const updateData = {
     password: req.body.password,
     nickname: req.body.nickname,
-  };
+  } as { password: string; nickname: string };
 
   await userService.updateUserInfo(updateData, account);
   return res.status(200).json({ message: "UPDATE_DATA_SUCCESS" });
 });
 
-const searchPassword = catchAsync(async (req, res) => {
-  const { account, answer, editPassword } = req.body;
+const searchPassword = catchAsync(async (req: Request, res: Response) => {
+  const { account, answer, editPassword } = req.body as {
+    account: string;
+    answer: string;
+    editPassword: string;
+  };
 
   if (!account || !answer || !editPassword) {
     return res.status(400).json({
@@ -149,9 +173,9 @@ const searchPassword = catchAsync(async (req, res) => {
   return res.status(200).json({ message: "EDIT_PASSWORD_SUCCESS" });
 });
 
-const deleteAccount = catchAsync(async (req, res) => {
+const deleteAccount = catchAsync(async (req: CustomRequest, res: Response) => {
   const account = req.account;
-  const { deleteMessage } = req.body;
+  const { deleteMessage } = req.body as { deleteMessage: string };
 
   if (!account || !deleteMessage) {
     return res.status(400).json({
@@ -163,7 +187,7 @@ const deleteAccount = catchAsync(async (req, res) => {
   return res.status(204).send();
 });
 
-module.exports = {
+export default {
   duplicationCheck,
   signUp,
   signIn,

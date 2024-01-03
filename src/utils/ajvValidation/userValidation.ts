@@ -1,11 +1,13 @@
-const Ajv = require("ajv");
-const ajv = new Ajv();
-require("ajv-formats")(ajv);
+import Ajv from "ajv";
+import addFormats from "ajv-formats";
+
+const ajv = new Ajv({ allErrors: true });
+addFormats(ajv);
 
 ajv.addKeyword({
   keyword: "isNotEmpty",
   type: "object",
-  validate: function (schema, data) {
+  validate: function (schema: any, data: any) {
     return data !== null && Object.keys(data).length > 0;
   },
   errors: true,
@@ -14,7 +16,7 @@ ajv.addKeyword({
 ajv.addKeyword({
   keyword: "isDateObject",
   type: "object",
-  validate: function (schema, data) {
+  validate: function (schema: any, data: any) {
     return data instanceof Date;
   },
   errors: false,
@@ -132,7 +134,7 @@ const findRefreshTokenSchema = {
   isNotEmpty: true,
 };
 
-function validateResponse(schema, data) {
+function validateResponse(schema: object, data: any | null) {
   if (data === null) {
     return null;
   }
@@ -145,7 +147,7 @@ function validateResponse(schema, data) {
   return null;
 }
 
-module.exports = {
+export {
   getUserIdSchema,
   getUserSchema,
   getFavoritesSchema,

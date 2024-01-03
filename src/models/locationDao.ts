@@ -1,7 +1,13 @@
-const { database } = require("./dataSource");
+import { PoolConnection } from "mysql2/promise";
+import { database } from "./dataSource";
 
-const getNearbyAddress = async (latitude, longitude) => {
-  const conn = await database.getConnection();
+interface RateUpdate {
+  cafe_id: number;
+  score: number;
+}
+
+const getNearbyAddress = async (latitude: string, longitude: string) => {
+  const conn: PoolConnection = await database.getConnection();
   const queryResult = 0;
   try {
     const result = await conn.query(
@@ -46,8 +52,8 @@ const getNearbyAddress = async (latitude, longitude) => {
   }
 };
 
-const searchCafes = async (address) => {
-  const conn = await database.getConnection();
+const searchCafes = async (address: string) => {
+  const conn: PoolConnection = await database.getConnection();
   const queryResult = 0;
   try {
     const result = await conn.query(
@@ -91,7 +97,7 @@ const searchCafes = async (address) => {
 };
 
 const getAllCafeData = async () => {
-  const conn = await database.getConnection();
+  const conn: PoolConnection = await database.getConnection();
   const queryResult = 0;
   try {
     const result = await conn.query(
@@ -117,12 +123,12 @@ const getAllCafeData = async () => {
   }
 };
 
-const updateRate = async (ratesToUpdate) => {
+const updateRate = async (ratesToUpdate: RateUpdate[]) => {
   if (ratesToUpdate.length === 0) {
     return true;
   }
 
-  const conn = await database.getConnection();
+  const conn: PoolConnection = await database.getConnection();
 
   try {
     for (const rate of ratesToUpdate) {
@@ -141,8 +147,13 @@ const updateRate = async (ratesToUpdate) => {
   }
 };
 
-const savePhotoInfo = async (cafeId, htmlAttribution, imageName, imageUrl) => {
-  const conn = await database.getConnection();
+const savePhotoInfo = async (
+  cafeId: number,
+  htmlAttribution: string,
+  imageName: string,
+  imageUrl: string
+) => {
+  const conn: PoolConnection = await database.getConnection();
   try {
     let query = `
     INSERT INTO photos (cafe_id, html_attributions, photo_name, url) 
@@ -164,7 +175,7 @@ const savePhotoInfo = async (cafeId, htmlAttribution, imageName, imageUrl) => {
   }
 };
 
-module.exports = {
+export default {
   getNearbyAddress,
   searchCafes,
   getAllCafeData,

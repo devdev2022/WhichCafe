@@ -1,8 +1,8 @@
-const express = require("express");
+import express from "express";
 const router = express.Router();
 
-const userController = require("../controllers/userController");
-const { validateAccessToken, validateTokens } = require("../utils/TokenValidation");
+import userController from "../controllers/userController";
+import { validateAccessToken, validateTokens } from "../utils/TokenValidation";
 
 router.get("/duplicationCheck/:account", userController.duplicationCheck);
 
@@ -23,4 +23,4 @@ router.delete("/mypage", validateAccessToken, userController.deleteAccount);
 
 router.patch("/search", userController.searchPassword);
 
-module.exports = router;
+export default router;
