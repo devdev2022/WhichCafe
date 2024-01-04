@@ -18,7 +18,8 @@ const validateAccessToken = catchAsync(
     }
 
     const tokenParts = 1;
-    const accessToken: string = req.headers.authorization.split(" ")[tokenParts];
+    const accessToken: string =
+      req.headers.authorization.split(" ")[tokenParts];
 
     if (!accessToken) {
       customError("NEED ACCESS TOKEN", 401);
@@ -55,9 +56,11 @@ const validateTokens = catchAsync(
         .json({ message: "Authorization header is missing" });
     }
 
-    const refreshToken: string | string[] | undefined = req.headers.refreshtoken;
+    const refreshToken: string | string[] | undefined =
+      req.headers.refreshtoken;
     const tokenParts = 1;
-    const accessToken: string = req.headers.authorization.split(" ")[tokenParts];
+    const accessToken: string =
+      req.headers.authorization.split(" ")[tokenParts];
 
     if (!refreshToken || !accessToken) {
       customError("NEED BOTH ACCESS AND REFRESH TOKEN", 401);
@@ -68,8 +71,7 @@ const validateTokens = catchAsync(
     try {
       const decodedRefreshToken = await verifyAsync(
         refreshToken,
-        process.env.JWT_REFRESH_SECRET_KEY,
-        { ignoreExpiration: true }
+        process.env.JWT_REFRESH_SECRET_KEY
       );
 
       const decodedAccessToken = await verifyAsync(
@@ -89,7 +91,10 @@ const validateTokens = catchAsync(
       req.account = userInfo.account;
       req.refreshToken = decodedRefreshToken;
       next();
-    } catch (jwtError) {
+    } catch (jwtError: any) {
+      if (jwtError.name === "TokenExpiredError") {
+        customError("RefreshToken expired. Please refresh token.", 401);
+      }
       const error: Error & { statusCode?: number } = new Error(
         "Refresh Token validation process failed"
       );
