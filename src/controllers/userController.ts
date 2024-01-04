@@ -58,7 +58,7 @@ const signIn = catchAsync(async (req: Request, res: Response) => {
 });
 
 const logOut = catchAsync(async (req: CustomRequest, res: Response) => {
-  const account = req.account;
+  const account: string | undefined = req.account;
 
   if (!account) {
     return res.status(400).json({
@@ -76,14 +76,14 @@ const reissueAccessToken = catchAsync(
       throw new Error("Account information is required");
     }
     const userInfo: string = req.account;
-    const AccessToken = await userService.reissueAccessToken(userInfo);
+    const AccessToken: string = await userService.reissueAccessToken(userInfo);
 
     return res.status(200).json({ accessToken: AccessToken });
   }
 );
 
 const getFavorites = catchAsync(async (req: CustomRequest, res: Response) => {
-  const account = req.account;
+  const account: string | undefined = req.account;
   if (!account) {
     return res.status(400).json({
       message: "KEY_ERROR",
@@ -95,7 +95,7 @@ const getFavorites = catchAsync(async (req: CustomRequest, res: Response) => {
 });
 
 const addFavorites = catchAsync(async (req: CustomRequest, res: Response) => {
-  const account = req.account;
+  const account: string | undefined = req.account;
   const cafe_id: string = req.params.cafeId;
 
   if (!account || !cafe_id) {
@@ -112,7 +112,7 @@ const addFavorites = catchAsync(async (req: CustomRequest, res: Response) => {
 
 const deleteFavorites = catchAsync(
   async (req: CustomRequest, res: Response) => {
-    const account = req.account;
+    const account: string | undefined = req.account;
     const cafe_id: string = req.params.cafeId;
 
     if (!account || !cafe_id) {
@@ -127,7 +127,7 @@ const deleteFavorites = catchAsync(
 );
 
 const getUserInfo = catchAsync(async (req: CustomRequest, res: Response) => {
-  const account = req.account;
+  const account: string | undefined = req.account;
 
   if (!account) {
     return res.status(400).json({
@@ -140,7 +140,7 @@ const getUserInfo = catchAsync(async (req: CustomRequest, res: Response) => {
 });
 
 const updateUserInfo = catchAsync(async (req: CustomRequest, res: Response) => {
-  const account = req.account;
+  const account: string | undefined = req.account;
   if (!account) {
     return res.status(400).json({
       message: "KEY_ERROR",
@@ -174,7 +174,7 @@ const searchPassword = catchAsync(async (req: Request, res: Response) => {
 });
 
 const deleteAccount = catchAsync(async (req: CustomRequest, res: Response) => {
-  const account = req.account;
+  const account: string | undefined = req.account;
   const { deleteMessage } = req.body as { deleteMessage: string };
 
   if (!account || !deleteMessage) {
