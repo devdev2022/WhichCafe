@@ -1,7 +1,8 @@
-require("dotenv").config();
+import dotenv from "dotenv";
+dotenv.config();
 
-const { createApp } = require("./app");
-const { database } = require("./src/models/dataSource");
+import { createApp } from "./app";
+import { database } from "./src/models/dataSource";
 
 const startServer = async () => {
   const app = createApp();
