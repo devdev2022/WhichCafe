@@ -1,15 +1,16 @@
-const express = require("express");
-const cors = require("cors");
-const morgan = require("morgan");
-const cookieParser = require("cookie-parser");
+import express from "express";
+import cors from "cors";
+import morgan from "morgan";
+import cookieParser from "cookie-parser";
 
-const swaggerJsdoc = require("swagger-jsdoc");
-const swaggerUi = require("swagger-ui-express");
-const { authMiddleware } = require("./src/utils/swaggerAuth");
-require("./src/scheduler/updatePlaceData");
+import swaggerJsdoc from "swagger-jsdoc";
+import swaggerUi from "swagger-ui-express";
+import { authMiddleware } from "./src/utils/swaggerAuth";
 
-const { router } = require("./src/routes");
-const { globalErrorHandler } = require("./src/utils/error");
+import "./src/scheduler/updatePlaceData";
+
+import { router } from "./src/routes";
+import { globalErrorHandler } from "./src/utils/error";
 
 const createApp = () => {
   const app = express();
@@ -59,4 +60,4 @@ const createApp = () => {
   return app;
 };
 
-module.exports = { createApp };
+export { createApp };

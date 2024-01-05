@@ -1,25 +1,34 @@
-const schedule = require("node-schedule");
-const locationDao = require("../models/locationDao");
-const {
-  GoogleMapsClient,
-  GeoCalculator,
-  S3ClientModule,
-} = require("./helpers");
+import schedule from "node-schedule";
+import locationDao from "../models/locationDao";
+import { GoogleMapsClient, GeoCalculator, S3ClientModule } from "./helpers";
 
 const googleMapsClient = new GoogleMapsClient();
 const geoCalculator = new GeoCalculator();
 const s3ClientModule = new S3ClientModule();
 
-async function main() {
+interface RateUpdate {
+  cafe_id: number;
+  score: number;
+}
+
+interface Cafe {
+  id: number;
+  name: string;
+  url: string;
+  latitude: number;
+  longitude: number;
+}
+
+async function main(): Promise<void> {
   try {
-    const allCafes = await locationDao.getAllCafeData();
-    let ratesToUpdate = [];
+    const allCafes = (await locationDao.getAllCafeData()) as Array<Cafe>;
+    let ratesToUpdate: RateUpdate[] = [];
 
     const allTasks = allCafes.map(async (cafe) => {
-      const cafeName = cafe.name;
-      const cafeId = cafe.id;
+      const cafeId: number = cafe.id;
+      const cafeName: string = cafe.name;
 
-      let placeId;
+      let placeId: any;
 
       try {
         placeId = await googleMapsClient.getPlaceId(cafeName);
@@ -27,12 +36,12 @@ async function main() {
           console.error(`No location data found for cafe ${cafeName}`);
           return null;
         }
-      } catch (err) {
+      } catch (err: any) {
         console.error(`getPlaceId Error : ${cafeName}, ${err.message}`);
         return null;
       }
 
-      let placeData;
+      let placeData: any;
 
       try {
         placeData = await googleMapsClient.getPlaceDetails(placeId);
@@ -40,26 +49,28 @@ async function main() {
           console.error(`getPlaceDetails Error : ${cafeName} is not available`);
           return null;
         }
-      } catch (err) {
+      } catch (err: any) {
         console.error(err.message);
         return null;
       }
 
-      const googleLocation = {
+      const googleLocation: { lat: number; lng: number } = {
         lat: placeData.geometry.location.lat,
         lng: placeData.geometry.location.lng,
       };
-      const dbLocation = {
-        lat: cafe.cafe_latitude,
-        lng: cafe.cafe_longitude,
+
+      const dbLocation: { lat: number; lng: number } = {
+        lat: cafe.latitude,
+        lng: cafe.longitude,
       };
 
-      const distanceCheckResult = await geoCalculator.checkDataByDistance(
-        googleLocation.lat,
-        googleLocation.lng,
-        dbLocation.lat,
-        dbLocation.lng
-      );
+      const distanceCheckResult: boolean =
+        await geoCalculator.checkDataByDistance(
+          googleLocation.lat,
+          googleLocation.lng,
+          dbLocation.lat,
+          dbLocation.lng
+        );
 
       if (!distanceCheckResult) {
         return null;
@@ -75,12 +86,12 @@ async function main() {
       await locationDao.updateRate(ratesToUpdate);
 
       if (placeData.photos && placeData.photos.length > 0) {
-        const maxPhotos = Math.min(placeData.photos.length, 3);
+        const maxPhotos: number = Math.min(placeData.photos.length, 3);
 
         for (let i = 0; i < maxPhotos; i++) {
           const imageName = `${cafeName.replace(/ /g, "_")}${i + 1}.jpg`;
 
-          const excludedCafes = [
+          const excludedCafes: string[] = [
             "만월경",
             "에그카페24",
             "카페일분",
@@ -103,24 +114,29 @@ async function main() {
             continue;
           }
 
-          let imageUrl;
+          let imageUrl: any;
 
           try {
-            const imageData = await googleMapsClient.getPlacePhoto(
-              placeData.photos[i].photo_reference
-            );
-            imageUrl = await s3ClientModule.uploadImageToS3(
-              "s3-hosting-whichcafe",
-              `cafeImage/${imageName}`,
-              imageData
-            );
-          } catch (err) {
+            const imageData: Buffer | null =
+              await googleMapsClient.getPlacePhoto(
+                placeData.photos[i].photo_reference
+              );
+
+            if (imageData) {
+              const imageDataString = imageData.toString("base64");
+              imageUrl = await s3ClientModule.uploadImageToS3(
+                "s3-hosting-whichcafe",
+                `cafeImage/${imageName}`,
+                imageDataString
+              );
+            }
+          } catch (err: any) {
             console.error(`getPlacePhoto Error : ${cafeName}, ${err.message}`);
             continue;
           }
 
           try {
-            const htmlAttribution =
+            const htmlAttribution: string =
               placeData.photos[i].html_attributions &&
               placeData.photos[i].html_attributions.length > 0
                 ? placeData.photos[i].html_attributions[0]
@@ -131,7 +147,7 @@ async function main() {
               imageName,
               imageUrl
             );
-          } catch (err) {
+          } catch (err: any) {
             console.error(`savePhotoInfo Error : ${cafeName}, ${err.message}`);
             return null;
           }
@@ -141,13 +157,15 @@ async function main() {
 
     const results = await Promise.allSettled(allTasks);
 
-    const errors = results.filter((result) => result.status === "rejected");
+    const errors = results.filter(
+      (result): result is PromiseRejectedResult => result.status === "rejected"
+    );
     for (const error of errors) {
       console.error(error.reason);
     }
 
     console.log("DB UPDATE COMPLETE");
-  } catch (error) {
+  } catch (error: any) {
     console.log(
       error.response ? error.response.data.error_message : error.message
     );
@@ -160,4 +178,4 @@ const scheduledTask = schedule.scheduleJob("0 0 4 1 * *", async function () {
   }
 });
 
-module.exports = { main, scheduledTask };
+export { main, scheduledTask };
