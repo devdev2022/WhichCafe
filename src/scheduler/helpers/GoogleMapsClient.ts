@@ -33,18 +33,15 @@ class GoogleMapsClient {
           },
         });
 
-      const errors = validateResponse(
-        placeIdSchema,
-        JSON.stringify(response.data)
-      );
+      const errors = validateResponse(placeIdSchema, response.data);
       if (errors) {
         console.error("Validation Error:", errors);
         return null;
       }
 
-      const candidates = response.data.candidates;
-      return candidates && candidates.length > 0 && candidates[0].place_id
-        ? candidates[0].place_id
+      const candidates = response.data["candidates"];
+      return candidates && candidates.length > 0
+        ? candidates[0].place_id || null
         : null;
     } catch (error) {
       console.error(`findPlaceFromText Error : ${query}, ${error}`);
@@ -63,10 +60,7 @@ class GoogleMapsClient {
         },
       });
 
-      const errors = validateResponse(
-        placeDetailsSchema,
-        JSON.stringify(response.data)
-      );
+      const errors = validateResponse(placeDetailsSchema, response.data);
       if (errors) {
         console.error("Validation Error:", errors);
         return null;

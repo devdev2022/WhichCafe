@@ -7,7 +7,7 @@ import swaggerJsdoc from "swagger-jsdoc";
 import swaggerUi from "swagger-ui-express";
 import { authMiddleware } from "./src/utils/swaggerAuth";
 
-import "./src/scheduler/updatePlaceData";
+import myModule from "./src/scheduler/updatePlaceData";
 
 import { router } from "./src/routes";
 import { globalErrorHandler } from "./src/utils/error";
@@ -45,6 +45,8 @@ const createApp = () => {
       "./src/utils/swagger/locationDocs.yaml",
     ],
   };
+  myModule.scheduledTask;
+
   const swaggerSpec = swaggerJsdoc(options);
   app.use(
     "/docs",

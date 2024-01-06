@@ -14,14 +14,15 @@ interface RateUpdate {
 interface Cafe {
   id: number;
   name: string;
-  url: string;
-  latitude: number;
-  longitude: number;
+  url?: string;
+  latitude: string;
+  longitude: string;
 }
 
 async function main(): Promise<void> {
   try {
     const allCafes = (await locationDao.getAllCafeData()) as Array<Cafe>;
+
     let ratesToUpdate: RateUpdate[] = [];
 
     const allTasks = allCafes.map(async (cafe) => {
@@ -59,7 +60,7 @@ async function main(): Promise<void> {
         lng: placeData.geometry.location.lng,
       };
 
-      const dbLocation: { lat: number; lng: number } = {
+      const dbLocation: { lat: string; lng: string } = {
         lat: cafe.latitude,
         lng: cafe.longitude,
       };
@@ -68,8 +69,8 @@ async function main(): Promise<void> {
         await geoCalculator.checkDataByDistance(
           googleLocation.lat,
           googleLocation.lng,
-          dbLocation.lat,
-          dbLocation.lng
+          parseFloat(dbLocation.lat),
+          parseFloat(dbLocation.lng)
         );
 
       if (!distanceCheckResult) {
@@ -126,7 +127,7 @@ async function main(): Promise<void> {
               const imageDataString = imageData.toString("base64");
               imageUrl = await s3ClientModule.uploadImageToS3(
                 "s3-hosting-whichcafe",
-                `cafeImage/${imageName}`,
+                `EC2 test/${imageName}`,
                 imageDataString
               );
             }
@@ -172,10 +173,8 @@ async function main(): Promise<void> {
   }
 }
 
-const scheduledTask = schedule.scheduleJob("0 0 4 1 * *", async function () {
-  if (process.env.NODE_APP_INSTANCE === "0") {
-    await main();
-  }
+const scheduledTask = schedule.scheduleJob("0 15 22 6 * *", async function () {
+  await main();
 });
 
-export { main, scheduledTask };
+export default { main, scheduledTask };
