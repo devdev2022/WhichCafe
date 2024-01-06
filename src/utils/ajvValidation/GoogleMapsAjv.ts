@@ -15,8 +15,9 @@ const placeIdSchema: any = {
         required: ["place_id"],
       },
     },
+    status: { type: "string" },
   },
-  required: ["candidates"],
+  required: ["candidates", "status"],
 };
 
 const placeDetailsSchema: any = {
@@ -57,7 +58,7 @@ const placeDetailsSchema: any = {
   required: ["result"],
 };
 
-function validateResponse(schema: object, data: string) {
+function validateResponse(schema: object, data: object) {
   const validate = ajv.compile(schema);
   const valid = validate(data);
   if (!valid) {
