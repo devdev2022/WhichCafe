@@ -96,7 +96,7 @@ jobs:
 
             docker stop my-app || true
 
-            docker run -d --restart unless-stopped --name my-app -p 80:3000 \
+            docker run -d --restart unless-stopped --name my-app -p 8080:3000 \
             -e MYSQL_HOST=${{ secrets.DB_HOST }} \
             -e MYSQL_PORT=3306 \
             -e MYSQL_USERNAME=${{ secrets.DB_USERNAME }} \
