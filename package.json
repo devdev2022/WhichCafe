@@ -2,6 +2,7 @@
   "name": "whichcafe",
   "version": "1.0.0",
   "description": "",
+  "type": "module",
   "main": "server.ts",
   "scripts": {
     "start": "nodemon server.ts",
