@@ -39,7 +39,7 @@ class GoogleMapsClient {
         return null;
       }
 
-      const candidates = response.data["candidates"];
+      const candidates = response.data.candidates;
       return candidates && candidates.length > 0
         ? candidates[0].place_id || null
         : null;
