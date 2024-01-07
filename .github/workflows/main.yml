@@ -5,6 +5,7 @@ env:
   DOCKER_IMAGE: ghcr.io/${{ github.actor }}/nuxt-auto-deploy
   VERSION: ${{ github.sha }}
   NAME: go_cicd
+  TYPESCRIPT_VERSION: 5.3.3
 
 on:
   push:
