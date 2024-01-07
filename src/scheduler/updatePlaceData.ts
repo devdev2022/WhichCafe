@@ -22,10 +22,10 @@ interface Cafe {
 async function main(): Promise<void> {
   try {
     const allCafes = (await locationDao.getAllCafeData()) as Array<Cafe>;
-
+    console.log(allCafes);
     let ratesToUpdate: RateUpdate[] = [];
 
-    const allTasks = allCafes.map(async (cafe) => {
+    const allTasks = allCafes.slice(0, 10).map(async (cafe) => {
       const cafeId: number = cafe.id;
       const cafeName: string = cafe.name;
 
@@ -33,6 +33,7 @@ async function main(): Promise<void> {
 
       try {
         placeId = await googleMapsClient.getPlaceId(cafeName);
+        console.log(placeId);
         if (!placeId) {
           console.error(`No location data found for cafe ${cafeName}`);
           return null;
@@ -173,7 +174,7 @@ async function main(): Promise<void> {
   }
 }
 
-const scheduledTask = schedule.scheduleJob("0 20 19 7 * *", async function () {
+const scheduledTask = schedule.scheduleJob("00 50 19 7 * *", async function () {
   await main();
 });
 
