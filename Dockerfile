@@ -8,5 +8,8 @@ RUN npm ci
 
 COPY . .
 
+# TypeScript 프로젝트 JavaScript로 컴파일
+RUN npm run build
+
 # 어플리케이션 실행을 위한 엔트리포인트 설정
-ENTRYPOINT ["node", "server.ts"]
+ENTRYPOINT ["node", "dist/server.js"]

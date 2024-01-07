@@ -40,7 +40,11 @@ jobs:
         run: npm ci
 
       - name: Build Docker Image
-        run: docker build -t $DOCKER_IMAGE:$VERSION .
+        run: |
+          if ! docker build -t $DOCKER_IMAGE:$VERSION .; then
+            echo "::error::Docker build failed"
+            exit 1
+          fi
 
       - name: Clean up Docker Images and Containers
         run: |
