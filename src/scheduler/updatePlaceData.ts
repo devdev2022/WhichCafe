@@ -171,11 +171,11 @@ async function main(): Promise<void> {
     console.log(
       error.response ? error.response.data.error_message : error.message
     );
-    console.log(error.response);
+    console.log(error);
   }
 }
 
-const scheduledTask = schedule.scheduleJob("20 00 5 8 * *", async function () {
+const scheduledTask = schedule.scheduleJob("00 06 5 8 * *", async function () {
   await main();
 });
 
