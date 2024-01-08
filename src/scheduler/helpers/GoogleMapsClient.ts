@@ -44,7 +44,6 @@ class GoogleMapsClient {
         ? candidates[0].place_id || null
         : null;
     } catch (error) {
-      console.log(error);
       console.error(`findPlaceFromText Error : ${query}, ${error}`);
       return null;
     }
