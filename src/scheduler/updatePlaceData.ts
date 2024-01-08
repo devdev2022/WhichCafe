@@ -24,7 +24,7 @@ async function main(): Promise<void> {
     const allCafes = (await locationDao.getAllCafeData()) as Array<Cafe>;
     let ratesToUpdate: RateUpdate[] = [];
 
-    const allTasks = allCafes.slice(0, 3).map(async (cafe) => {
+    const allTasks = allCafes.map(async (cafe) => {
       const cafeId: number = cafe.id;
       const cafeName: string = cafe.name;
 
@@ -171,11 +171,10 @@ async function main(): Promise<void> {
     console.log(
       error.response ? error.response.data.error_message : error.message
     );
-    console.log(error);
   }
 }
 
-const scheduledTask = schedule.scheduleJob("00 09 5 8 * *", async function () {
+const scheduledTask = schedule.scheduleJob("00 39 5 8 * *", async function () {
   await main();
 });
 
