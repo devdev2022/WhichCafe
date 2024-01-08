@@ -19,6 +19,10 @@ interface Cafe {
   longitude: string;
 }
 
+function sleep(ms: any) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 async function main(): Promise<void> {
   try {
     const allCafes = (await locationDao.getAllCafeData()) as Array<Cafe>;
@@ -27,6 +31,8 @@ async function main(): Promise<void> {
     const allTasks = allCafes.map(async (cafe) => {
       const cafeId: number = cafe.id;
       const cafeName: string = cafe.name;
+
+      await sleep(300);
 
       let placeId: any;
 
@@ -175,7 +181,7 @@ async function main(): Promise<void> {
   }
 }
 
-const scheduledTask = schedule.scheduleJob("00 50 5 8 * *", async function () {
+const scheduledTask = schedule.scheduleJob("00 00 13 01 * *", async function () {
   await main();
 });
 
