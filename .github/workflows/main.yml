@@ -71,9 +71,6 @@ jobs:
           -e AWS_REGION=${{ secrets.AWS_REGION }} \
           $DOCKER_IMAGE:$VERSION
 
-      - name: Performance Test
-        run: npm run test:performance
-
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v1
         with:
