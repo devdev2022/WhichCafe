@@ -32,6 +32,7 @@ async function main(): Promise<void> {
 
       try {
         placeId = await googleMapsClient.getPlaceId(cafeName);
+        console.log(placeId);
 
         if (!placeId) {
           console.error(`No location data found for cafe ${cafeName}`);
@@ -174,7 +175,7 @@ async function main(): Promise<void> {
   }
 }
 
-const scheduledTask = schedule.scheduleJob("00 39 5 8 * *", async function () {
+const scheduledTask = schedule.scheduleJob("00 50 5 8 * *", async function () {
   await main();
 });
 
