@@ -64,7 +64,6 @@ jobs:
           -e DB_DATABASE=WhichCafe \
           -e SALT_ROUNDS=${{ secrets.SALT_ROUNDS }} \
           -e JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }} \
-          -e GOOGLE_API_KEY=${{ secrets.GOOGLE_API_KEY }} \
           -e SWAGGER_USERNAME=${{ secrets.SWAGGER_USERNAME }} \
           -e SWAGGER_PASSWORD=${{ secrets.SWAGGER_PASSWORD }} \
           -e AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }} \
