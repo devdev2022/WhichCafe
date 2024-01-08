@@ -175,7 +175,7 @@ async function main(): Promise<void> {
   }
 }
 
-const scheduledTask = schedule.scheduleJob("00 06 5 8 * *", async function () {
+const scheduledTask = schedule.scheduleJob("00 09 5 8 * *", async function () {
   await main();
 });
 
