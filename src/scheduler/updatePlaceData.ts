@@ -46,7 +46,7 @@ async function main(): Promise<void> {
 
       try {
         placeData = await googleMapsClient.getPlaceDetails(placeId);
-        console.log(placeData);
+
         if (!placeData || !placeData.geometry.location) {
           console.error(`getPlaceDetails Error : ${cafeName} is not available`);
           return null;
@@ -171,10 +171,11 @@ async function main(): Promise<void> {
     console.log(
       error.response ? error.response.data.error_message : error.message
     );
+    console.log(error.response);
   }
 }
 
-const scheduledTask = schedule.scheduleJob("00 45 4 8 * *", async function () {
+const scheduledTask = schedule.scheduleJob("20 00 5 8 * *", async function () {
   await main();
 });
 
