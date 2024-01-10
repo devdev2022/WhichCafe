@@ -26,6 +26,7 @@ function sleep(ms: any) {
 async function main(): Promise<void> {
   try {
     const allCafes = (await locationDao.getAllCafeData()) as Array<Cafe>;
+    
     let ratesToUpdate: RateUpdate[] = [];
 
     const allTasks = allCafes.map(async (cafe) => {
@@ -38,7 +39,6 @@ async function main(): Promise<void> {
 
       try {
         placeId = await googleMapsClient.getPlaceId(cafeName);
-        console.log(placeId);
 
         if (!placeId) {
           console.error(`No location data found for cafe ${cafeName}`);
@@ -181,7 +181,7 @@ async function main(): Promise<void> {
   }
 }
 
-const scheduledTask = schedule.scheduleJob("00 31 12 8 * *", async function () {
+const scheduledTask = schedule.scheduleJob("00 00 15 1 * *", async function () {
   await main();
 });
 

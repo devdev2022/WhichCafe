@@ -104,15 +104,8 @@ const getAllCafeData = async () => {
       `
       SELECT 
        cafes.id,
-       cafes.name,             
-       photos.url,
-       cafe_address.latitude, 
-       cafe_address.longitude 
-      FROM   cafe_address
-             LEFT JOIN cafes
-                    ON cafe_address.id = cafes.cafe_address_id
-             LEFT JOIN photos
-                    ON photos.cafe_id = cafes.id
+       cafes.name
+      FROM   cafes
        `
     );
     return result[queryResult];
