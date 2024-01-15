@@ -30,7 +30,7 @@ interface UpdateData {
 }
 
 interface User {
-  id: string;
+  id: Buffer;
   account: string;
   password: string;
   nickname: string;
@@ -40,7 +40,8 @@ interface User {
 
 const duplicationCheck = async (account: string) => {
   try {
-    const user = await userDao.getUserByAccount(account);
+    const user: User | null = await userDao.getUserByAccount(account);
+
     const validationResult = validateResponse(getUserSchema, user);
 
     if (validationResult) {
@@ -72,7 +73,6 @@ const signUp = async (
     const user = await userDao.getUserByAccount(account);
 
     const validationResult = validateResponse(getUserSchema, user);
-
     if (validationResult) {
       const error = new InternalError(
         "getUserValidation Error: " + JSON.stringify(validationResult),
@@ -109,7 +109,7 @@ const signUp = async (
 
 const signIn = async (account: string, password: string) => {
   try {
-    const user: any = await userDao.getUserByAccount(account);
+    const user: User | null = await userDao.getUserByAccount(account);
     const validationResult = validateResponse(getUserSchema, user);
 
     if (validationResult) {
@@ -124,13 +124,13 @@ const signIn = async (account: string, password: string) => {
       customError("ACCOUNT DOES NOT EXIST OR INVALID PASSWORD", 400);
     }
 
-    const result = await bcrypt.compare(password, user.password);
+    const result = await bcrypt.compare(password, user!.password);
     if (!result) {
       customError("ACCOUNT DOES NOT EXIST OR INVALID PASSWORD", 401);
     }
 
     const accessToken = jwt.sign(
-      { account: user.account },
+      { account: user?.account },
       process.env.JWT_SECRET_KEY as string,
       {
         expiresIn: "1h",
@@ -139,7 +139,7 @@ const signIn = async (account: string, password: string) => {
 
     const expiresIn = "14d";
     const refreshToken = jwt.sign(
-      { account: user.account },
+      { account: user!.account },
       process.env.JWT_REFRESH_SECRET_KEY as string,
       { expiresIn }
     );
@@ -161,8 +161,7 @@ const signIn = async (account: string, password: string) => {
       )
       .format("YYYY-MM-DD HH:mm:ss");
 
-    const userId = user.id;
-
+    const userId = user!.id;
     await userDao.addRefreshToken(userId, account, refreshToken, expires_at);
 
     return { accessToken, refreshToken };
@@ -174,6 +173,7 @@ const signIn = async (account: string, password: string) => {
 const logOut = async (account: string) => {
   try {
     const findRefreshToken = await userDao.findRefreshToken(account);
+
     const refreshTokenvalidationResult = validateResponse(
       findRefreshTokenSchema,
       findRefreshToken
@@ -201,7 +201,7 @@ const logOut = async (account: string) => {
 
 const reissueAccessToken = async (userInfo: string) => {
   try {
-    const user = await userDao.getUserByAccount(userInfo);
+    const user: User | null = await userDao.getUserByAccount(userInfo);
     const validationResult = validateResponse(getUserSchema, user);
 
     if (validationResult) {
@@ -220,7 +220,7 @@ const reissueAccessToken = async (userInfo: string) => {
     const refreshTokenvalidationResult = validateResponse(
       findRefreshTokenSchema,
       storedRefreshToken
-    );
+    ); 
 
     if (refreshTokenvalidationResult) {
       const error = new InternalError(
@@ -253,7 +253,6 @@ const getUserByAccount = async (account: string) => {
   try {
     const user = await userDao.getUserByAccount(account);
     const validationResult = validateResponse(getUserSchema, user);
-
     if (validationResult) {
       const error = new InternalError(
         "getUserValidation Error: " + JSON.stringify(validationResult),
@@ -266,7 +265,6 @@ const getUserByAccount = async (account: string) => {
       const error = new InternalError("USER DOES NOT EXIST ", 404);
       throw error;
     }
-
     return user;
   } catch (error) {
     throw error;
@@ -317,14 +315,16 @@ const addFavorites = async (account: string, cafe_id: string) => {
     }
 
     let findFavData = await userDao.findFavData(userId, cafe_id);
-
+    
     if (Array.isArray(findFavData) && findFavData.length > 0) {
       findFavData = findFavData[0];
-
+      console.log(findFavData, "userDao.findFavData")
+      
       const findFavValidationResult = validateResponse(
         findFavDataSchema,
         findFavData
       );
+      
       if (findFavValidationResult) {
         const error = new InternalError(
           "findFavValidation Error: " + JSON.stringify(findFavValidationResult),
@@ -337,7 +337,9 @@ const addFavorites = async (account: string, cafe_id: string) => {
         customError("FAVOIRTES ALREADY REGISTERED", 400);
       }
     } else if (Array.isArray(findFavData) && findFavData.length === 0) {
-      const addFavorites = await userDao.addFavorites(userId, cafe_id);
+      const userPk = userId.id
+      const addFavorites = await userDao.addFavorites(userPk, cafe_id);
+      
       return addFavorites;
     }
   } catch (error) {
@@ -361,7 +363,8 @@ const deleteFavorites = async (account: string, cafe_id: string) => {
     let findFavData = await userDao.findFavData(userId, cafe_id);
 
     if (Array.isArray(findFavData) && findFavData.length > 0) {
-      findFavData = findFavData[0];
+      findFavData = findFavData[0];     
+
       const findFavValidationResult = validateResponse(
         findFavDataSchema,
         findFavData
@@ -375,7 +378,8 @@ const deleteFavorites = async (account: string, cafe_id: string) => {
         throw error;
       }
 
-      const deletedFavoriteId = await userDao.deleteFavorites(userId, cafe_id);
+      const userPk = userId.id
+      const deletedFavoriteId = await userDao.deleteFavorites(userPk, cafe_id);
       return deletedFavoriteId;
     } else if (Array.isArray(findFavData) && findFavData.length === 0) {
       customError("FAVORITES_DATA NOT EXIST", 404);
