@@ -50,7 +50,7 @@ CREATE TABLE `cafes` (
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `favorites` (
   `id` int NOT NULL AUTO_INCREMENT,
-  `user_id` char(36) NOT NULL,
+  `user_id` binary(16) NOT NULL,
   `cafe_id` int NOT NULL,
   PRIMARY KEY (`id`),
   KEY `fk_favorites_users` (`user_id`),
@@ -87,7 +87,7 @@ CREATE TABLE `photos` (
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `refreshtokens` (
   `id` int NOT NULL AUTO_INCREMENT,
-  `user_id` char(36) NOT NULL,
+  `user_id` binary(16) NOT NULL,
   `account` varchar(50) NOT NULL,
   `refresh_token` varchar(255) NOT NULL,
   `device_info` varchar(255) DEFAULT NULL,
@@ -127,7 +127,7 @@ CREATE TABLE `reviews` (
   `id` int NOT NULL AUTO_INCREMENT,
   `cafe_id` int NOT NULL,
   `content` varchar(255) DEFAULT NULL,
-  `user_id` char(36) DEFAULT NULL,
+  `user_id` binary(16) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `user_id` (`user_id`),
   KEY `fk_cafes_id` (`cafe_id`),
@@ -154,9 +154,9 @@ CREATE TABLE `schema_migrations` (
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `users` (
-  `id` char(36) NOT NULL DEFAULT (uuid()),
+  `id` binary(16) NOT NULL DEFAULT (uuid_to_bin(uuid())),
   `account` varchar(50) NOT NULL,
-  `password` varchar(256) NOT NULL,
+  `password` varchar(64) NOT NULL,
   `nickname` varchar(50) NOT NULL,
   `question_answer` varchar(32) NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,

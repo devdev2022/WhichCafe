@@ -1,5 +1,5 @@
 import { PoolConnection } from "mysql2/promise";
-import { RowDataPacket, FieldPacket } from 'mysql2';
+import { RowDataPacket, FieldPacket } from "mysql2";
 import { database } from "./dataSource";
 
 class InternalError extends Error {
@@ -13,7 +13,7 @@ class InternalError extends Error {
 }
 
 interface User {
-  id: string;
+  id: Buffer;
   account: string;
   password: string;
   nickname: string;
@@ -72,7 +72,7 @@ const signIn = async (account: string) => {
 };
 
 const addRefreshToken = async (
-  userId: string,
+  userId: Buffer,
   account: string,
   refreshToken: string,
   expires_at: string
@@ -203,7 +203,7 @@ const getIdByAccount = async (account: string) => {
       [account]
     );
     const queryResult = 0;
-    return result[queryResult].id;
+    return result[queryResult];
   } catch (err) {
     throw new InternalError(`GET_ID_ERROR`, 500);
   } finally {
@@ -211,7 +211,7 @@ const getIdByAccount = async (account: string) => {
   }
 };
 
-const findFavData = async (userAccount: string, cafe_id: string) => {
+const findFavData = async (userIdBuffer: Buffer, cafe_id: string) => {
   const conn: PoolConnection = await database.getConnection();
   try {
     const result: any = await conn.query(
@@ -222,7 +222,7 @@ const findFavData = async (userAccount: string, cafe_id: string) => {
         favorites
       WHERE 
         user_id = ? AND cafe_id = ?`,
-      [userAccount, cafe_id]
+      [userIdBuffer, cafe_id]
     );
     const queryResult = 0;
     return result.length > 0 ? result[queryResult] : null;
@@ -233,14 +233,14 @@ const findFavData = async (userAccount: string, cafe_id: string) => {
   }
 };
 
-const addFavorites = async (userAccount: string, cafe_id: string) => {
+const addFavorites = async (userIdBuffer: string, cafe_id: string) => {
   const conn: PoolConnection = await database.getConnection();
   try {
     const result: any = await conn.query(
       `
       INSERT INTO favorites(user_id, cafe_id) 
       VALUES (?, ?);`,
-      [userAccount, cafe_id]
+      [userIdBuffer, cafe_id]
     );
     return result;
   } catch (err) {
@@ -250,7 +250,7 @@ const addFavorites = async (userAccount: string, cafe_id: string) => {
   }
 };
 
-const deleteFavorites = async (userAccount: string, cafeId: string) => {
+const deleteFavorites = async (userIdBuffer: string, cafeId: string) => {
   const conn: PoolConnection = await database.getConnection();
   try {
     const result: any = await conn.query(
@@ -261,10 +261,11 @@ const deleteFavorites = async (userAccount: string, cafeId: string) => {
       AND
         cafe_id=?
       `,
-      [userAccount, cafeId]
+      [userIdBuffer, cafeId]
     );
     return result;
   } catch (err) {
+    console.log(err)
     throw new InternalError(`DELETE_FAVORITES_ERROR`, 500);
   } finally {
     conn.release();
@@ -296,7 +297,11 @@ const updateUserInfo = async (
   }
 };
 
-const searchPassword = async (updateFields: any, values: string[], account: string) => {
+const searchPassword = async (
+  updateFields: any,
+  values: string[],
+  account: string
+) => {
   const conn: PoolConnection = await database.getConnection();
 
   try {

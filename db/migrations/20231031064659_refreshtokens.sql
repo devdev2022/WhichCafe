@@ -1,7 +1,7 @@
 -- migrate:up
 CREATE TABLE refreshtokens (
     id              INT            NOT NULL    AUTO_INCREMENT,
-    user_id         CHAR(36)       NOT NULL    UNIQUE,
+    user_id         BINARY(16)     NOT NULL    UNIQUE,
     account         VARCHAR(50)    NOT NULL    UNIQUE,
     refresh_token   VARCHAR(255)   NOT NULL,
     device_info     VARCHAR(255),

@@ -32,6 +32,7 @@ const validateAccessToken = catchAsync(
         accessToken,
         process.env.JWT_SECRET_KEY
       );
+
       const userInfo = await userService.getUserByAccount(decoded.account);
       req.account = userInfo.account;
       next();

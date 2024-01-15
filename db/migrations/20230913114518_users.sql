@@ -1,8 +1,8 @@
 -- migrate:up
 CREATE TABLE users (
-    id                 CHAR(36)       NOT NULL DEFAULT (UUID()) UNIQUE,
+    id                 BINARY(16)     NOT NULL DEFAULT (UUID_TO_BIN(UUID())) UNIQUE,
     account            VARCHAR(50)    NOT NULL UNIQUE,
-    password           VARCHAR(256)   NOT NULL,
+    password           VARCHAR(64)    NOT NULL,
     nickname           VARCHAR(50)    NOT NULL,
     question_answer    VARCHAR(32)    NOT NULL,
     created_at         TIMESTAMP      NOT NULL DEFAULT CURRENT_TIMESTAMP,
