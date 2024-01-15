@@ -41,7 +41,6 @@ interface User {
 const duplicationCheck = async (account: string) => {
   try {
     const user: User | null = await userDao.getUserByAccount(account);
-
     const validationResult = validateResponse(getUserSchema, user);
 
     if (validationResult) {
@@ -130,7 +129,7 @@ const signIn = async (account: string, password: string) => {
     }
 
     const accessToken = jwt.sign(
-      { account: user?.account },
+      { account: user!.account },
       process.env.JWT_SECRET_KEY as string,
       {
         expiresIn: "1h",
@@ -318,7 +317,6 @@ const addFavorites = async (account: string, cafe_id: string) => {
     
     if (Array.isArray(findFavData) && findFavData.length > 0) {
       findFavData = findFavData[0];
-      console.log(findFavData, "userDao.findFavData")
       
       const findFavValidationResult = validateResponse(
         findFavDataSchema,

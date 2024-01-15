@@ -233,14 +233,14 @@ const findFavData = async (userIdBuffer: Buffer, cafe_id: string) => {
   }
 };
 
-const addFavorites = async (userIdBuffer: string, cafe_id: string) => {
+const addFavorites = async (userPk: Buffer, cafe_id: string) => {
   const conn: PoolConnection = await database.getConnection();
   try {
     const result: any = await conn.query(
       `
       INSERT INTO favorites(user_id, cafe_id) 
       VALUES (?, ?);`,
-      [userIdBuffer, cafe_id]
+      [userPk, cafe_id]
     );
     return result;
   } catch (err) {
@@ -250,7 +250,7 @@ const addFavorites = async (userIdBuffer: string, cafe_id: string) => {
   }
 };
 
-const deleteFavorites = async (userIdBuffer: string, cafeId: string) => {
+const deleteFavorites = async (userPk: Buffer, cafeId: string) => {
   const conn: PoolConnection = await database.getConnection();
   try {
     const result: any = await conn.query(
@@ -261,7 +261,7 @@ const deleteFavorites = async (userIdBuffer: string, cafeId: string) => {
       AND
         cafe_id=?
       `,
-      [userIdBuffer, cafeId]
+      [userPk, cafeId]
     );
     return result;
   } catch (err) {
