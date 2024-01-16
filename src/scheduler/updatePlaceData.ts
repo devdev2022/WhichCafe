@@ -181,8 +181,13 @@ async function main(): Promise<void> {
   }
 }
 
-const scheduledTask = schedule.scheduleJob("00 00 15 1 * *", async function () {
-  await main();
-});
+let scheduledTask;
+
+if (process.env.NODE_ENV !== 'test') {
+  scheduledTask = schedule.scheduleJob("00 00 15 1 * *", async function () {
+    await main();
+  });
+}
+
 
 export default { main, scheduledTask };

@@ -5,8 +5,8 @@
   "main": "server.js",
   "scripts": {
     "build": "tsc",
-    "start": "nodemon dist/server.js",
-    "test:userperformance": "jest --config ./tests/jest.config.ts --runInBand --detectOpenHandles --forceExit"
+    "start": "nodemon dist/server.js", 
+    "test:userperformance": "cp ./tests/.env.test .env && jest --config ./tests/jest.config.ts --runInBand --detectOpenHandles --forceExit"
   },
   "repository": {
     "type": "git",

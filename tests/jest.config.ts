@@ -10,6 +10,7 @@ const config: Config.InitialOptions = {
   transform: {
     '^.+\\.ts$': 'ts-jest',
   },
+  setupFilesAfterEnv: ['./performance/user.test.ts'],
 };
 
 export default config;
