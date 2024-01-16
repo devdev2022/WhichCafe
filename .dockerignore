@@ -13,6 +13,7 @@ projectmaterial
 # 환경 설정 파일
 .env
 .env.sample
+.env.test
 
 # 개발에 관련된 파일/디렉토리
 ecosystem.config.js
