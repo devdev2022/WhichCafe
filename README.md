@@ -31,13 +31,21 @@ https://cafeeodi.com
 ### 어플리케이션 아키텍처
 ![Architecture_whichcafe](https://github.com/devdev2022/WhichCafe/blob/main/projectmaterial/Architecture.drawio.png)
 
+<br>
+
 ### AWS 아키텍처
 ![DevOps_Architecture](https://github.com/devdev2022/WhichCafe/blob/main/projectmaterial/DevOps_Architecture.drawio.png)
+
+<br>
 
 ### 시퀀스 
 ![Sequence_whichcafe](https://github.com/devdev2022/WhichCafe/blob/main/projectmaterial/Sequence.drawio.png)
 
+<br>
+
 ### ERD
 ![ERD_whichcafe](https://github.com/devdev2022/WhichCafe/blob/main/projectmaterial/ERD.png)
+
+<br>
 
 ## 기술
