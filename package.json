@@ -5,8 +5,9 @@
   "main": "server.js",
   "scripts": {
     "build": "tsc",
-    "start": "nodemon dist/server.js", 
-    "test:userperformance": "cp ./tests/.env.test .env && jest --config ./tests/jest.config.ts --runInBand --detectOpenHandles --forceExit"
+    "start": "nodemon dist/server.js",
+    "test:schedulerperformance": "cp ./tests/.env.test .env && jest ./performance/updateplaceData.test.ts --config ./tests/jest.config.ts --runInBand --detectOpenHandles --forceExit",
+    "test:userperformance": "cp ./tests/.env.test .env && jest ./performance/user.test.ts --config ./tests/jest.config.ts --runInBand --detectOpenHandles --forceExit"
   },
   "repository": {
     "type": "git",

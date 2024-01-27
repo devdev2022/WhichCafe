@@ -33,7 +33,7 @@ async function main(): Promise<void> {
       const cafeId: number = cafe.id;
       const cafeName: string = cafe.name;
 
-      await sleep(300);
+      await sleep(170);
 
       let placeId: any;
 
