@@ -198,6 +198,32 @@ const logOut = async (account: string) => {
   }
 };
 
+const findRefreshToken = async (account: string) => {
+  try {
+    const refreshTokenData: any = await userDao.findRefreshToken(account);
+    const validationResult = validateResponse(
+      findRefreshTokenSchema,
+      refreshTokenData
+    );
+
+    if (validationResult) {
+      const error = new InternalError(
+        "refreshTokenValidation Error: " + JSON.stringify(validationResult),
+        500
+      );
+      throw error;
+    }
+
+    if (!refreshTokenData) {
+      customError("REFRESH TOKEN DOES NOT EXIST", 400);
+    }
+    const refreshToken = refreshTokenData.refresh_token;
+    return refreshToken;
+  } catch (error) {
+    throw error;
+  }
+};
+
 const reissueAccessToken = async (userInfo: string) => {
   try {
     const user: User | null = await userDao.getUserByAccount(userInfo);
@@ -219,7 +245,7 @@ const reissueAccessToken = async (userInfo: string) => {
     const refreshTokenvalidationResult = validateResponse(
       findRefreshTokenSchema,
       storedRefreshToken
-    ); 
+    );
 
     if (refreshTokenvalidationResult) {
       const error = new InternalError(
@@ -314,15 +340,15 @@ const addFavorites = async (account: string, cafe_id: string) => {
     }
 
     let findFavData = await userDao.findFavData(userId, cafe_id);
-    
+
     if (Array.isArray(findFavData) && findFavData.length > 0) {
       findFavData = findFavData[0];
-      
+
       const findFavValidationResult = validateResponse(
         findFavDataSchema,
         findFavData
       );
-      
+
       if (findFavValidationResult) {
         const error = new InternalError(
           "findFavValidation Error: " + JSON.stringify(findFavValidationResult),
@@ -335,9 +361,9 @@ const addFavorites = async (account: string, cafe_id: string) => {
         customError("FAVOIRTES ALREADY REGISTERED", 400);
       }
     } else if (Array.isArray(findFavData) && findFavData.length === 0) {
-      const userPk = userId.id
+      const userPk = userId.id;
       const addFavorites = await userDao.addFavorites(userPk, cafe_id);
-      
+
       return addFavorites;
     }
   } catch (error) {
@@ -361,7 +387,7 @@ const deleteFavorites = async (account: string, cafe_id: string) => {
     let findFavData = await userDao.findFavData(userId, cafe_id);
 
     if (Array.isArray(findFavData) && findFavData.length > 0) {
-      findFavData = findFavData[0];     
+      findFavData = findFavData[0];
 
       const findFavValidationResult = validateResponse(
         findFavDataSchema,
@@ -376,7 +402,7 @@ const deleteFavorites = async (account: string, cafe_id: string) => {
         throw error;
       }
 
-      const userPk = userId.id
+      const userPk = userId.id;
       const deletedFavoriteId = await userDao.deleteFavorites(userPk, cafe_id);
       return deletedFavoriteId;
     } else if (Array.isArray(findFavData) && findFavData.length === 0) {
@@ -538,6 +564,7 @@ export default {
   signUp,
   signIn,
   logOut,
+  findRefreshToken,
   reissueAccessToken,
   getUserByAccount,
   getFavorites,

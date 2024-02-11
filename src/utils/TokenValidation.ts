@@ -85,6 +85,14 @@ const validateTokens = catchAsync(
         customError("Access and Refresh Tokens do not match", 401);
       }
 
+      const findrefreshToken = await userService.findRefreshToken(
+        decodedRefreshToken.account
+      );
+
+      if (refreshToken !== findrefreshToken) {
+        customError("RefreshToken does not match", 401);
+      }
+
       const userInfo = await userService.getUserByAccount(
         decodedRefreshToken.account
       );

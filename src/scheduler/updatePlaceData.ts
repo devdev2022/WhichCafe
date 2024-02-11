@@ -26,14 +26,14 @@ function sleep(ms: any) {
 async function main(): Promise<void> {
   try {
     const allCafes = (await locationDao.getAllCafeData()) as Array<Cafe>;
-    
+
     let ratesToUpdate: RateUpdate[] = [];
 
     const allTasks = allCafes.map(async (cafe) => {
       const cafeId: number = cafe.id;
       const cafeName: string = cafe.name;
 
-      await sleep(300);
+      await sleep(170);
 
       let placeId: any;
 
@@ -183,11 +183,10 @@ async function main(): Promise<void> {
 
 let scheduledTask;
 
-if (process.env.NODE_ENV !== 'test') {
+if (process.env.NODE_ENV !== "test") {
   scheduledTask = schedule.scheduleJob("00 00 15 1 * *", async function () {
     await main();
   });
 }
-
 
 export default { main, scheduledTask };

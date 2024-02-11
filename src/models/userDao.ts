@@ -265,7 +265,6 @@ const deleteFavorites = async (userPk: Buffer, cafeId: string) => {
     );
     return result;
   } catch (err) {
-    console.log(err)
     throw new InternalError(`DELETE_FAVORITES_ERROR`, 500);
   } finally {
     conn.release();
