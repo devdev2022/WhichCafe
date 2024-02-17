@@ -48,4 +48,29 @@ https://cafeeodi.com
 
 <br>
 
-## 기술
+## 기능 개선 
+### 1. UUID 도입 및 요청속도 향상 
+
+처음에는 Auto_increment를 사용했지만, 통신 과정에서 API 응답을 볼 수 있는 모든 사람들은 몇 개의 행이 생성되었는지 추측할 수 있다는 보안이슈를 고려하여 UUID v1으로 PK를 바꾸었다. 
+하지만, 무턱대고 UUID를 char(36) 타입부터 사용하는 바람에 문자열의 길이가 길기 때문에 호출속도가 느리다는 문제가 발생했다. 
+그래서 UUID를 저장하는 방법에는 무엇이 있고, 특징과 장단점에 대해 조사 후, 각 방법에 대한 테스트를 진행하였다. 
+
+#### 테스트 결과 
+
+![PK Test](https://github.com/devdev2022/WhichCafe/blob/main/projectmaterial/PK%20TEST.png)
+
+테이블이 커질때 UUID v4는 무작위로 생성되고, 어떤 순서나 구조도 가지지 않기 때문에 테이블의 여러 위치에 삽입될 수 있다. 
+따라서 일반적으로 인덱싱 속도가 느려지므로 UUID v1을 선택했다. 
+
+### 2. 비동기 요청 이슈 
+
+Promise.allSettled() 객체를 이용하여 Google Place API에 데이터를 요청시 어떻게 하면 요청속도를 빠르게, 그리고 한번에 많은 양의 데이터를 요청하게 될때 요청이 처리되지 않는 문제를 해결할 수 있을지 요청 개수를 조절하며 테스트를 진행해 보았다. 
+
+#### 테스트 결과 
+
+![Request Test](https://github.com/devdev2022/WhichCafe/blob/main/projectmaterial/Request%20Test.png)
+
+요청할 데이터 개수가 100개 이상인 경우, Socket connection timeout 에러가 발생했기 때문에 50개씩 나눠서 요청을 보내는 테스트 #2 방식으로 채택했었다.
+하지만 테스트 #1 환경에 Google Place API의 요청 평균 지연시간을 고려하여 요청 사이에 sleepTime을 추가하면 소켓 타임아웃 에러를 해결할 수 있을 것 같아서 시도해보았더니, 성공적으로 요청을 처리할 수 있다는 것을 확인할 수 있었다. 
+
+따라서 최종적으로는  테스트 #1 방식으로 요청 사이에 sleepTime을 추가하는 방법을 선택했다. 
