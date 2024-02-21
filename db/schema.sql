@@ -167,7 +167,7 @@ CREATE TABLE `users` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping routines for database 'WhichCafe'
+-- Dumping routines for database 'WhichCafe_Test'
 --
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
@@ -190,7 +190,6 @@ INSERT INTO `schema_migrations` (version) VALUES
   ('20230913114506'),
   ('20230913114508'),
   ('20230913114510'),
-  ('20230913114512'),
   ('20230913114518'),
   ('20230913114525'),
   ('20230913114537'),

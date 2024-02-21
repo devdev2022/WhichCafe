@@ -75,9 +75,11 @@ async function processCafe(cafe: any) {
 
   const cafeId: number = cafe.id;
   const cafeName: string = cafe.name;
+  const timeMeasurements: { [key: string]: number } = {};
 
   let placeId: any;
 
+  const startGetPlaceId = process.hrtime.bigint();
   try {
     placeId = await googleMapsClient.getPlaceId(cafeName);
 
@@ -90,8 +92,13 @@ async function processCafe(cafe: any) {
     return null;
   }
 
+  const endGetPlaceId = process.hrtime.bigint(); // 요청 종료 시간
+  timeMeasurements.getPlaceId =
+    Number(endGetPlaceId - startGetPlaceId) / 1000000; // 밀리세컨드 단위 변환
+
   let placeData: any;
 
+  const startGetPlaceDetails = process.hrtime.bigint();
   try {
     placeData = await googleMapsClient.getPlaceDetails(placeId);
 
@@ -103,6 +110,15 @@ async function processCafe(cafe: any) {
     console.error(err.message);
     return null;
   }
+  const endGetPlaceDetails = process.hrtime.bigint(); // 요청 종료 시간
+  timeMeasurements.getPlaceDetails =
+    Number(endGetPlaceDetails - startGetPlaceDetails) / 1000000; // 밀리세컨드 단위 변환
+
+  console.log(`Cafe ${cafe.name}:`);
+  console.log(`- getPlaceId took ${timeMeasurements.getPlaceId.toFixed(3)}ms`);
+  console.log(
+    `- getPlaceDetails took ${timeMeasurements.getPlaceDetails.toFixed(3)}ms`
+  );
 
   const googleLocation: { lat: number; lng: number } = {
     lat: placeData.geometry.location.lat,
@@ -253,7 +269,7 @@ async function main(): Promise<void> {
   try {
     const allCafes = (await locationDao.getAllCafeData()) as Array<Cafe>;
 
-    const parallelLimit = 5;
+    const parallelLimit = 100;
 
     const results: any = await item(allCafes, parallelLimit, processCafe);
 
@@ -276,7 +292,7 @@ async function main(): Promise<void> {
 let scheduledTask;
 
 if (process.env.NODE_ENV !== "test") {
-  scheduledTask = schedule.scheduleJob("15 30 12 28 * *", async function () {
+  scheduledTask = schedule.scheduleJob("15 17 18 21 * *", async function () {
     await main();
   });
 }
